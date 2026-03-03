@@ -1,0 +1,9 @@
+#token = [XYZ]#-
+
+BAD FAE:[#token#]#
+
+trim:[#token.trim#]
+
+#token2=[ dr  kevin j   runner phd]#
+
+#token2.initname.trim.space#

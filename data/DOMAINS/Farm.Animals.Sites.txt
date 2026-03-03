@@ -1,0 +1,12 @@
+Bull.earth
+Chicken.earth
+Cow.earth
+Donkey.earth
+Duck.earth
+Goat.earth
+Hen.earth
+Horse.earth
+Lamb.earth
+Pig.earth
+Rooster.earth
+Sheep.earth

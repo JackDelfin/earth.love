@@ -1,0 +1,12 @@
+bicycle
+bus
+car
+dogsled
+horse
+motorcycle
+scooter
+streetcar
+subway
+taxi
+train
+truck

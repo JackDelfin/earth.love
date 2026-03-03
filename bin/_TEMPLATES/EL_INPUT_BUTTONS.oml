@@ -1,0 +1,10 @@
+#BUTTON_NAME=MSG[Reset]#
+#BUTTON_RESET=PARSE[<input type="reset" class="w3-button w3-light-gray w3-round-large" value="#BUTTON_NAME#">]#
+#save_next_button=EQUAL[#STEPS.0#][#STEP.0#][Save][Next]#
+#BUTTON_NAME=MSG[#save_next_button#]#
+#BUTTON_PREV=INC[EL_FN_GET_BUTTON_PREV]#
+#BUTTON_SAVE=PARSE[<input type="submit" class="w3-button w3-green w3-round-large" value="#BUTTON_NAME#">]#
+#BUTTON_NAME=MSG[Cancel]#
+#BUTTON_CANCEL=PARSE[<input type="button" class="w3-button w3-red w3-round-large" onclick="document.forms.data.action.value='CANCEL'; document.forms.data.submit(); return 0;" value="#BUTTON_NAME#">]#
+<div class="w3-container w3-padding-24 w3-center">#BUTTON_PREV##BUTTON_SAVE# &nbsp;&nbsp; #BUTTON_RESET# &nbsp;&nbsp; #BUTTON_CANCEL#</div>
+#OML[EL_INPUT_STEPS_PROGRESS]#

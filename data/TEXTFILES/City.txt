@@ -1,0 +1,23 @@
+avenue
+bank
+building
+bus stop
+fire station
+fountain
+mailbox
+parade
+park
+parking meter
+pedestrian crossing
+police station
+post office
+road
+roadway
+sidewalk
+square
+station
+store
+street
+subway entrance
+train
+train station

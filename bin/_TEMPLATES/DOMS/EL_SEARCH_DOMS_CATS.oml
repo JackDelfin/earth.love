@@ -1,0 +1,6 @@
+<!--- Search and Show Domains this item is on --->
+#ROOT=[DOMS]#
+#BOX_COLOR=[w3-light-blue]#
+#_DATA_MSG_=MSG[Domain Categories]#
+#FUNCTION[EL_GET_DATA][CATS]#
+#RESTORE[ROOT][BOX_COLOR]#

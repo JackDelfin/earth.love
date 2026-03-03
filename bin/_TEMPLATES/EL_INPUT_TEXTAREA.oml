@@ -1,0 +1,4 @@
+<!--- #OML[EL_INPUT_TEXTAREA][DATA][Label][Rows]# --->
+#INC[EL_INPUT_HEADER]#
+<textarea name="#_data_#" rows="#NVL[#_3_#][#TEXTAREA_ROWS_DEF#]#" cols="42"#CLASS_TEXTAREA#>#_value_.html#</textarea>
+#INC[EL_INPUT_FOOTER]#

@@ -1,0 +1,2 @@
+<!--- #OML[EL_BUTTON_MENU][menu][Menu Name]# --->
+<a class="#BUTTON_CLASS# #BUTTON_MENU_COLOR#" href="#SHOWPAGE_BUTTON#&r=MENU&p=el_show&m=#_1_#">#MSG[#_2_#]#</a>

@@ -1,0 +1,25 @@
+<!--- AH.oml - Activation Header --->
+#INCLUDE[EL_TOKENS]#
+<html>
+<meta charset="utf-8">
+<head>
+<title>#TITLE#</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+#INC![_STYLES/#STYLE#]#
+</head>
+<body class="#MOBILE#w3-container w3-responsive">
+<header class="#HEADER_BOX#">
+  <div class="w3-row w3-container w3-round-xlarge">
+    <div class="w3-third"><h2>ACTIVATIONS</h2></div>
+    <div class="w3-third w3-center"><h3>&nbsp;&nbsp;&nbsp;#ENV_SERVER_NAME#&nbsp;&nbsp;&nbsp;</h3></div>
+    <div class="w3-third w3-right-align"><a class="w3-link-plain w3-text-yellow" href="">SIGNAL</a>
+      <div class="w3-round w3-green">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;100%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#</div>
+      </div>
+    </div>
+  </div>
+</header>
+<!--- Stop BOT if identified through /etc/apache2/elRewrite.conf --->
+#IF[#ENV_BOT#][<h1>Wait</h1>#INC[ACTIVATION/AF]#]#
+#STOP[#ENV_BOT#]#
+#IFOML![#DEBUG.0#][EL_DEBUG_HEADER]#
+#EXISTS[#HEADER_MESSAGE#][<div class="#HEADER_MESSAGE_BOX#">#HEADER_MESSAGE#</div>]#

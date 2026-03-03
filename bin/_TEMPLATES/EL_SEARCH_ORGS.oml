@@ -1,0 +1,5 @@
+<!--- Search and Show Guilds for this item --->
+#BOX_COLOR=[el-chakra5]#
+#_DATA_MSG_=OML[EL_FN_ROOT_NAME][ORGS]#
+#FUNCTION[EL_GET_DATA][ORGS]#
+#RESTORE[BOX_COLOR]#

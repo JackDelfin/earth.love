@@ -1,0 +1,7 @@
+Bone.earth
+Bruise.earth
+Cut.earth
+Fracture.earth
+Scrape.earth
+Scratch.earth
+Swelling.earth

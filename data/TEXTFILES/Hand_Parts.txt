@@ -1,0 +1,11 @@
+cuticle
+fist
+forefinger
+knuckle
+little finger
+middle finger
+nail
+palm
+third finger
+thumb
+wrist

@@ -1,0 +1,14 @@
+<div class="w3-container">
+#INC[EL_HEADER_WORD]#
+<h2>#MSG[Add Text]#</h2>
+#OML[EL_FORM_DATA_ADD][TEXT]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+<!--- Get existing text for updating --->
+#_data=DATAFILE[#root#][#WORD#][TEXT]#
+#OML[EL_INPUT_TEXTAREA][data][Text]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

@@ -1,0 +1,13 @@
+Bacon.earth
+Chicken.earth
+Chop.earth
+Ham.earth
+Hamburger.earth
+Lamb.earth
+Leg.earth
+Meats.earth
+Meats101.earth
+Pork.earth
+Roast.earth
+Steak.earth
+Tongue.earth

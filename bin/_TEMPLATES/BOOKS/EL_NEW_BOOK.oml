@@ -1,0 +1,17 @@
+#ROOT=[BOOKS]#
+<div class="w3-container">
+<h2>#MSG[Create Knowledge Tree]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+<!---#OML[EL_INPUT_STEPS][0]#--->
+#STEP1=[1]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [NAME_REQ][Knowledge Tree Name]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [PARENT][Parent Tree]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [DESC][Description][3]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

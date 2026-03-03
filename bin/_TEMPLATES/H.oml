@@ -1,0 +1,28 @@
+<!--- H.oml
+      This is a Raw Dog Header - as basic as they come,
+      while still supporting stylesheets and predefined
+      EL_ Tokens
+      * Great for a quick add to a test page #INC[H]#
+      * Also checkout the Raw Dog Footer at #INC[F]#
+--->
+#INCLUDE[EL_TOKENS]#
+<html>
+<meta charset="utf-8">
+<head>
+<!--- earth.love Orbit OML Template - This comment will not be shown in page --->
+<!-- License: AGPLv3+: GNU Affero General Public License Version 3 or later -->
+<!-- earth.love Planetary Directory - Every One owns the words -->
+<title>#TITLE#</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+#INC![_STYLES/#STYLE#]#
+</head>
+<body class="#MOBILE#w3-container w3-responsive">
+<header class="#HEADER_BOX#">
+  <div class="w3-row w3-container w3-round-xlarge">
+    <div class="w3-third"><h2>RDH</h2></div>
+    <div class="w3-third w3-center"><h3>Starship Operations Manual</h3></div>
+    <div class="w3-third w3-right-align"><a class="w3-link-plain w3-text-yellow" href="">Signed In</a></div>
+  </div>
+</header>
+#IFOML![#DEBUG.0#][EL_DEBUG_HEADER]#
+#EXISTS[#HEADER_MESSAGE#][<div class="#HEADER_MESSAGE_BOX#">#HEADER_MESSAGE#</div>]#

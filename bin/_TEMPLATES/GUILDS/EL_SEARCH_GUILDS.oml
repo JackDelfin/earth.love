@@ -1,0 +1,5 @@
+<!--- Search and Show Guilds for this item --->
+#BOX_COLOR=[w3-light-blue]#
+#_DATA_MSG_=MSG[Guilds]#
+#FUNCTION[EL_GET_DATA][GUILDS]#
+#RESTORE[BOX_COLOR]#

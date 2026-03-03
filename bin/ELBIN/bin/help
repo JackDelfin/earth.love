@@ -1,0 +1,28 @@
+#!/bin/bash
+# /ELBIN/help
+
+# Show alias if not set
+check=`grep -c -e"alias cip" ~/.bashrc `;
+if [ $check == 0 ]; then
+  echo "help:";
+  echo "-----";
+  echo "vi ~/.bashrc";
+  echo "# Copy-Paste";
+  echo "#------------------------------------------------";
+  echo "alias dom='grep /ELDOMS/DOMS.dat -e'";
+  echo "alias domf='grep /ELDOMS/elFORWARDS.txt -e'"; # forwards
+  echo "alias doms='grep /ELDOMS/setGoDaddy.txt -e'"; # setGoDaddy
+  echo "alias domg='grep /ELDOMS/getGoDaddy.txt -e'"; # getGoDaddy
+  echo "alias dw='grep /ELDOMS/DWEEM.dat -e'";        # DNS A Records
+  echo "alias d='/ELBIN/d '";                         # All of the above
+  echo "# dig +short for a domain";
+  echo "alias ds='dig +short '";
+  echo "# Check IP - reverse lookup";
+  echo "alias cip='/ELBIN/cip '";
+  echo "#------------------------------------------------";
+  echo;
+  echo "source ~/.bashrc";
+  echo;
+fi
+
+exit 1;

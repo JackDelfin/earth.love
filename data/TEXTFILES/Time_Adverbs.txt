@@ -1,0 +1,15 @@
+after
+always
+before
+during
+lately
+never
+often
+rarely
+recently
+sometimes
+soon
+today
+tomorrow
+usually
+yesterday

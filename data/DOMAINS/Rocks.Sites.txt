@@ -1,0 +1,9 @@
+Diamond.earth
+Fossil.earth
+Gold.earth
+Granite.earth
+Gravel.earth
+Lava.earth
+Mineral.earth
+Rock.earth
+Volcano.earth

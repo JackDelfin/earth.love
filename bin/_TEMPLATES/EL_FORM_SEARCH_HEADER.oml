@@ -1,0 +1,12 @@
+<div class="#MOBILE# w3-container">
+<form name="search_header" action="#showpage_post#" method="post" class="w3-container w3-margin-bottom-0">
+<input type="hidden" name="root" value="LANGS">
+<input type="hidden" name="lang" value="#LANG#">
+<input type="hidden" name="page" value="el_show">
+<input type="hidden" name="object" value="search">
+<input type="hidden" name="menu" value="">
+<input type="hidden" name="action" value="">
+<input type="text" class="w3-input w3-grayscale-max el-chakra7 w3-round-xlarge w3-xlarge" name="word" size=12 value="#word.html#">
+#BUTTON_SEARCH#
+</form>
+</div>

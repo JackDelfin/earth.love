@@ -1,0 +1,28 @@
+<!--- EL_SEARCH_DIRECTORIES Show partial directories under this unknown word --->
+#STOP[#_PARTIALWORD_.NOTEXISTS#]#
+#BOX_COLOR=[w3-light-blue]#
+#_backword_=SUBSTR[#_PARTIALWORD_#][1][#_PARTIALWORD_.length#]#
+#_1word_=[#replace[#1#][./]#]#
+#_DATA_HEAD_=[<div class="#BOX#">
+<div class="#BOX_HEAD# w3-row" style="vertical-align:middle">
+<div class="w3-quarter w3-left-align"><a class="w3-link-plain w3-margin-12 w3-large w3-badge w3-light-grey" href="#showpage##_backword_.tr#"><b>&laquo;</b></a></div>
+<div class="w3-half"><h3>#_DATA_MSG_#</h3></div>
+<div class="w3-quarter">&nbsp;</div>
+</div>]#
+<!---
+<table class="#BOX_HEAD#" border=0 cellpadding=0 cellspacing=0><tr>
+<td width="5%" align="left" valign="middle">
+<a class="w3-link-plain w3-large w3-badge w3-light-grey" href="#showpage##_backword_.tr#"><b>&laquo;</b></a>
+</td>
+<td width="90%" align="center"><h3>#_DATA_MSG_#</h3></td>
+<td width="5%" align="right" valign="middle">&nbsp;</td></tr></table>
+--->
+#_DATA_MSG_=MSG[Directories]#
+#_DATA_BODY_=[<a class="w3-link-plain" href="#showpage##_PARTIALWORD_##_1word_#"><div class="#BOX_ROW#">#_PARTIALWORD_##_1word_#...</div></a>]#
+<!--- Special case for Index query - don't show user ./ --->
+#_DATA_FOOT_=[#_datasearch=REPLACE[#_datasearch#\]\[./\]\##NEXT_PREV#</div>]#
+<!--- Always search for ./ in Directories from INDEX --->
+#indexQ=REPLACE[#indexQ#][./]#
+#indexQ=PARSE[./#indexQ#]#
+#FUNCTION[EL_GET_DATA][INDEX]#
+#RESTORE[_DATA_HEAD_][_DATA_BODY_][_DATA_FOOT_][BOX_COLOR]#

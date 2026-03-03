@@ -1,0 +1,41 @@
+<!---
+#MSGTranslate[1]#<!--- Translate if available --->
+#MSGInsert   [1]#<!--- Insert New Messages if Translate is turned on--->
+Lang: #LANG#
+TIME: #STOPTIMER[]#
+#SetLANG[ita][Go][Search]#
+#MSG[Stars]#
+#FIBONACCI[0][9]#
+#LOADTOKEN[
+V =INC[TEST/TEST_FIB]
+]#
+V     : #V.length#
+Lang  : #LANG#
+Go    : #msg_go#
+Search: #msg_search#
+
+DataPath: #DATAPATH[langs.eng]#
+DataPath: #DATAPATH[langs.eng][cat]#
+DataPath: #DATAPATH[langs.eng][cat][cats]#
+DataOpen: #DataOpen[langs.eng][cat]#
+DataOpen: #DataOpen[langs.eng][cat][cats]#
+DotDot: #DotDot[langs.eng][cat]#
+DotDot: #DotDot[langs.eng][cat][cats]#
+--->
+<!--- EL_SEARCH_CATS Search and Show Categories this item is on --->
+#word=[cat]#
+#_DATA_MSG_=MSG[Categories]#
+#OML[EL_TOKENS_SEARCH]#
+#DOTDOT=DOTDOT[#root#][cat]#<!--- #TESTING --->
+#LOADTOKEN[
+BOX_COLOR   =[el-chakra3]
+_DATA_HREF_ =[#elshow##1.tr#&object=cat]
+_DATA_HREF_ =[#DOTDOT##DATAPATH[#root#][#1#]#cat.html]
+next=next
+]#
+HELLO KITTY
+#FUNCTION[EL_GET_DATA][CATS]#
+#RESTORE[_DATA_HREF_][BOX_COLOR]#
+
+TIME  : #TIMER[]#
+

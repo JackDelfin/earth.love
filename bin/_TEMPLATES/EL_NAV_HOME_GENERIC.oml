@@ -1,0 +1,19 @@
+<!--- #OML[EL_NAV_HOME]# Define subroots as different roots - could be a subroot as well --->
+#MENU=[HOME]#
+#_NAVMSG=[Navigator]#
+#_NAVMSGCOLOR=[w3-teal]#
+<!--- Choose the many display navigator FORMATS - EL_VIEW_FLOWER EL_VIEW_BOX --->
+#_NAVDISPLAY=[EL_VIEW_FLOWER]#
+<!--- Select the Sub-roots: could also specify as ROOT/SUBROOT, ie COMMS/DIRECTORY --->
+#_subroot1=[PERSONS]#
+#_subroot2=[LOCS]#
+#_subroot3=[JOBS]#
+#_subroot4=[COMMS]#
+#_subroot5=[GUILDS]#
+#_subroot6=[BOOKS]#
+#_subroot7=[SPIRITS]#
+<!--- Define a stylish WWRAP to go around our lovely ROOT --->
+<!--- #omlWWRAP=[<div class="w3-orange w3-code w3-xlarge w3-round-xxlarge or w3-circle"><pre><B>#OML#</B></pre></div>]# --->
+#omlWWRAP=[<div><pre>#OML#</pre></div>]#
+<!--- Should not be buffered by a function, so Flush! output as we get it --->
+#OML![EL_NAV_ROOT_GENERIC]#

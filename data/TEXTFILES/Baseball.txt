@@ -1,0 +1,162 @@
+American League
+assist
+at bat
+athlete
+ball
+base
+baseball
+baseball cap
+baserunning
+bases loaded
+bat
+batboy
+batter
+batter's box
+batting average
+batting team
+block
+bullpen
+bunt
+call
+cap
+card
+catch
+catcher
+catcher mitt
+catcher's box
+center field
+center fielder
+champion
+chest protector
+club
+clutch hitter
+coach
+curve
+curveball
+day game
+deck
+defense
+designated hitter
+diamond
+double header
+dugout
+equipment
+exhibition game
+extra inning
+face mask
+farm team
+fast ball
+fastball
+fence
+field
+field umpire
+fielder
+fielding team
+first
+first baseman
+first baseman's glove
+foul
+foul line
+four ball
+four balls
+fumble
+game
+gear
+glove
+ground ball
+hardball
+helmet
+hit
+hits
+ho-hitter
+home
+home plate
+home team
+infield
+inning
+innings
+knuckle ball
+knuckleball
+league
+left field
+left fielder
+left hander
+line drive
+lineup
+lose
+major league
+minor league
+mitt
+mound
+MVP
+National League
+night game
+nine
+offense
+one ball
+out
+outfield
+overhand throw
+park
+pinch hitter
+pitch
+pitcher
+pitcher's mound
+plate umpire
+play-off
+protest
+RBI
+relief pitcher
+right field
+right fielder
+run
+runner
+saves
+score
+scoreboard
+screwball
+second
+second baseman
+shin guards
+short stop
+shortstop
+signal
+sinker
+slide
+slider
+slugger
+softball
+spiked shoes
+spitball
+sport
+sportsmanship
+spring training
+stadium
+starting pitcher
+steal
+stolen
+straight ball
+strike
+strike one
+strike out
+strike three
+strike two
+sweet spot
+switch hitter
+tag
+tag out
+team
+teammate
+third
+third baseman
+three balls
+throw
+triple play
+two balls
+umpire
+underhand throw
+uniform
+vault
+visiting team
+walk
+win

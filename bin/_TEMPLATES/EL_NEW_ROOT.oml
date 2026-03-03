@@ -1,0 +1,16 @@
+#ROOT=[__NEW__]#
+<div class="w3-container">
+<h2>#MSG[Create New Root]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_TEXT][CODE_req][Root Code (directory name)]#
+#OML[EL_INPUT_TEXT][NAME_req][Root Name]#
+#OML[EL_INPUT_TEXT][SHORT_req][Short Name]#
+#OML[EL_INPUT_TEXT][DESC][Description]#
+#OML[EL_INPUT_TEXT][Color][_color][#_color#]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

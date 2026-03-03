@@ -1,0 +1,9 @@
+cornerback
+end
+fullback
+guard
+halfback
+linebacker
+middle guard
+quarterback
+tackle

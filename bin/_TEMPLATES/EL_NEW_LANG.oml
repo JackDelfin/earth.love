@@ -1,0 +1,14 @@
+#ROOT=[LANGS]#
+<div class="w3-container">
+<h2>#MSG[Create Language]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_TEXT][NAME_REQ][Language Name]#
+#OML[EL_INPUT_TEXT][SHORT][Short Name]#
+#OML[EL_INPUT_TEXT][DESC][Description]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

@@ -1,0 +1,8 @@
+#BOX_COLOR=[el-chakra5]#
+#BOX_HEAD_COLOR=[w3-light-blue]#
+#_DATA_MSG_=MSG[Location Paths]#
+<!--- Get the name from the item to override raw value --->
+#GETNAME=[#FIELD[#ROOT#][#1#][SHORT]#]#<!--- Get the NAME for the item --->
+#_DATA_BODY_=[<a class="w3-link-plain" href="#showpage##1.tr#"><div class="#BOX_ROW#">#NVL[#GETNAME#][#1.initname.nodot.html#]#</div></a>]#
+#FUNCTION[EL_GET_DATA][PATHS]#
+#RESTORE[BOX_COLOR][BOX_HEAD_COLOR][_DATA_BODY_]#

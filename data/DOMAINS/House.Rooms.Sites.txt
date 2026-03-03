@@ -1,0 +1,11 @@
+Bedroom.earth
+Cellar.earth
+Closet.earth
+Den.earth
+Hall.earth
+Hallway.earth
+Master.earth
+Playroom.earth
+Porch.earth
+Study.earth
+Yard.earth

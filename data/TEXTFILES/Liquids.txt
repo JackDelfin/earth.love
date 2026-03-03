@@ -1,0 +1,13 @@
+alcohol
+blood
+coffee
+cream
+gasoline
+grease
+juice
+milk
+oil
+soup
+syrup
+tea
+water

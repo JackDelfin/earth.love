@@ -1,0 +1,16 @@
+Answer.earth
+Assess.earth
+Assessment.earth
+Assignment.earth
+Cheat.earth
+Eraser.earth
+Exam.earth
+Examination.earth
+Examine.earth
+Examiner.earth
+Grade.earth
+Pencil.earth
+Proctor.earth
+Sheet.earth
+Study.earth
+Take.earth

@@ -1,0 +1,8 @@
+MotherEarth.earth
+MotherEarth.land
+MotherEarth.life
+MotherEarth.love
+MotherEarthFood.earth
+MotherEarthFood.land
+MotherEarthFood.life
+MotherEarthFood.love

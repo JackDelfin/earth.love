@@ -1,0 +1,55 @@
+--------------------------------------------------
+BRANCHES Directory
+--------------------------------------------------
+Stores the BRANCH or (word-path) in BRANCHES
+--------------------------------------------------
+
+PHRASES and BRANCHES are stored similarly, each in
+their own corresponding directory structure.
+
+A PHRASE may or may not be a BRANCH, and
+a BRANCH may or may not be a PHRASE.
+
+A PHRASE is an associated collection of WORDS.
+
+A BRANCH is like a sub-heading in the directory TREE.
+
+The forward direction of the BRANCH is stored here
+like this: (BRANCHES/stored/here/like/this)
+(up to 200 max characters-OS_Limitation).
+
+
+--------------------------------------------------
+Example
+--------------------------------------------------
+
+TREE:   Animals.TREE
+BRANCH: Types of Species
+
+CREATES:
+
+Directory:
+--------------------------------------------------
+BRANCHES/types/of/species
+
+Potential Files:
+--------------------------------------------------
+BRANCH.dat   => types of species
+DIRSORT.dat  => Override sort of the directories in this BRANCH
+NAME.dat     => Types of Species
+TREES.dat    => animals.TREE
+TEXT.dat     => (General text for the BRANCH)
+WORDS.dat    => types; of; species
+KEYWORDS.dat => species (based on KEYWORD.dat in WORD)
+LINKS.dat    => species.earth; species.earth.love
+
+WORDS
+--------------------------------------------------
+The individual words from the BRANCH will have a
+BRANCHES.dat in the WORDS tree, containing all
+BRANCHES the word is on, cross-referencing the
+WORDS and BRANCHES.
+
+--------------------------------------------------
+
+-Branch Coordinator

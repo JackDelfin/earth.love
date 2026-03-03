@@ -1,0 +1,13 @@
+<!--- Root must be passed in --->
+#STOP[#ROOT.NOTEXISTS#]#
+#OBJECT=[GUILD]#
+#INC[EL_HEADER_ROOT]#
+#searchmsg=MSG[Search #ROOT_SHORT#]#
+#INC[EL_FORM_SEARCH][Search]#
+#INC[EL_SEARCH_RESULTS]#
+#OML[EL_SEARCH_#ROOT#]#
+
+<div class="w3-container w3-center">
+#OML[EL_NEW_#OBJECT#_BUT]#
+</div>
+#RESTORE[ROOT]#

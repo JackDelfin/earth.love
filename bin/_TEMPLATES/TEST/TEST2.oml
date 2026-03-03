@@ -1,0 +1,24 @@
+#JustAHashRef
+#NOT aTOKEN#
+
+#NOTATOKEN
+#
+
+TITLE:#TITLE#
+#TITLE:#TITLE
+
+#SHOW
+#NOTHING#
+#SHOW#NOTHING#
+
+# OML (Orbit Markup Language) Patterns:
+   #Token#
+   #Token.modifier#
+   #FUNCTION[param][#tok_param.modifier#][]#
+   #FUNCTION[param]
+            [#tok_param.modifier#]
+            []#
+   #TokenAssign=[#value.mod1.mod2#]#
+   #TokenFnAssign.mod=FUNCTION[#tok_param#][#bad_tok][137]#
+
+#JustAHashRef

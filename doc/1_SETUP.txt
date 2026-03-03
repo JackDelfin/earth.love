@@ -1,0 +1,107 @@
+------------------------------------------
+-
+- earth.love Setup Instructions
+-
+------------------------------------------
+- Honoring:
+------------------------------------------
+-   Buckminster Fuller
+------------------------------------------
+-   Father of the modern GeoDesic e/Dome
+-   "Operating Manual for Spaceship Earth"
+-
+------------------------------------------
+-   Jacques Fresco
+------------------------------------------
+-   "The Venus Project"
+-   Resource Based Economy
+-
+------------------------------------------
+-   And all the other greats and giants
+-   upon who's shoulders we stand upon
+-   and continue to stand upon.
+------------------------------------------
+
+------------------------------------------
+Development Environment "BRIEF"
+------------------------------------------
+
+Perl
+Apache http server
+File system with a "tight" block structure
+
+<<next>> INSTALL.txt
+
+------------------------------------------
+Operating Systems Supported:
+------------------------------------------
+
+Some components only require "perl", such
+as the database model layer (akashic).
+This opens up some flexibility on hardware
+and software component reuse.  KISS
+
+Operating Systems
+-----------------
+Linux (general)
+iMac
+MacOS
+Android
+Windows
+Unix (general)
+  HP-UX
+  Sun Solaris
+  IBM Aix
+Mainframe
+...
+
+
+------------------------------------------
+------------------------------------------
+Pre-Work
+------------------------------------------
+------------------------------------------
+
+------------------------------------------
+ENVIRONMENT
+------------------------------------------
+
+Choose where to install the earth.love "ROOT".
+
+An "Envoronment e/Variable" named EARTH_LOVE
+can define this within your operating system.
+
+earth.love can be installed on Windows and
+Unix based systems for personal development
+of the MY feature.
+
+We will work collaboratively to support
+the akashic data structure and library
+on other platforms if needed.
+
+------------------------------------------
+TOOLS
+------------------------------------------
+
+Windows:
+  StrawberyPerl - Open Source Perl for Windows
+  Cygwin  - Unix emulator for Windows
+  gzip    - Compression
+  TextPad - Editor (also Notepad Plus Plus)
+
+Unix:
+  perl
+  Apache http Server
+  gzip
+  
+  
+------------------------------------------
+3. KNOWLEDGE Suggested
+------------------------------------------
+  Perl Programming Basics
+  Apache http Server Basics
+  Editing Software Files
+  Command Line Directory Navigation
+
+
+------------------------------------------

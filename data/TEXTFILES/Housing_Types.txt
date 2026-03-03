@@ -1,0 +1,18 @@
+apartment
+apartment building
+cave
+condo
+dome
+earthship
+flat
+geodesic dome
+house
+hut
+igloo
+mobile home
+tent
+tepee
+townhouse
+trailer
+wigwam
+yurt

@@ -1,0 +1,220 @@
+Albedo
+Alpha Centauri
+Apastron
+Aperture
+Aphelion
+Apogee
+Asterism
+Asteroid
+Astronaut
+Astronomer
+Astronomical unit
+Astronomy
+Axial tilt
+Azimuth
+Background radiation
+Bailey's beads
+Big bang theory
+Binary star
+Black body
+Black hole
+Bolometer
+Celestial
+Celestial equator
+Cislunar
+Cluster
+Comet
+Conjunction
+Constellation
+Coriolis force
+Corona
+Cosmic rays
+Cosmology
+Cosmonaut
+Cosmos
+Crater
+Crescent moon
+Dark matter
+Day
+Declination
+Deep space
+Deneb
+Density
+Docking
+Doppler shift
+Double star
+Drake equation
+Dust
+Dwarf planet
+Dwarf star
+Earth
+Earthbound
+Eccentricity
+Eclipse
+Ecliptic
+Elliptical orbit
+Equinox
+Escape velocity
+Event horizon
+Exoplanet
+Extragalactic
+Falling star
+Flare
+Flyby
+Free fall
+Full moon
+Galaxy
+Gamma ray
+Gas giant
+Gegenschein
+Geostationary
+Geosynchronous
+Gibbous moon
+Globular cluster
+Gravitation
+Gravitational constant
+Gravitational lens
+Gravity
+H-R diagram
+Half moon
+Heliocentric
+Helium
+Hubble telescope
+Hubble's law
+Hydrogen
+Hyperbolic orbit
+Hypernova
+Ice giant
+Inclination
+Inertia
+Inferior planets
+Inner planets
+Interstellar
+Interstellar dust
+Ionosphere
+Jupiter
+Kepler's laws
+Kiloparsec
+Kirkwood gaps
+Kuiper belt
+Lagrange points
+Lens
+Light-year
+Local arm
+Local group
+Lunar
+Magnitude
+Mare
+Mars
+Mass
+Mercury
+Meteor
+Meteor shower
+Meteorite
+Meteoroid
+Milky Way
+Minor planet
+Mir
+Moon
+Muttnik
+Nadir
+NASA
+Nebula
+Neptune
+Neutron star
+New moon
+North star
+Nova
+Observatory
+Occultation
+Oort cloud
+Opposition
+Orbit
+Orbital eccentricity
+Orbital inclination
+Outer planets
+Parallax
+Parsec
+Partial eclipse
+Penumbra
+Perigee
+Perihelion
+Perturbation
+Phase
+Plane of the ecliptic
+Planet
+Planetary nebula
+Planetoid
+Pluto
+Pole star
+Precession
+Probe
+Pulsar
+Quarter moon
+Quasar
+Radiant
+Radiation
+Red dwarf
+Red giant star
+Red shift
+Revolve
+Right ascension
+Rings
+Roche limit
+Rocket
+Satellite
+Saturn
+Scientific notation
+Scintillation
+Shooting star
+Sidereal
+Singularity
+Sky
+Solar
+Solar system
+Solar wind
+Solstice
+Space
+Space exploration
+Space station
+Spectroscope
+Spectrum
+Sputnik
+Star
+Starlight
+Sun
+Sunspot
+Superior planets
+Supernova
+Synodic
+Syzygy
+Telemetry
+Telescope
+Terminator
+Terrestrial
+Total eclipse
+Totality
+Transit
+Translunar
+Transneptunian
+Twinkling
+Umbra
+Universe
+Uranus
+Vacuum
+Van Allen belt
+Variable star
+Venus
+Vernal equinox
+Visual magnitude
+Waning
+Wavelength
+Waxing
+Weightlessness
+White dwarf
+White giant
+Wormhole
+X-rays
+Yellow dwarf
+Zenith
+Zodiac

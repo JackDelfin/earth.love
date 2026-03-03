@@ -1,0 +1,6 @@
+<!--- Search and Show Locations Phrasesfor this item --->
+#_DATA_MSG_=MSG[Locations]#
+#GETNAME=[#FIELD[#ROOT#][#1#][NAME]#]#<!--- Get the NAME for the item --->
+#_DATA_BODY_=[<a class="w3-link-plain" href="#showpage##1.tr#"><div class="#BOX_ROW#">#NVL[#GETNAME#][#1.initname.html#]#</div></a>]#
+#FUNCTION[EL_GET_DATA][PHRASES]#
+#RESTORE[_DATA_BODY_]#

@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Run all the DOM and DOMS scripts for the domains
+export DOM=$1;
+
+echo;
+echo "#-----------------------------------------#";
+echo "# Check DOM$ - dom";
+echo "#-----------------------------------------#";
+grep /ELDOMS/DOMS.dat -e$DOM;
+
+echo;
+echo "#-----------------------------------------#";
+echo "# Check DOM$ Forwarding - domf";
+echo "#-----------------------------------------#";
+grep /ELDOMS/elFORWARDS.txt -e$DOM;
+
+echo;
+echo "#-----------------------------------------#";
+echo "# Check DWEEM A Records - dw";
+echo "#-----------------------------------------#";
+grep /ELDOMS/DWEEM.dat -e$DOM;
+
+echo;
+echo "#-----------------------------------------#";
+echo "# getGoDaddy DOM$ Forwarding - domg";
+echo "#-----------------------------------------#";
+grep /ELDOMS/getGoDaddy.txt -e$DOM;
+
+echo;
+echo "#-----------------------------------------#";
+echo "# setGoDaddy DOM$ Forwarding - doms";
+echo "#-----------------------------------------#";
+grep /ELDOMS/setGoDaddy.txt -e$DOM;
+
+echo;
+
+/ELBIN/help
+

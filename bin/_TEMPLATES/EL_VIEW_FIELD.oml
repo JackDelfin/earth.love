@@ -1,0 +1,9 @@
+<!--- #OML[EL_VIEW_FIELD]  [Data: NAME/SHORT/DESC]  [Label: <optional>]#
+ex) #OML[EL_VIEW_FIELD][SHORT][Short Name]#
+--->
+#OML[EL_INPUT_HEADER_LITE]#
+#_field_=FIELD[#ROOT#][#WORD#][#_datafile_#]#
+<div class="w3-container">
+<label#CLASS_LABEL#>#MSG[#_2_#]#</label>
+<a class="w3-link-plain" href="#eledit##_1_#"><div#CLASS_FIELD_VIEW#>#_FIELD_.nbsp.html#</div></a>
+</div>

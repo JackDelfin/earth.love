@@ -1,0 +1,7 @@
+#STOP[#WORD.NOTEXISTS#]#
+#STOP[#_BADWORD_.EXISTS#]#
+#OML[EL_HEADER_WORD]#
+#STOP[#_WORDFOUND_.0#]#
+<div class="w3-container"><h2>#MSG[#_WORDTYPE_# not found.]#</h2>
+
+<a class="#BUTTON_CLASS# w3-red" href="#ELNEWWORD#">#MSG[Create Word:]# "#WORD#"</a></div>

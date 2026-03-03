@@ -1,0 +1,5 @@
+<!--- Search and Show Resources for this item --->
+#BOX_COLOR=[el-chakra5]#
+#_DATA_MSG_=OML[EL_FN_ROOT_NAME][RESOURCES]#
+#FUNCTION[EL_GET_DATA][RESOURCES]#
+#RESTORE[BOX_COLOR]#

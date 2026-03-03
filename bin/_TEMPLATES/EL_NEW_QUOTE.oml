@@ -1,0 +1,13 @@
+#ROOT=[QUOTES]#
+<div class="w3-container">
+<h2>#MSG[Create Quote]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_TEXTAREA][NAME_REQ][Quote]#
+#OML[EL_INPUT_TEXT][REF][Person Referenced]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

@@ -1,0 +1,216 @@
+Albacore Tuna
+Alligator Gar
+Anchovies
+anchovy
+angelfish
+angelshark
+Arapaima
+Baiji
+Banjo Catfish
+barb
+barracuda
+Barramundi
+Barramundi Fish
+basking shark
+bass
+Beluga Sturgeon
+Black Marlin
+blenny
+Blobfish
+blowfish
+blue shark
+bluefin tuna
+bonito
+Bonito Fish
+bony fish
+Bowfin
+bull shark
+Butterfly Fish
+carp
+catfish
+Chimaera
+Chinese Paddlefish
+chub
+Cichlid
+clownfish
+cod
+Codfish
+coelacanth
+Common Seabream
+cookiecutter shark
+crab
+crappie
+crawdad
+crayfish
+darter
+Dentex
+devil ray
+Discus
+dogfish
+dory
+dragonfish
+Drum Fish
+Dunkleosteus
+eel
+electric eel
+elver
+Emperor angelfish
+Fangtooth
+fish
+Florida Gar
+flounder
+Fluke Fish
+flying fish
+Frilled Shark
+Galapagos shark
+gar
+Gilthead Seabream
+glassfish
+Goblin Shark
+goby
+goldfish
+grayling
+great white shark
+Greenland shark
+Grey Reef Shark
+grouper
+grunion
+gulper eel
+guppy
+haddock
+hagfish
+hake
+halibut
+hammerhead shark
+hatchetfish
+herring
+Horn Shark
+humuhumu-nukunuku-apua'a
+icefish
+Immortal Jellyfish
+jackfish
+Jellyfish
+John Dory
+koi
+Krill
+lake trout
+lamprey
+lanternfish
+lemon shark
+ling cod
+Lionfish
+loach
+lobster
+Longnose Gar
+luminous shark
+lungfish
+mackerel
+mako shark
+manta ray
+marlin
+Meagre
+Megalodon
+megamouth shark
+Milkfish
+minnow
+Molly
+monkfish
+moray eel
+mullet
+Narwhal
+needlefish
+nurse shark
+oarfish
+orange roughy
+Orthacanthus
+oyster
+paddlefish
+parrotfish
+perch
+pike
+Pike Fish
+pilot fish
+piranha
+pollock
+pompano
+porgy
+Port Jackson shark
+pufferfish
+pupfish
+queen triggerfish
+quillfish
+Rabbitfish
+ray
+remora
+rockfish
+roughy
+sailfish
+salmon
+sardine
+Sardines
+sawfish
+Scorpion Fish
+sculpin
+sea bass
+Sea Dragon
+Sea Slug
+Sea Urchin
+Seabass
+seadragon
+seahorse
+shad
+shark
+Sharpsnout Seabream
+shrimp
+Siamese Fighting Fish
+Silver Dollar
+skate
+Skate Fish
+Skipjack Tuna
+smelt
+snapper
+sole
+Spiny Dogfish
+Sponge
+Spotted Gar
+Starfish
+stingray
+Striped Bass
+sturgeon
+Sucker Fish
+Summer Flounder
+sunfish
+Swai Fish
+swordfish
+tadpole
+Tang
+tarpon
+tetra
+three-spine stickleback
+thresher shark
+tiger shark
+Tilapia
+Toadfish
+triggerfish
+trout
+tuna
+tunny
+turbot
+upside-down catfish
+velvetfish
+viperfish
+walleye
+Walleye Fish
+whale shark
+whiting
+Wolf Eel
+Wolffish
+wrasse
+Wuchang Bream
+x-ray tetra
+yellow jack
+Yellowfin Tuna
+yellowtail
+zebra bullhead shark
+Zebra Shark
+zebrafish

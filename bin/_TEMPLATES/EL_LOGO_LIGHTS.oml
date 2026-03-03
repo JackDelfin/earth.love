@@ -1,0 +1,13 @@
+<!--- EL_LOGO_LIGHTS - Show the Lights.earth Logo --->
+<!---<a class="w3-link-plain" href="#SHOWPAGE#lights"><div class="w3-container">
+<table width="42px" border=0 cellpadding=0 cellspacing=0>
+<tr>
+<td><div class="w3-badge w3-blue">&nbsp;</div><div class="w3-badge w3-indigo">&nbsp;</div></td>
+<td class="w3-center"><div class="w3-badge w3-green">&nbsp;</div><div class="w3-circle w3-violet">~</div><div class="w3-badge w3-red">&nbsp;</div></td>
+<td><div class="w3-badge w3-yellow">&nbsp;</div><div class="w3-badge w3-orange">&nbsp;</div></td>
+</tr></table></div></a>
+--->
+<table width="42px" border=0 cellpadding=0 cellspacing=0>
+<tr><td>#OML[EL_NAV_MENUS]#</td>
+<td><a class="w3-link-plain w3-cursive w3-xxlarge w3-text-violet" href="http://Lights.earth"><B>Lights</B></a>
+</td></tr></table>

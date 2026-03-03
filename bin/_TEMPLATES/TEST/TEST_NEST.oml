@@ -1,0 +1,106 @@
+2 TEST: then:else: alternating (11 times)
++++++++
+# REPEAT[2]
+[IF  [ MOD[ i=ADD[ i.0][1] i][2]]
+    [then:]
+    [else:]-
+]
++++++++
+#GO#
+
+#REPEAT[11]
+[#IF[#MOD[#i=ADD[#i.0#][1]##i#][2]#]
+    [then:]
+    [else:]#-
+]#
+
+<!--
+11 REPEAT TEST: lots of nested adds
+#REPEAT[11]
+[   #IF [#MOD[#i.0#][2]#]
+        [then:]
+        [else:]#
+#i=ADD[#add[#add[#add[#i.0#][3]#][2]#][0]#][1]#-
+#i#
+]#
+
+
+TEST WHILE: -4 to 7
+#i=[-4]#
+#while [#none.1#]
+[#i=ADD[#i.0#][1]#-
+#EQUAL[#i#][7][ NONE #none=assign[0]#  [#none#]  ][#IF[#MOD[#I#][2]#] [:#i# is ODD]#]#-
+]
+[10]#
+
+
+11 TEST: then:else: alternating (11 times)
+#REPEAT[11]
+[#IF  [#MOD[#i=ADD[#i.0#][1]##i#][2]#]
+    [then:]
+    [else:]#-
+]#
+
+#i=ADD[#i.0#][1]#-
+
+5 TEST: _NULL (5 times)
+#REPEAT[5]
+[#IF[#if.0#]
+     [then]
+     [ #else.NULL#]#]#
+
+5 REPEAT TEST
+#REPEAT[5]
+[#IF[#if.0#]
+     [then:]
+     [#else.NULL#:]#-
+#if=parse[#if.0.not#]#-
+]#
+
+7 REPEAT SIMPLE
+# REPEAT[7]
+[7]#
+#REPEAT[7]
+[7]#
+
+
++++
+# REPEAT[7]
+[# i=ADD[# i#][1]## MULT[# i#][10]#]#
+===
+#REPEAT[7]
+[#i=ADD[#i.0#][1]#-
+#MULT[#i#][10]#
+]#
++++
+
+
+#WhIlE#
++++
+# WHILE [#ugh.1 #]
+[Hello]
+[7]#
+===
+#WHILE [#ugh.1#]
+[Hello:]
+[7]#
++++
+
+WHILE TIGHT
+#i=[4]#
+#while [#none.1#]
+[#i=ADD[#i.0#][1]#-
+#EQUAL[#i#][7][ NONE #none=assign[0]#  [#none#]  ]#-
+][10]#
+
+WHILE LOOSE
+#i=[-40]#
+
+#while [#NUN.1#]
+[ xxx
+NONE:#none# i:#i#
+#i=ADD[#i.0#][1]#-
+#EQUAL[#i#][7][ NONE #none=[0]#  [#none#]  ]#-
+][10]#
+
+-->

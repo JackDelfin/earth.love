@@ -1,0 +1,14 @@
+#ROOT=PARSE[LANGS/#LANG#]#
+<div class="w3-container">
+<h2>#MSG[Create Word]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_TEXT][NAME_REQ][Word or Phrase]#
+#OML[EL_INPUT_SELECT][TYPE][Type][#_def.initcap#][Guild|Hobby|Interest|Name|Location|Other]#
+#OML[EL_INPUT_TEXT][DESC][Description]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

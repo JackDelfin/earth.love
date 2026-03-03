@@ -1,0 +1,20 @@
+<html class="w3-responsive">
+<meta charset="utf-8">
+<head>
+<!--- earth.love Orbit OML Template - This comment will not be shown in page --->
+<!-- License: AGPLv3+: GNU Affero General Public License Version 3 or later -->
+<!-- earth.love Planetary Directory - Every One owns the words -->
+<title>#TITLE#</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+#INC![_STYLES/#STYLE#]#
+</head>
+<body class="#MOBILE#w3-container w3-responsive">
+<header class="#HEADER_BOX#">
+  <div class="w3-row w3-container w3-round-xlarge">
+    <div class="w3-third"><h2>#HEADER#</h2></div>
+    <div class="w3-third w3-center"><h3>#HEADER_CENTER#</h3>#OML[EL_NAV_BUTTONS]#</div>
+    <div class="w3-third w3-right-align">#INCLUDE[EL_FORM_SEARCH_HEADER]#</div>
+  </div>
+</header>
+#EXISTS[#MSG_URGENT#][<div class="w3-red w3-center #HEADER_MESSAGE_BOX#"><strong>#MSG_URGENT#</strong></div>]#
+#EXISTS[#HEADER_MESSAGE#][<div class="#HEADER_MESSAGE_BOX#">#HEADER_MESSAGE#</div>]#

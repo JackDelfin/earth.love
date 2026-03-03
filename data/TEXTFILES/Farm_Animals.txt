@@ -1,0 +1,16 @@
+bull
+calf
+cat
+chicken
+cow
+donkey
+duck
+goat
+goose
+hen
+horse
+lamb
+pig
+rooster
+sheep
+turkey

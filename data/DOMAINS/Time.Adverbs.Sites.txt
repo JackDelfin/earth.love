@@ -1,0 +1,9 @@
+Always.earth
+Before.earth
+Every.earth
+EveryTime.earth
+Never.earth
+Often.earth
+Soon.earth
+Today.earth
+Yesterday.earth

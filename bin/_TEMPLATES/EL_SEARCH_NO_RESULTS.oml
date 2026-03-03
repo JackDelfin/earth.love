@@ -1,0 +1,5 @@
+<!--- No Results, show Directories and DOWN words --->
+#STOP[#_PARTIALWORD_.NOTEXISTS#]#
+#OML[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_DIRECTORIES]
+  [EL_SEARCH_DOWN]#

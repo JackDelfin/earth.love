@@ -1,0 +1,15 @@
+#MENU=[FOLMOH_VALUES]#
+<!--- Get the Token configurations for Navigation - touchy~feely stuff --->
+#INCif[#omlCIRCLENAV.NOTEXISTS#][EL_TOKENS_NAV_OML]#
+#_FLOWER_HEAD_COLOR_=[el-chakra4]#
+#OML[EL_HEADER_NAV_FLOWER]#
+#FlowerHead=MSG[Community Values]#
+#_NAV1=MSG[Love & Trust]##_subpage1=[]#
+#_NAV2=MSG[Peace & Respect]##_subpage2=[]#
+#_NAV3=MSG[Coexist]##_subpage3=[]#
+#_NAV4=MSG[Share Knowledge]##_subpage4=[]#
+#_NAV5=MSG[Collaborate]##_subpage5=[]#
+#_NAV6=MSG[Find Purpose]##_subpage6=[]#
+#_NAV7=MSG[Craft]##_subpage7=[]#
+#_Flower=INCLUDE[EL_VIEW_FLOWER]#
+#FlowerDIV#

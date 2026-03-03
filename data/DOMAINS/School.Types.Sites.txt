@@ -1,0 +1,16 @@
+College.earth
+Elementary.earth
+GradeSchool.earth
+GradeSchools.earth
+Graduate.earth
+HighSchool.earth
+HighSchools.earth
+HomeSchool.earth
+HomeSchools.earth
+Junior.earth
+MiddleSchool.earth
+MiddleSchools.earth
+MysterySchool.earth
+Nursery.earth
+Schools.earth
+Universities.earth

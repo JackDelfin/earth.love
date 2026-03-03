@@ -1,0 +1,782 @@
+##################################################
+# Install the BASE components for Akashic-Orbit  #
+##################################################
+
+# System Information:
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 22.04.5 LTS
+Release:	22.04
+Codename:	jammy
+
+Processors: 8
+MemTotal:       16192708 kB
+Drives:
+nvme0n1     259:0    0   1.8T  0 disk 
+├─nvme0n1p2 259:2    0 957.2G  0 part /mnt/Debian11-1TB
+└─nvme0n1p4 259:4    0 904.3G  0 part /var/snap/firefox/common/host-hunspell
+
+# -------------------------
+# System Update and Upgrade
+# -------------------------
+--
+-- apt-get update  # Check ONLY
+--
+Hit:1 http://us.archive.ubuntu.com/ubuntu jammy InRelease
+Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Get:3 http://us.archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Get:4 http://us.archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+Hit:5 https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu jammy InRelease
+Get:6 http://us.archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [2,666 kB]
+Get:7 http://us.archive.ubuntu.com/ubuntu jammy-updates/main i386 Packages [829 kB]
+Get:8 http://us.archive.ubuntu.com/ubuntu jammy-updates/main Translation-en [429 kB]
+Get:9 http://us.archive.ubuntu.com/ubuntu jammy-updates/main amd64 DEP-11 Metadata [114 kB]
+Get:10 http://us.archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 DEP-11 Metadata [212 B]
+Get:11 http://us.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1,215 kB]
+Get:12 http://us.archive.ubuntu.com/ubuntu jammy-updates/universe i386 Packages [773 kB]
+Get:13 http://us.archive.ubuntu.com/ubuntu jammy-updates/universe Translation-en [300 kB]
+Get:14 http://us.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 DEP-11 Metadata [359 kB]
+Get:15 http://us.archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 DEP-11 Metadata [940 B]
+Get:16 http://us.archive.ubuntu.com/ubuntu jammy-backports/main amd64 DEP-11 Metadata [7,064 B]
+Get:17 http://us.archive.ubuntu.com/ubuntu jammy-backports/restricted amd64 DEP-11 Metadata [212 B]
+Get:18 http://us.archive.ubuntu.com/ubuntu jammy-backports/universe amd64 DEP-11 Metadata [24.2 kB]
+Get:19 http://us.archive.ubuntu.com/ubuntu jammy-backports/multiverse amd64 DEP-11 Metadata [212 B]
+Get:20 http://security.ubuntu.com/ubuntu jammy-security/main amd64 DEP-11 Metadata [54.6 kB]
+Get:21 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 DEP-11 Metadata [208 B]
+Get:22 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 DEP-11 Metadata [125 kB]
+Get:23 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 DEP-11 Metadata [208 B]
+Fetched 7,283 kB in 3s (2,696 kB/s)
+Reading package lists...
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Hit:1 http://us.archive.ubuntu.com/ubuntu jammy InRelease
+Hit:2 http://us.archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:3 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:4 http://us.archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:5 https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu jammy InRelease
+Reading package lists...
+Building dependency tree...
+Reading state information...
+All packages are up to date.
+
+--
+-- apt upgrade -y
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+Get more security updates through Ubuntu Pro with 'esm-apps' enabled:
+  vlc-plugin-qt libvlc5 libimage-magick-perl libzvbi-common vlc-data
+  libvlccore9 libheif1 vlc imagemagick libsoup-3.0-dev vlc-bin libpathplan4
+  vlc-l10n graphviz libavdevice58 libgvpr2 libgvc6 libopenexr25
+  libmagick++-6.q16-8 libpostproc55 libcgraph6 libmagickcore-6.q16-6-extra
+  vlc-plugin-samba libsoup-3.0-0 libcdt5 libavcodec58 libimage-magick-q16-perl
+  traceroute libmagickwand-6.q16-6 vlc-plugin-notify libavutil56
+  imagemagick-6.q16 libswscale5 libmagickcore-6.q16-6 vlc-plugin-access-extra
+  vlc-plugin-skins2 libgsl27 vlc-plugin-video-splitter liblab-gamut1
+  libswresample3 imagemagick-6-common fig2dev vlc-plugin-video-output
+  libsoup-3.0-common gir1.2-soup-3.0 libavformat58 libzvbi0 libgslcblas0
+  python3-tqdm libde265-0 libvlc-bin vlc-plugin-base vlc-plugin-visualization
+  libavfilter7
+Learn more about Ubuntu Pro at https://ubuntu.com/pro
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+# -------------------------
+# Install snap Installer (certbot latest version)
+# -------------------------
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+snap is already the newest version (2013-11-29-11).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+# -------------------------
+# Install Needed Components
+# -------------------------
+
+--
+-- Install cpp
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+cpp is already the newest version (4:11.2.0-1ubuntu1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install gcc
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+gcc is already the newest version (4:11.2.0-1ubuntu1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install dos2unix
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+dos2unix is already the newest version (7.4.2-2).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install curl
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (7.81.0-1ubuntu1.20).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install wget
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+wget is already the newest version (1.21.2-2ubuntu1.1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install rsync
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+rsync is already the newest version (3.2.7-0ubuntu0.22.04.4).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install geoip-bin - geoiplookup
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+geoip-bin is already the newest version (1.6.12-8).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install rfkill
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+rfkill is already the newest version (2.37.2-4ubuntu3.4).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+# -------------------------
+# -- INSTALL NETWORKS
+# --     and SYS UTILITIES
+# -------------------------
+
+--
+-- Install dnsutils
+-- - dig hostname
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+dnsutils is already the newest version (1:9.18.30-0ubuntu0.22.04.2).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install net-tools
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+net-tools is already the newest version (1.60+git20181103.0eebece-1ubuntu5.4).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+
+--
+-- Install inetutils-traceroute
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+inetutils-traceroute is already the newest version (2:2.2-2ubuntu0.1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install sysstat
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+sysstat is already the newest version (12.5.2-2ubuntu0.2).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install atop
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+atop is already the newest version (2.7.1-1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install OpenSSH
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+openssh-server is already the newest version (1:8.9p1-3ubuntu0.13).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Synchronizing state of ssh.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable ssh
+
+# -------------------------
+# -- Install Apache2
+# -------------------------
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+apache2 is already the newest version (2.4.52-1ubuntu4.14).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+# -------------------------
+# -- Install libcurl4 and dev
+# -------------------------
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+pkg-config is already the newest version (0.29.2-1ubuntu3).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+libcurl4 is already the newest version (7.81.0-1ubuntu1.20).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+libcurl4-openssl-dev is already the newest version (7.81.0-1ubuntu1.20).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Set el user to www-data group
+--
+
+# -------------------------
+# -- Install goaccess
+# -------------------------
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+goaccess is already the newest version (1:1.5.5-1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+# -------------------------
+# -- Install Perl CPAN: LWP/CGI
+# -------------------------
+
+--
+-- Install perl
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+perl is already the newest version (5.34.0-3ubuntu1.4).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- Install cpanminus
+--
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+cpanminus is already the newest version (1.7045-1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+--
+-- CPAN LWP
+--
+Loading internal logger. Log::Log4perl recommended for better logging
+Reading '/root/.cpan/Metadata'
+  Database was generated on Mon, 24 Feb 2025 09:52:46 GMT
+Fetching with LWP:
+http://www.cpan.org/authors/01mailrc.txt.gz
+Reading '/root/.cpan/sources/authors/01mailrc.txt.gz'
+............................................................................DONE
+Fetching with LWP:
+http://www.cpan.org/modules/02packages.details.txt.gz
+Reading '/root/.cpan/sources/modules/02packages.details.txt.gz'
+  Database was generated on Wed, 25 Jun 2025 17:52:42 GMT
+..............
+  New CPAN.pm version (v2.38) available.
+  [Currently running version is v2.28]
+  You might want to try
+    install CPAN
+    reload cpan
+  to both upgrade CPAN.pm and run the new version without leaving
+  the current session.
+
+
+..............................................................DONE
+Fetching with LWP:
+http://www.cpan.org/modules/03modlist.data.gz
+Reading '/root/.cpan/sources/modules/03modlist.data.gz'
+DONE
+Writing /root/.cpan/Metadata
+LWP is up to date (6.78).
+
+--
+-- CPAN NET::CURL
+--
+Loading internal logger. Log::Log4perl recommended for better logging
+Reading '/root/.cpan/Metadata'
+  Database was generated on Wed, 25 Jun 2025 17:52:42 GMT
+ExtUtils::PkgConfig is up to date (1.16).
+Loading internal logger. Log::Log4perl recommended for better logging
+Reading '/root/.cpan/Metadata'
+  Database was generated on Wed, 25 Jun 2025 17:52:42 GMT
+Net::Curl::Easy is up to date (0.57).
+
+--
+-- CPAN CGI
+--
+Loading internal logger. Log::Log4perl recommended for better logging
+Reading '/root/.cpan/Metadata'
+  Database was generated on Wed, 25 Jun 2025 17:52:42 GMT
+Running install for module 'CGI'
+Fetching with LWP:
+http://www.cpan.org/authors/id/L/LE/LEEJO/CGI-4.69.tar.gz
+Fetching with LWP:
+http://www.cpan.org/authors/id/L/LE/LEEJO/CHECKSUMS
+Checksum for /root/.cpan/sources/authors/id/L/LE/LEEJO/CGI-4.69.tar.gz ok
+'YAML' not installed, will not store persistent state
+Configuring L/LE/LEEJO/CGI-4.69.tar.gz with Makefile.PL
+Checking if your kit is complete...
+Looks good
+Warning: LINKTYPE set to '', no longer necessary
+Generating a Unix-style Makefile
+Writing Makefile for CGI
+Writing MYMETA.yml and MYMETA.json
+  LEEJO/CGI-4.69.tar.gz
+  /usr/bin/perl Makefile.PL INSTALLDIRS=site -- OK
+Running make for L/LE/LEEJO/CGI-4.69.tar.gz
+cp lib/CGI.pod blib/lib/CGI.pod
+cp lib/Fh.pm blib/lib/Fh.pm
+cp lib/CGI/HTML/Functions.pm blib/lib/CGI/HTML/Functions.pm
+cp lib/CGI/Push.pm blib/lib/CGI/Push.pm
+cp lib/CGI/Util.pm blib/lib/CGI/Util.pm
+cp lib/CGI/Cookie.pm blib/lib/CGI/Cookie.pm
+cp lib/CGI/Carp.pm blib/lib/CGI/Carp.pm
+cp lib/CGI/Pretty.pm blib/lib/CGI/Pretty.pm
+cp lib/CGI.pm blib/lib/CGI.pm
+cp lib/CGI/HTML/Functions.pod blib/lib/CGI/HTML/Functions.pod
+cp lib/CGI/File/Temp.pm blib/lib/CGI/File/Temp.pm
+Manifying 7 pod documents
+  LEEJO/CGI-4.69.tar.gz
+  /usr/bin/make -- OK
+Running make test for LEEJO/CGI-4.69.tar.gz
+PERL_DL_NONLAZY=1 "/usr/bin/perl" "-MExtUtils::Command::MM" "-MTest::Harness" "-e" "undef *Test::Harness::Switches; test_harness(0, 'blib/lib', 'blib/arch')" t/*.t t/headers/*.t
+t/append_query.t ............ ok
+t/arbitrary_handles.t ....... ok
+t/autoescape.t .............. ok
+t/can.t ..................... ok
+[Wed Jun 25 16:47:57 2025] carp.t: foo at /root/.cpan/build/CGI-4.69-0/blib/lib/CGI/Carp.pm line 360.
+t/carp.t .................... ok
+# cgi-lib.pl routines
+private_tempfiles has been deprecated at /root/.cpan/build/CGI-4.69-0/blib/lib/CGI.pm line 3240.
+t/cgi.t ..................... ok
+t/charset.t ................. ok
+t/checkbox_group.t .......... ok
+t/command_line.t ............ ok
+t/compiles_pod.t ............ ok
+t/cookie.t .................. ok
+t/delete.t .................. ok
+t/Dump.t .................... ok
+t/end_form.t ................ ok
+t/form.t .................... ok
+t/function.t ................ ok
+t/gh-155.t .................. ok
+t/headers.t ................. ok
+t/headers/attachment.t ...... ok
+t/headers/charset.t ......... ok
+t/headers/cookie.t .......... ok
+t/headers/default.t ......... ok
+t/headers/nph.t ............. ok
+t/headers/p3p.t ............. ok
+t/headers/target.t .......... ok
+t/headers/type.t ............ ok
+t/hidden.t .................. ok
+t/html.t .................... ok
+t/html_functions.t .......... ok
+t/http.t .................... ok
+t/init.t .................... ok
+t/multipart_globals.t ....... ok
+t/multipart_init.t .......... ok
+t/multipart_start.t ......... ok
+t/no_tabindex.t ............. ok
+t/param_fetch.t ............. ok
+t/param_list_context.t ...... ok
+t/popup_menu.t .............. ok
+t/postdata.t ................ ok
+CGI::Pretty is DEPRECATED and will be removed in a future release. Please see https://github.com/leejo/CGI.pm/issues/162 for more information at /root/.cpan/build/CGI-4.69-0/blib/lib/CGI/Pretty.pm line 20.
+t/pretty.t .................. ok
+t/push.t .................... ok
+t/query_string.t ............ ok
+t/redirect_query_string.t ... ok
+t/request.t ................. ok
+t/rt-31107.t ................ ok
+t/rt-52469.t ................ ok
+t/rt-57524.t ................ ok
+t/rt-75628.t ................ ok
+t/rt-84767.t ................ ok
+t/save_read_roundtrip.t ..... ok
+t/sorted.t .................. ok
+t/start_end_asterisk.t ...... ok
+t/start_end_end.t ........... ok
+t/start_end_start.t ......... ok
+t/unescapeHTML.t ............ ok
+t/upload.t .................. ok
+t/upload_quoted_unquoted.t .. ok
+t/uploadInfo.t .............. ok
+t/url.t ..................... ok
+t/user_agent.t .............. ok
+t/utf8.t .................... ok
+t/util-58.t ................. ok
+t/util.t .................... ok
+All tests successful.
+
+Test Summary Report
+-------------------
+t/compiles_pod.t          (Wstat: 0 Tests: 18 Failed: 0)
+  TODO passed:   3, 6
+Files=63, Tests=1600,  8 wallclock secs ( 0.31 usr  0.11 sys +  7.47 cusr  0.96 csys =  8.85 CPU)
+Result: PASS
+  LEEJO/CGI-4.69.tar.gz
+  /usr/bin/make test -- OK
+Running make install for LEEJO/CGI-4.69.tar.gz
+Manifying 7 pod documents
+Installing /usr/local/share/perl/5.34.0/Fh.pm
+Installing /usr/local/share/perl/5.34.0/CGI.pm
+Installing /usr/local/share/perl/5.34.0/CGI/Pretty.pm
+Installing /usr/local/share/perl/5.34.0/CGI/Carp.pm
+Installing /usr/local/share/perl/5.34.0/CGI/Util.pm
+Installing /usr/local/share/perl/5.34.0/CGI/Push.pm
+Installing /usr/local/share/perl/5.34.0/CGI/File/Temp.pm
+Installing /usr/local/man/man3/CGI::Util.3pm
+Installing /usr/local/man/man3/CGI::Push.3pm
+Installing /usr/local/man/man3/CGI::Pretty.3pm
+Installing /usr/local/man/man3/CGI::Carp.3pm
+Appending installation info to /usr/local/lib/x86_64-linux-gnu/perl/5.34.0/perllocal.pod
+  LEEJO/CGI-4.69.tar.gz
+  /usr/bin/make install  -- OK
+
+--
+-- CPAN JSON JSON::MaybeXS
+--
+Loading internal logger. Log::Log4perl recommended for better logging
+Reading '/root/.cpan/Metadata'
+  Database was generated on Wed, 25 Jun 2025 17:52:42 GMT
+JSON is up to date (4.10).
+Loading internal logger. Log::Log4perl recommended for better logging
+Reading '/root/.cpan/Metadata'
+  Database was generated on Wed, 25 Jun 2025 17:52:42 GMT
+JSON::MaybeXS is up to date (1.004008).
+
+# -------------------------
+# Install ImageMagick
+#   Command-Line Image Conversion Tools
+# -------------------------
+Reading package lists...
+Building dependency tree...
+Reading state information...
+imagemagick is already the newest version (8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+# -------------------------
+# Install UFW
+#   Uncomplicated Fire WALL
+# -------------------------
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+ufw is already the newest version (0.36.1-4ubuntu0.1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-52-generic linux-hwe-6.8-headers-6.8.0-52
+  linux-hwe-6.8-tools-6.8.0-52 linux-image-6.8.0-52-generic
+  linux-modules-6.8.0-52-generic linux-modules-extra-6.8.0-52-generic
+  linux-tools-6.8.0-52-generic
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+-- Configure UFW - Ubuntu
+Skipping adding existing rule
+Skipping adding existing rule (v6)
+Skipping adding existing rule
+Skipping adding existing rule (v6)
+Skipping adding existing rule
+Skipping adding existing rule (v6)
+Firewall is active and enabled on system startup
+31080                      ALLOW       Anywhere                  
+Apache                     ALLOW       Anywhere                  
+22/tcp                     ALLOW       Anywhere                  
+Apache Secure              ALLOW       Anywhere                  
+31080 (v6)                 ALLOW       Anywhere (v6)             
+Apache (v6)                ALLOW       Anywhere (v6)             
+22/tcp (v6)                ALLOW       Anywhere (v6)             
+Apache Secure (v6)         ALLOW       Anywhere (v6)             
+
+# -------------------------
+# Configure Apache
+# -------------------------
+
+--
+-- Enable CGI on Apache2
+--
+Module cgid already enabled
+
+--
+-- Enable SSL on Apache2
+--
+Considering dependency setenvif for ssl:
+Module setenvif already enabled
+Considering dependency mime for ssl:
+Module mime already enabled
+Considering dependency socache_shmcb for ssl:
+Module socache_shmcb already enabled
+Module ssl already enabled
+
+--
+-- Enable the Apache2 Rewrite Rules module
+-- - /etc/elRewrite.conf
+-- - contains BOT and HACK rules for logging
+--
+Module rewrite already enabled
+
+--
+-- Install Certbot for HTTPS Certificate Management
+--
+snap "certbot" is already installed, see 'snap help refresh'
+
+--
+-- Restart Apache2
+--
+#########################################
+# BASE Setup Complete
+#########################################

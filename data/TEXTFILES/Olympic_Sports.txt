@@ -1,0 +1,27 @@
+aquatics
+archery
+athletics
+badminton
+baseball
+basketball
+boxing
+canoeing
+cycling
+equestrian
+fencing
+football
+gymnastics
+handball
+hockey
+judo
+modern pentathlon
+rowing
+sailing
+shooting
+softball
+table tennis
+taekwondo
+tennis
+triathlon
+volleyball
+weightlifting

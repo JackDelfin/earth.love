@@ -1,0 +1,14 @@
+asterisk
+brackets
+colon
+comma
+dash
+ellipses
+exclamation point
+parentheses
+period
+question mark
+quotation marks
+semicolon
+single quotation marks
+slash

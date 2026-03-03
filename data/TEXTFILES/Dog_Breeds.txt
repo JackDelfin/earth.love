@@ -1,0 +1,46 @@
+Afghan Hound
+Airedale
+Airedale Terrier
+Basenji
+Basset Hound
+Beagle
+Bloodhound
+Border Collie
+Boxer
+Bulldog
+Chihuahua
+Chow Chow
+Cocker Spaniel
+Coonhound
+Corgi
+Dachshund
+Dalmatian
+Doberman
+Fox Terrier
+Foxhound
+German Shepherd
+Golden Retriever
+Great Dane
+Greyhound
+Hound
+Irish Setter
+Irish Wolfhound
+Labrador
+Lhasa Apso
+Newfoundland
+Pekingese
+Pit Bull
+Pit Bull Terrier
+Pointer
+Pomeranian
+Poodle
+Saint Bernard
+Schnauzer
+Scottish Terrier
+Sheepdog
+Shih Tzu
+Siberian Husky
+Spaniel
+Spitz
+Terrier
+Wolfhound

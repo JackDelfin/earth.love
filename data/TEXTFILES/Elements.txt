@@ -1,0 +1,352 @@
+Ac
+Actinium
+Actinium (Ac)
+Ag
+Al
+Aluminum
+Aluminum (Al)
+Am
+Americium
+Americium (Am)
+Antimony
+Antimony (Sb)
+Ar
+Argon
+Argon (Ar)
+Arsenic
+Arsenic (As)
+As
+Astatine
+Astatine (At)
+At
+Au
+B
+Ba
+Barium
+Barium (Ba)
+Be
+Berkelium
+Berkelium (Bk)
+Beryllium
+Beryllium (Be)
+Bh
+Bi
+Bismuth
+Bismuth (Bi)
+Bk
+Bohrium
+Bohrium (Bh)
+Boron
+Boron (B)
+Br
+Bromine
+Bromine (Br)
+C
+Ca
+Cadmium
+Cadmium (Cd)
+Calcium
+Calcium (Ca)
+Californium
+Californium (Cf)
+Carbon
+Carbon (C)
+Cd
+Ce
+Cerium
+Cerium (Ce)
+Cesium
+Cesium (Cs)
+Cf
+Chlorine
+Chlorine (Cl)
+Chromium
+Chromium (Cr)
+Cl
+Cm
+Cn
+Co
+Cobalt
+Cobalt (Co)
+Copernicium
+Copernicium (Cn)
+Copper
+Copper (Cu)
+Cr
+Cs
+Cu
+Curium
+Curium (Cm)
+Darmstadtium
+Darmstadtium (Ds)
+Db
+Ds
+Dubnium
+Dubnium (Db)
+Dy
+Dysprosium
+Dysprosium (Dy)
+Einsteinium
+Einsteinium (Es)
+Er
+Erbium
+Erbium (Er)
+Es
+Eu
+Europium
+Europium (Eu)
+F
+Fe
+Fermium
+Fermium (Fm)
+Fl
+Flerovium
+Flerovium (Fl)
+Fluorine
+Fluorine (F)
+Fm
+Fr
+Francium
+Francium (Fr)
+Ga
+Gadolinium
+Gadolinium (Gd)
+Gallium
+Gallium (Ga)
+Gd
+Ge
+Germanium
+Germanium (Ge)
+Gold
+Gold (Au)
+H
+Hafnium
+Hafnium (Hf)
+Hassium
+Hassium (Hs)
+He
+Helium
+Helium (He)
+Hf
+Hg
+Ho
+Holmium
+Holmium (Ho)
+Hs
+Hydrogen
+Hydrogen (H)
+I
+In
+Indium
+Indium (In)
+Iodine
+Iodine (I)
+Ir
+Iridium
+Iridium (Ir)
+Iron
+Iron (Fe)
+K
+Kr
+Krypton
+Krypton (Kr)
+La
+Lanthanum
+Lanthanum (La)
+Lawrencium
+Lawrencium (Lr)
+Lead
+Lead (Pb)
+Li
+Lithium
+Lithium (Li)
+Livermorium
+Livermorium (Lv)
+Lr
+Lu
+Lutetium
+Lutetium (Lu)
+Lv
+Magnesium
+Magnesium (Mg)
+Manganese
+Manganese (Mn)
+Mc
+Meitnerium
+Meitnerium (Mt)
+Mendelevium
+Mendelevium ()
+Mercury
+Mercury (Hg)
+Mg
+Mn
+Mo
+Molybdenum
+Molybdenum (Mo)
+Moscovium
+Moscovium (Mc)
+Mt
+N
+Na
+Nb
+Nd
+Ne
+Neodymium
+Neodymium (Nd)
+Neon
+Neon (Ne)
+Neptunium
+Neptunium (Np)
+Nh
+Ni
+Nickel
+Nickel (Ni)
+Nihonium
+Nihonium (Nh)
+Niobium
+Niobium (Nb)
+Nitrogen
+Nitrogen (N)
+No
+Nobelium
+Nobelium (No)
+Np
+O
+Og
+Oganesson
+Oganesson (Og)
+Os
+Osmium
+Osmium (Os)
+Oxygen
+Oxygen (O)
+P
+Pa
+Palladium
+Palladium (Pd)
+Pb
+Pd
+Phosphorus
+Phosphorus (P)
+Platinum
+Platinum (Pt)
+Plutonium
+Plutonium (Pu)
+Pm
+Po
+Polonium
+Polonium (Po)
+Potassium
+Potassium (K)
+Pr
+Praseodymium
+Praseodymium (Pr)
+Promethium
+Promethium (Pm)
+Protactinium
+Protactinium (Pa)
+Pt
+Pu
+Ra
+Radium
+Radium (Ra)
+Radon
+Radon (Rn)
+Re
+Rf
+Rg
+Rh
+Rhenium
+Rhenium (Re)
+Rhodium
+Rhodium (Rh)
+Rn
+Roentgenium
+Roentgenium (Rg)
+Ru
+Rubidium
+Rubidium (Rh)
+Ruthenium
+Ruthenium (Ru)
+Rutherfordium
+Rutherfordium (Rf)
+S
+Samarium
+Samarium (Sm)
+Sb
+Sc
+Scandium
+Scandium (Sc)
+Se
+Seaborgium
+Seaborgium (Sg)
+Selenium
+Selenium (Se)
+Sg
+Si
+Silicon
+Silicon (Si)
+Silver
+Silver (Ag)
+Sm
+Sn
+Sodium
+Sodium (Na)
+Sr
+Strontium
+Strontium (Sr)
+Sulfur
+Sulfur (S)
+Ta
+Tantalum
+Tantalum (Ta)
+Tb
+Tc
+Te
+Technetium
+Technetium (Tc)
+Tellurium
+Tellurium (Te)
+Tennessine
+Tennessine (Ts)
+Terbium
+Terbium (Tb)
+Th
+Thallium
+Thallium (Tl)
+Thorium
+Thorium (Th)
+Thulium
+Thulium (Tm)
+Ti
+Tin
+Tin (Sn)
+Titanium
+Titanium (Ti)
+Tl
+Tm
+Ts
+Tungsten
+Tungsten (W)
+U
+Uranium
+Uranium (U)
+V
+Vanadium
+Vanadium (V)
+W
+Xe
+Xenon
+Xenon (Xe)
+Y
+Yb
+Ytterbium
+Ytterbium (Yb)
+Yttrium
+Yttrium (Y)
+Zinc
+Zinc (Zn)
+Zirconium
+Zirconium (Zr)
+Zn
+Zr

@@ -1,0 +1,5 @@
+<!--- #OML[EL_INPUT_HIDDEN][DATA]# --->
+#OML[EL_INPUT_HEADER_LITE]#
+#_hidden_=PARSE[_#_datafile_#]#
+#_FORMFIELDS_=APPEND[#_FORMFIELDS_#][#_hidden_#][,]#
+<input type="hidden" name="#_hidden_#" value="#_value_.html#">

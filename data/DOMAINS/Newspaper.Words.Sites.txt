@@ -1,0 +1,15 @@
+Advertisement.earth
+Advice.earth
+Cartoon.earth
+Column.earth
+Comics.earth
+Correspondent.earth
+Evening.earth
+Extra.earth
+Feature.earth
+Lead.earth
+Morning.earth
+Newspaper.earth
+Newspapers.earth
+Obituary.earth
+Reporter.earth

@@ -1,0 +1,9 @@
+<!--- EL_SEARCH_CATS Search and Show Categories this item is on --->
+#_DATA_MSG_=MSG[Categories]#
+#LOADTOKEN[
+BOX_COLOR   =[el-chakra3]
+_DATA_HREF_ =[#elshow##1.tr#&object=cat]
+]#
+#OMLIF[#_STATIC_#][EL_SEARCH_CATS_STATIC]#
+#FUNCTION[EL_GET_DATA][CATS]#
+#RESTORE[_DATA_HREF_ BOX_COLOR]#

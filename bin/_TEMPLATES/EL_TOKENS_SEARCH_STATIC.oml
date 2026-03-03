@@ -1,0 +1,2 @@
+<!--- EL_TOKENS_SEARCH_STATIC - set the DATA HREF for static pages --->
+#_DATA_HREF_=[#DOTDOT##DATAPATH[#root#][#1#]#index.html]#

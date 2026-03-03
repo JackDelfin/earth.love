@@ -1,0 +1,10 @@
+Board.earth
+Book.earth
+Chair.earth
+Clock.earth
+Computer.earth
+Dictionary.earth
+Eraser.earth
+Notebook.earth
+Pen.earth
+Pencil.earth

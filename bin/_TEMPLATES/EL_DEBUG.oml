@@ -1,0 +1,37 @@
+#STOP[0]#
+<!---
+Show anywhere as #OML[EL_DEBUG]#  Turn off with 1 above
+Example:
+  $O->Append_Token('_DEBUG_', '['.$Fields.']');
+  $O->Append_Token('_URGENT_MESSAGE_', '['.$Fields.']');
+--->
+#OML[EL_FN_DIVSPAN]
+[<pre>
+_WordDir_: #_WORDDIR_#
+_WordFound_  : #_WORDFOUND_#
+_BadWord_    : #_BADWORD_#
+_PARTIALWORD_: #_PARTIALWORD_#
+</pre>][<pre>
+
+_WordType_: #_WORDTYPE_#
+_Word_    : #_WORD_#
+_Phrase_  : #_PHRASE_#
+_Path_    : #_PATH_#
+STEP  : #STEP#
+STEPS : #STEPS#
+</pre>][<pre>
+
+DOMAIN: #DOMAIN#
+ROOT  : #ROOT#
+LANG  : #LANG#
+WORD  : #word#
+PAGE  : #PAGE#
+OBJECT: #OBJECT#
+MENU  : #MENU#
+</pre>]#
+
+#OML[EL_FN_DIVSPAN]
+[<pre>
+FORMFIELDS: #FORMFIELDS#
+_DEBUG_   : #_DEBUG_#
+</pre>]#

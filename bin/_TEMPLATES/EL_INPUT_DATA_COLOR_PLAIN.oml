@@ -1,0 +1,28 @@
+<!--- #OML[EL_INPUT_DATA_COLOR_PLAIN]# - quick show of the Color options - no formatting--->
+#OML[EL_INPUT_SELECT][COLOR][Color][]
+    [,red,orange,yellow,green,blue,indigo,violet
+,pale-red
+,deep-orange
+,amber
+,pale-yellow
+,sand
+,pale-green
+,khaki
+,lime
+,light-green
+,teal
+,pale-blue
+,aqua
+,light-blue
+,cyan
+,deep-purple
+,purple
+,pink
+,black
+,brown
+,dark-gray
+,blue-grey
+,grey
+,light-grey
+,white
+]#

@@ -1,0 +1,194 @@
+##########################################
+#
+# INSTALL.txt
+#
+# INSTRUCTIONS for a "Full Install" of
+# the earth.love framework:
+#
+# If you have not read SETUP.txt, that's
+# a good place to start.
+#
+# 3 Components
+# ---------------------
+#   MODEL    :  akashic
+#   CONTROL  :  eagle
+#   VIEW     :  orbit
+#
+# History:
+#   XXI.04.08 oK Created
+################################################################################
+
+--------------------------------------------------
+0. Choose your Environment and Operating System.
+--------------------------------------------------
+
+http://SYS.earth
+
+http://LINUX.earth
+http://Windows.earth
+
+http://earth.love
+
+
+--------------------------------------------------
+1. Install and Configure YOUR
+   Development Environment
+--------------------------------------------------
+
+http://DEVELOP.earth
+
+
+--------------------------------------------------
+2. Install perl.
+--------------------------------------------------
+
+http://perl.org
+http://gnu.org
+
+http://PERL.earth
+http://gnu.earth.love
+http://OpenSourceSoftware.earth
+
+
+--------------------------------------------------
+3. Install Apache.
+--------------------------------------------------
+
+http://apache.org
+
+http://WEB.earth
+http://apache.earth.love
+http://OpenSourceSoftware.earth
+
+
+--------------------------------------------------
+4. INSTALL earth.love (with Akashic and Orbit for Perl)
+   from your development environment
+   or community server
+--------------------------------------------------
+
+------------------------------
+4.1 Run the INSTALL_earthlove.pl script
+------------------------------
+
+perl INSTALL_earthlove.pl
+
+NOTE: Run the script to show user configurable parameters
+
+------------------------------
+4.2 Configure Apache:
+------------------------------
+
+1. Edit the httpd.conf Web Server Configuration file
+   in Apache.
+
+EDIT FILE: <APACHE>/conf/httpd.conf
+
+2. Search for ServerAdmin in Apache httpd.conf.
+
+CHANGE:
+# Community Admin for this earth.love server
+ServerAdmin COMMUNITY_ADMIN@earth.love
+
+COMMUNITY_ADMIN is the specific email setup for the
+community Server.
+
+If you need a COMMUNITY_ADMIN email at @earth.love,
+please see:
+  http://COMMUNITIES.earth
+  eco://Communities
+
+3. Include Virtual Hosts in Apache httpd.conf.
+
+CHANGE:
+
+# Virtual hosts
+# Include conf/extra/httpd-vhosts.conf
+
+TO:
+
+# Virtual hosts
+Include conf/extra/httpd-vhosts.conf
+
+4. Edit the Virtual Hosts file in Apache.
+
+EDIT FILE: <APACHE>/conf/extra/httpd-vhosts.conf
+
+5. ADD Virtual Hosts lines from:
+
+  DEVELOPMENT_VIRTUAL_HOSTS.txt
+
+to the httpd_vhosts.conf file.
+
+!!!Edit appropriately for your configuration!!!
+
+6. DIRECTORY: <APACHE>/htdocs
+
+ADD YOUR COMMUNITY STATIC PAGE FILE: index.html
+
+INDEX.HTML - earth.love version comes as default
+             if you wish
+
+7. DIRECTORY: <APACHE>/cgi-bin
+
+Confirm earth.love installation files are present:
+
+  akashic.pl
+  eagle.pl
+  orbit.pl
+
+
+--------------------------------------------------
+5. Configure your local hosts
+--------------------------------------------------
+Local hosts:
+  /etc/hosts
+  c:/windows/system32/drivers/etc/hosts
+
+Output from UNITY will give instructions
+and DATA to COPY-PASTE.
+
+
+--------------------------------------------------
+6. Restart Apache
+--------------------------------------------------
+
+httpd -k restart
+
+
+--------------------------------------------------
+7. Point your WEB browser to MY.earth.love
+--------------------------------------------------
+
+http://MY.earth.love
+
+
+--------------------------------------------------
+
+oK That should do it!
+
+Thank you for supporting earth.love!
+CREATE!
+
+If you should find yourself needing any help,
+please check out:
+  http://Support.earth
+  http://Support.earth.love
+  eco://Support
+  e:Support
+
+
+oK
+Unity COnsciousness
+COllective Knowledge
+Open(Source)
+
+  O
+O   O
+  O
+O   O
+  O
+
+__O__
+ / \
+/ . \

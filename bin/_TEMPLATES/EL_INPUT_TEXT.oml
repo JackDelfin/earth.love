@@ -1,0 +1,4 @@
+<!--- #OML[EL_INPUT_TEXT][DATA][Label]# --->
+#INC[EL_INPUT_HEADER]#
+<input type="text"#CLASS_INPUT_TEXT# name="#_data_#" size="42" value="#_value_.html#">
+#INC[EL_INPUT_FOOTER]#

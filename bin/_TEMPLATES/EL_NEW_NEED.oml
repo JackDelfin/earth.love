@@ -1,0 +1,20 @@
+#ROOT=[NEEDS]#
+<div class="w3-container">
+<h2>#MSG[Request Resource]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+#OML[EL_INPUT_STEPS][3]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [NAME_REQ][Resource Name]#
+#ifOML[#STEP1.0.NOT#][EL_INPUT_VIEW][]    [NAME_REQ][]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [LOCS][Location Needed]#
+#ifOML[#STEP2#][EL_INPUT_DATA_COLOR][#H#] [COLOR]#<!--- Urgency --->
+#ifOML[#STEP1#][EL_INPUT_NUMBER][#H#]     [QTY_REQ][Quantity Needed]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [QTYTYPE][Quantity Type (units, feet, etc)]#
+#ifOML[#STEP1#][EL_INPUT_NUMBER][#H#]     [DESC][Description]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

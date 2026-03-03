@@ -1,0 +1,27 @@
+<!--- EL_NAV_CAMPS - Show the Camps Menu --->
+#INCif[#omlCIRCLENAV.NOTEXISTS#][EL_TOKENS_NAV_OML]#
+#LOADMSG[
+FlowerHead =[Camp Navigator]
+_NAV1      =[Checkins & Updates]
+_NAV2      =[Calendar & Reminders]
+_NAV3      =[To-Dos]
+_NAV4      =[Message Board]
+_NAV5      =[Campfire Chat]
+_NAV6      =[Docs & Files]
+_NAV7      =[Messages & Mail]
+]#
+#LOADTOKEN[
+PMENU     =[CAMPS]
+_subroot1 =[Checkins.earth]<!--- updates.earth --->
+_subroot2 =[Schedules.earth]<!--- schedule.earth iCantRemember.earth --->
+_subroot3 =[ToDos.earth]<!--- todo.earth today.earth tasks.earth lists.earth --->
+_subroot4 =[Boards.earth]<!--- board.earth boards.earth --->
+_subroot5 =[Chats.earth]<!--- chatting.earth --->
+_subroot6 =[Docs.earth]<!--- doc.earth document.earth documents.earth --->
+_subroot7 =[Messenger.earth]<!--- mails.earth mailboxes.earth mailroom.earth mailrooms.earth TMail.earth boxes.earth --->
+_NAVLINK  =[<a class="w3-link-plain" href="#ELSHOW#&pmenu=#pmenu#&domain=#_subroot#">#_NAVTEXT#</a>]
+]#
+<div class="w3-container">
+<h2 class="#CLASS_FLOWER_HEAD# el-chakra3">#FlowerHead#</h2>
+<div class="w3-container">#include![EL_VIEW_FLOWER]#</div>
+</div>

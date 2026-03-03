@@ -1,0 +1,93 @@
+<!--- TOKENS.oml - LOAD TEMPLATE TOKENS --->
+<!--- Set _root_name_ _root_short_ _root_color_ _root_object_ --->
+#BACKUP[ROOT]#
+#OML[EL_FN_SET_ROOT]#
+<!--- Configuration --->
+<!---#LOGSTATS[0]#
+#DEBUG=[0]#
+#SHOWCOMMENTS[#DEBUG#]#--->
+<!--- Message Translation Options --->
+#MSGTranslate[1]#<!--- Translate if available --->
+#MSGInsert   [1]#<!--- Insert New Messages if Translate is turned on--->
+<!---#TESTING STATIC FILE EXTRACTION with DOTDOT and DATAPATH --->
+<!---
+#DOTDOT=DOTDOT[#root#][cat]#<!--- #TESTING --->
+#_STATIC_=[0]#
+--->
+<!--- MSG BULK LOAD --->
+#LOADMSG[
+BUTTON_SEARCH_NAME =Search
+HEADER_CENTER_MSG  =Planetary Directory
+PROMPT_ERROR       =[Error ]
+PROMPT_SUCCESS     =[Success ]
+PROMPT_ODDS        =[Never tell me the odds!]
+]#
+<!--- TOKEN BULK LOAD --->
+#LOADTOKEN[
+_ORBIT             =PARSE[#ENV_HOST##ENV_CONTEXT_PREFIX#]
+
+MAX_DEF            =NVL[#MAX_DEF_USER#][7]
+LIST               =NVL[#LIST#][button]<!--- Default List Style to Bubble --->
+MAX_RECORDS_LIST   =[#MAX_DEF#,10,20,30,50,80,130,210,340,All]
+TEXTAREA_ROWS_DEF  =[7]
+
+BOX                =[w3-container w3-card-4 w3-padding-small w3-border-black w3-margin w3-center w3-round-xlarge #BOX_COLOR#]
+BOX_COLOR          =[w3-light-blue]
+BOX_HEAD           =[w3-container w3-card-4 w3-center w3-round-xlarge #BOX_HEAD_COLOR#]
+BOX_HEAD_COLOR     =[w3-teal]
+BOX_ROW            =[w3-#LIST# w3-padding-small w3-border w3-card-4 w3-hover w3-margin-8 w3-center w3-round-xlarge #BOX_ROW_COLOR#]
+BOX_ROW_COLOR      =[w3-light-gray]
+
+BUTTON_CLASS       =[w3-button w3-card-4 w3-hover w3-round-xxlarge w3-margin-4 w3-large]
+BUTTON_SEARCH      =[<input type="submit" class="w3-button w3-green w3-card-4 w3-hover w3-round-xxlarge w3-large w3-margin-4" value="#BUTTON_Search_NAME#">]
+BUTTON_ADD_COLOR   =[w3-blue w3-greyscale-min]
+BUTTON_NEW_COLOR   =[w3-green]
+BUTTON_MENU_COLOR  =[w3-indigo w3-greyscale-min]
+
+CLASS_FLOWER_HEAD  =[w3-container w3-card-4 w3-border w3-margin w3-center w3-round-xlarge w3-padding-small]
+CLASS_HEAD         =[w3-container w3-card-4 w3-border w3-margin w3-center w3-round-xlarge w3-padding-small]
+CLASS_FIELD_VIEW   =[ class="w3-panel #CLASS_FIELD_VIEW_COLOR# w3-margin w3-padding w3-round-xlarge"]
+CLASS_FIELD_VIEW_COLOR=[w3-light-grey]
+CLASS_LABEL        =[ class="w3-large#CLASS_LABEL_COLOR# w3-margin-top w3-padding-small w3-round-xlarge"]
+CLASS_LABEL_COLOR  =[]
+MOBILE             =[w3-mobile ]
+
+ELNEWWORD          =[#_ORBIT#elnew?r=LANGS/#LANG#&l=#LANG#&o=word&w=#WORD#&p=el_show&formfields=_name_req&_name_req=#WORD#]
+ELEDIT             =[#_ORBIT#eledit?r=#ROOT#&l=#LANG#&o=#OBJECT#&p=el_edit&w=#WORD.TR#&data=]
+ELSHOW             =[#_ORBIT#elshow?r=#ROOT#&l=#LANG#&p=el_show&w=]<!--- Must set object after &o=cat --->
+ELSHOWNAV          =[#_ORBIT#elshow?pr=#root#&l=#LANG#&]
+
+TITLE              =[earth.love - #_root_name_#]
+
+HEADER             =[<a class="w3-link-plain w3-cursive" href="#_ORBIT#page">earth.love</a>#OML[EL_LOGO_LIGHTS]#]
+HEADER_BOX         =[w3-container w3-padding-small w3-round-xlarge w3-margin #HEADER_COLOR#]
+HEADER_COLOR       =[w3-teal]
+HEADER_MESSAGE_BOX =[w3-panel w3-round-xlarge w3-padding-small w3-blue]
+HEADER_CENTER      =[#HEADER_CENTER_MSG#<br><div class="#_ROOT_COLOR_# w3-card w3-round-xxlarge w3-margin-4"><b>#_ROOT_SHORT_#</b></div>]
+HEADER_WORD_BOX    =[w3-panel w3-large w3-round-xlarge w3-padding-small w3-blue]
+FOOTER_BOX         =[w3-container w3-padding-small w3-round-xlarge w3-margin w3-center #FOOTER_COLOR#]
+FOOTER_COLOR       =[w3-teal]
+
+MSG_BADWORD        =[Bad Phrase:(#_BADWORD_#)]
+MSG_WORDNOTFOUND   =[#_WORDTYPE_# Not Found:(#Word#)]
+MSG_SEARCH         =[Search for Word or Phrase]
+MSG_URGENT         =[#_URGENT_MESSAGE_#]<!--- NOT an AD opportunity NOT --->
+
+_URGENT_MESSAGE_   =[<a href="http://urgent.earth/o/page?p=MSG&r=langs/eng&lang=#LANG#&w=urgent">No URGENT messages</a>]
+
+NEXT_PREV          =[#INC[EL_NAV_NEXT_PREV]#]
+
+SHOWWORD           =[#_ORBIT#page?d=#ENV_SERVER_NAME#&r=#ROOT#&l=#LANG#&o=#OBJECT#&p=#PAGE#&m=#MENU#&w=]
+SHOWPAGE           =[#_ORBIT#page?d=#ENV_SERVER_NAME#&r=#ROOT#&l=#LANG#&o=#OBJECT#&m=#MENU#&w=#WORD#&p=]
+SHOWDOM            =[#_ORBIT#page?r=#ROOT#&l=#LANG#&o=#OBJECT#&m=#MENU#&w=#WORD#&p=#PAGE#&d=]
+SHOWPAGE_POST      =[#_ORBIT#page]
+SHOWWORDlite       =[#_ORBIT#page?d=#ENV_SERVER_NAME#r=#ROOT#&l=#LANG#&w=]
+SHOWPAGElite       =[#_ORBIT#page?d=#ENV_SERVER_NAME#r=#ROOT#&l=#LANG#&p=]
+SHOWPAGE_BUTTON    =[#_ORBIT#page?l=#LANG#]
+
+<!--- EL_SS_BASIC / EL_SS_BASIC_LINK / EL_SS_BASIC_LINK_STATIC --->
+STYLE              =[EL_SS_BASIC_LINK_STATIC]
+
+]#<!---END LOADTOKEN--->
+<!--- Backup certain tokens for easy RESTORE when overriding --->
+#BACKUP[WORD LANG MENU PMENU OBJECT PAGE BOX_COLOR BOX_HEAD_COLOR BOX_ROW_COLOR CLASS_LABEL_COLOR CLASS_FIELD_VIEW_COLOR]#

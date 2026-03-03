@@ -1,0 +1,7 @@
+Clams.earth
+Crabs.earth
+Insects.earth
+Lobster.earth
+Octopus.earth
+Shrimp.earth
+Spiders.earth

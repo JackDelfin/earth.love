@@ -1,0 +1,12 @@
+dog
+dragon
+horse
+monkey
+ox
+pig
+rabbit
+rat
+rooster
+sheep
+snake
+tiger

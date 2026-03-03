@@ -1,0 +1,15 @@
+#------------------------------------------------
+# earth.love aliases and scripts
+#------------------------------------------------
+alias dom='grep /ELDOMS/DOMS.dat -e'
+alias domf='grep /ELDOMS/elFORWARDS.txt -e'
+alias doms='grep /ELDOMS/setGoDaddy.txt -e'
+alias domg='grep /ELDOMS/getGoDaddy.txt -e'
+alias dw='grep /ELDOMS/DWEEM.dat -e'
+alias d='/ELBIN/d '
+# dig +short for a domain
+alias ds='dig +short '
+# Check IP - reverse lookup
+alias cip='/ELBIN/cip '
+PATH=$PATH:/ELBIN
+#------------------------------------------------

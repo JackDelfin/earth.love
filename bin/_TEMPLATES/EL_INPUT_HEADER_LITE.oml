@@ -1,0 +1,6 @@
+<!--- #OML[EL_INPUT_HEADER_LITE]# - NO LABEL - Sets the _DATA_ _REQ_ _VALUE_ _DATAFILE_ Tokens for the Input Generator --->
+#_data_=PARSE[_#_1_.lower#]#
+#_req_=iLIKE[#_data_#][*_req]#
+#_value_=iREPLACE[#_data_#][_req$]#<!--- Don't use _req for storing value --->
+#_datafile_=LTRIM[#_value_#][_]#
+#_value_=GETTOKEN[#_value_#]#

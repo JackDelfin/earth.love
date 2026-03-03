@@ -1,0 +1,10 @@
+college
+elementary school
+graduate school
+high school
+junior college
+junior high school
+kindergarten
+nursery
+technical school
+university

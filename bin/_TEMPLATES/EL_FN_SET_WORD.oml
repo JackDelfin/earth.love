@@ -1,0 +1,7 @@
+<!--- #OML[EL_FN_SET_WORD]# - Set _word_name_ _word_short_ _word_color_ --->
+#_word_name_ =FIELD[#ROOT#][#word#][NAME]#
+#_word_name_ =NVL[#_word_name_#][#word.initname#]#
+#_word_short_=FIELD[#ROOT#][#word#][SHORT]#
+#_word_short_=NVL[#_word_short_#][#word.initname#]#
+#_word_color_=FIELD[#ROOT#][#word#][COLOR]#
+#_word_color_=EXISTS[#_word_color_#][w3-#_word_color_#]#

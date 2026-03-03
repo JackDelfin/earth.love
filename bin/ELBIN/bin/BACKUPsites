@@ -1,0 +1,22 @@
+#!/bin/bash
+# BACKUPsites
+# Bacup letsencrypt SSL certs and apache sites-available
+
+mkdir /home/el/ARCHIVES 2>/dev/null; cd /home/el/ARCHIVES;
+MYDATE=`date +%Y%m%d_%H%M%S`; 
+
+# Backup the Certbot certificates and sites-available and sites-enabled
+sudo tar czvf letsencrypt_$MYDATE.tgz /etc/letsencrypt/*; 
+sudo tar czvf apachesitesAVAILABLE_$MYDATE.tgz /etc/apache2/sites-available/;
+#sudo tar czvf apachesitesENABLED_$MYDATE.tgz /etc/apache2/sites-enabled/; 
+
+# Remove old symbolic links
+sudo rm -v letsencrypt.tgz apachesitesAVAILABLE.tgz apachesitesENABLED.tgz 2>/dev/null;
+
+# Create new symbolic links
+sudo ln -s letsencrypt_$MYDATE.tgz letsencrypt.tgz;
+sudo ln -s apachesitesAVAILABLE_$MYDATE.tgz apachesitesAVAILABLE.tgz;
+#sudo ln -s apachesitesENABLED_$MYDATE.tgz apachesitesENABLED.tgz;
+
+ls -lat |head -n12;
+

@@ -1,0 +1,4 @@
+<!--- #OML[EL_INPUT_TEXT][DATA][Label]# --->
+#INC[EL_INPUT_HEADER]#
+<input type="file"#CLASS_INPUT_TEXT# name="#_data_#">
+#INC[EL_INPUT_FOOTER]#

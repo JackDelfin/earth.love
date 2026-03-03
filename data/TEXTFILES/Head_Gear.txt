@@ -1,0 +1,10 @@
+bandana
+baseball cap
+beret
+cap
+cowboy hat
+ear muffs
+hardhat
+hat
+helmet
+scarf

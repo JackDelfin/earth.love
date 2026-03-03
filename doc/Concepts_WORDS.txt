@@ -1,0 +1,53 @@
+--------------------------------------------------
+WORDS Directory
+--------------------------------------------------
+Stores a WORD in the WORDS structure (w/o/r/d/s/words)
+--------------------------------------------------
+
+A word in earth.love is symbolized by several
+characters or numbers, and only quote (') and
+dash/hyphen (-).
+
+The forward direction of the WORD is stored here
+like this: (WORDS/f/a/n/t/a/s/t/i/c/fantastic)
+(up to 200 max characters-OS_Limitation).
+
+--------------------------------------------------
+Example
+--------------------------------------------------
+
+planets
+
+CREATES the WORDS subdirectories (in lowercase):
+
+Directory:
+--------------------------------------------------
+WORD/p/l/a/n/e/t/s/planets
+
+Potential Files:
+--------------------------------------------------
+WORD.dat     => planets
+KEYWORD.dat  => planets
+NAME.dat     => Planets
+TEXT.dat     => (General text for the WORD)
+TREES.dat    => solar.system.TREE
+PREFIX.dat   => All words found in subdirectories
+LINKS.dat    => planets.earth; planets.earth.love
+BRANCHES.dat => planets.in.our.solar.system
+PHRASES.dat  => planets.containing.life
+PATHS.dat    => earth.planets.earth
+                earth.planets.mars
+                earth.planets.venus
+                earth.planets.jupiter
+
+
+PHRASES, BRANCHES, TREES, and PATHS
+--------------------------------------------------
+The individual words in the WORDS tree will be listed
+on WORDS.dat in the corresponding PHRASES, BRANCHES,
+TREES, and PATHS directories, cross-referencing the
+PHRASES, BRANCHES, TREES, and PATHS with WORDS.
+
+--------------------------------------------------
+
+-Word Smith

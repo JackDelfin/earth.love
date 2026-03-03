@@ -1,0 +1,7 @@
+#BOX_COLOR=[el-chakra5]#
+#BOX_HEAD_COLOR=[w3-light-blue]#
+#_DATA_MSG_=MSG[Paths]#
+#_GETNAME_=[#FIELD[#ROOT#][#1#][NAME]#]#<!--- Get the NAME for the item --->
+#_DATA_BODY_=[<a class="w3-link-plain" href="#showpage##1.tr#"><div class="#BOX_ROW#">#NVL[#_GETNAME_#][#1.html#]#</div></a>]#
+#FUNCTION[EL_GET_DATA][PATHS]#
+#RESTORE[BOX_COLOR][BOX_HEAD_COLOR]#

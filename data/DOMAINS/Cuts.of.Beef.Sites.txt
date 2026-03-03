@@ -1,0 +1,14 @@
+Blade.earth
+Chuck.earth
+Cross.earth
+MeatBall.earth
+MeatBalls.earth
+Meats.earth
+Meats101.earth
+Neck.earth
+Plate.earth
+Rib.earth
+Ribs.earth
+Short.earth
+Shoulder.earth
+Strip.earth

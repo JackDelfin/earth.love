@@ -1,0 +1,14 @@
+baseball field
+bathroom
+cafeteria
+classroom
+gym
+lab
+library
+locker room
+office
+playground
+principal's room
+soccer field
+swimming pool
+teacher's room

@@ -1,0 +1,16 @@
+<div class="w3-container">
+#INC[EL_HEADER_WORD]#
+<h2>#MSG[Add Category]#</h2>
+#OML[EL_FORM_DATA_ADD][CAT]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_TEXT][NAME_REQ][Category]#
+#OML[EL_INPUT_SELECT][TYPE][Type][#_def#][Category|Grouping|Other]#
+#OML[EL_INPUT_TEXT][SHORT][Short Name]#
+#OML[EL_INPUT_TEXTAREA][DESC][Description]#
+#OML[EL_INPUT_TEXT][PATHS][Web Site]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

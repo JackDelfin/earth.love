@@ -1,0 +1,10 @@
+beet
+carrot
+Japanese radish
+kohlrabi
+parsnip
+potato
+radish
+rutabaga
+sweet potato
+yam

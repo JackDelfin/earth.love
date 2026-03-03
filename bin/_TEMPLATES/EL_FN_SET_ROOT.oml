@@ -1,0 +1,6 @@
+<!--- #OML[EL_FN_SET_ROOT]# - sets all Root variables --->
+#FIELDMSG[#ROOT#][][NAME SHORT OBJECT COLOR][_root_][_]#
+#_root_name_  =NVL[#_root_name_#][#root.initcap#]#
+#_root_short_ =NVL[#_root_short_#][#_root_name_#]#
+#_root_object_=NVL[#_root_object_#][#root#]#
+#_root_color_ =EXISTS[#_root_color_#][w3-#_root_color_#][#BOX_ROW_COLOR#]#

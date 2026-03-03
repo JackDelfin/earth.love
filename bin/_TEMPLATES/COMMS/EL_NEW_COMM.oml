@@ -1,0 +1,29 @@
+#ROOT=[COMMS]#
+<div class="w3-container">
+<h2>#MSG[Create Community]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+#OML[EL_INPUT_STEPS][4]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [NAME_REQ][Community Name]#
+#ifOML[#STEP1.0.NOT#][EL_INPUT_VIEW][]    [NAME_REQ][]#
+
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [SHORT][Short Name]#
+#ifOML[#STEP1#][EL_INPUT_SELECT][#H#]     [TYPE_REQ][Community Type][Other new]
+   [EcoVillage|Egalitarian|Commune|Cohousing|Neighborhood|Student Coop|Spiritual|Religious|Shared Housing|Other]#-
+
+#ifOML[#STEP2#][EL_INPUT_DATA_COLOR][#H#] [COLOR][Color]#
+#ifOML[#STEP2#][EL_INPUT_TEXTAREA][#H#]   [DESC][Description]#
+
+#ifOML[#STEP3#][EL_INPUT_ROOTS][#H#]      [LOCS][Locations]#
+#ifOML[#STEP4#][EL_INPUT_ROOTS][#H#]      [GUILDS][Guilds]#
+#ifOML[#STEP5#][EL_INPUT_ROOTS][#H#]      [ORGS][Organizations]#
+#ifOML[#STEP6#][EL_INPUT_ROOTS][#H#]      [JOBS][Projects]#
+#ifOML[#STEP7#][EL_INPUT_ROOTS][#H#]      [RESOURCES][Resources]#
+#ifOML[#STEP8#][EL_INPUT_ROOTS][#H#]      [NEEDS][Resource Needs]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

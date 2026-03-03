@@ -1,0 +1,11 @@
+Aluminum.earth
+Brass.earth
+Brick.earth
+Bronze.earth
+Cardboard.earth
+Cement.earth
+Diamond.earth
+Fiber.earth
+Gold.earth
+Silver.earth
+Wool.earth

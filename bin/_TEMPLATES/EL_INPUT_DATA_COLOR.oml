@@ -1,0 +1,36 @@
+<!--- #OML[EL_INPUT_DATA_COLOR]# - quick show of the Color options (IN COLOR) --->
+#_1_=NVL[#_1_#][COLOR]#
+#_2_=NVL[#_2_#][Choose Color]#
+#OML[EL_INPUT_HEADER]#
+#_OPTION_CLASS_=[ w3-round-xlarge w3-padding-small]#
+#_options_=OPTIONS[,red,orange,yellow,green,blue,indigo,violet
+,pale-red
+,deep-orange
+,amber
+,pale-yellow
+,sand
+,pale-green
+,khaki
+,lime
+,light-green
+,teal
+,pale-blue
+,aqua
+,light-blue
+,cyan
+,deep-purple
+,purple
+,pink
+,black
+,brown
+,dark-gray
+,blue-grey
+,grey
+,light-grey
+,white
+][,][<option class="w3-#_OPTION_VALUE_# #_OPTION_CLASS_#" value="#_OPTION_VALUE_#">#_OPTION_DISPLAY_#</option>]#
+<select name="#NVL[#_data_#][_color]#" #CLASS_SELECT#
+  onselected="print 'go'; document.forms.data.submit(); return 0;"><!--- elements._color.class='w3-blue';--->
+#SELECTED[#_options_#][#_value_#][][][#_req_#]#
+</select>
+#OML[EL_INPUT_FOOTER]#

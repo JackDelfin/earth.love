@@ -1,0 +1,6 @@
+Helium.earth
+Methane.earth
+Nitrogen.earth
+Oxide.earth
+Oxygen.earth
+Propane.earth

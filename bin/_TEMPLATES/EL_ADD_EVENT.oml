@@ -1,0 +1,17 @@
+<div class="w3-container">
+#INC[EL_HEADER_WORD]#
+<h2>#MSG[Add Event]#</h2>
+#OML[EL_FORM_DATA_ADD][EVENT]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_TEXT][EVENT_REQ][Event Title]#
+#OML[EL_INPUT_DATE][STARTDATE_REQ][Event Start Date]#
+#OML[EL_INPUT_DATE][ENDDATE][Event End Date]#
+#OML[EL_INPUT_SELECT][TYPE_REQ][Event Type][#_def#][Event|Meeting|Other]#
+#OML[EL_INPUT_TEXTAREA][DESC][Event Description]#
+#OML[EL_INPUT_NUMBER][MAXATTEND][Max Attendees]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

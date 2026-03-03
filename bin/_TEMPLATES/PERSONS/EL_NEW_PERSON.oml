@@ -1,0 +1,25 @@
+#ROOT=[PERSONS]#
+<div class="w3-container">
+<h2>#MSG[Create Person]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+#OML[EL_INPUT_STEPS][4]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [NAME_REQ][Full Name (First Middle Last) - mind Your CAPS]#
+#ifOML[#STEP1.0.NOT#][EL_INPUT_VIEW][]    [NAME][]#
+#ifOML[#STEP2#][EL_INPUT_DATA_COLOR][#H#] [COLOR][Choose Your Color]#
+
+#ifOML[#STEP3#][EL_INPUT_TEXT][#H#]       [FIRSTNAME_REQ][First Name]#
+#ifOML[#STEP3#][EL_INPUT_TEXT][#H#]       [MIDDLENAME][Middle Name]#
+#ifOML[#STEP3#][EL_INPUT_TEXT][#H#]       [LASTNAME_REQ][Last Name (if unknown, enter "Solo")]#
+
+#ifOML[#STEP4#][EL_INPUT_DATA_BIRTHYEAR][#H#]   [BIRTHYEAR][Birth Year (Earth)]#
+#ifOML[#STEP4#][EL_INPUT_DATA_BIRTHMONTH][#H#]  [BIRTHMONTH][Birth Month (Earth)]#
+#ifOML[#STEP4#][EL_INPUT_DATA_BIRTHDAY][#H#]    [BIRTHDAY][Birth Day of Month (Earth)]#
+
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

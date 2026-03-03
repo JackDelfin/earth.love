@@ -1,0 +1,35 @@
+#ROOT=[SPIRITS]#
+<div class="w3-container">
+<h2>#MSG[Create Spiritual Community]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+#OML[EL_INPUT_STEPS][5]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [NAME_REQ][Spiritual Community Name]#
+#ifOML[#STEP1.0.NOT#][EL_INPUT_VIEW][]    [NAME_REQ][]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [SHORT][Short Name]#
+#ifOML[#STEP1#][EL_INPUT_SELECT][#H#]     [TYPE_REQ][Spiritual Community Type][Other new]
+   [EcoVillage|Egalitarian|Commune|Cohousing|Neighborhood|Student Coop|Spiritual|Religious|Shared Housing|Other]#
+#ifOML[#STEP2#][EL_INPUT_TEXTAREA][#H#]   [DESC][Description]#
+#ifOML[#STEP3#][EL_INPUT_DATA_COLOR][#H#] [COLOR]#
+
+#ifOML[#STEP5#][EL_INPUT_TEXT][#H#]       [LOCS][Locations]#
+#ifOML[#STEP5#][EL_INPUT_TEXT][#H#]       [GUILDS][Guilds]#
+#ifOML[#STEP6#][EL_INPUT_TEXT][#H#]       [COMMS][Communities]#
+#ifOML[#STEP6#][EL_INPUT_TEXT][#H#]       [ORGS][Organizations]#
+#ifOML[#STEP7#][EL_INPUT_TEXT][#H#]       [JOBS][Projects]#
+#ifOML[#STEP7#][EL_INPUT_TEXT][#H#]       [PERSONS][Persons]#
+#ifOML[#STEP8#][EL_INPUT_TEXT][#H#]       [RESOURCES][Resources]#
+
+#ifOML[#STEP9#][EL_VIEW_FIELD][#H#]       [INACTIVE][Inactive]#
+#ifOML[#STEP9#][EL_VIEW_FIELD_DATE][#H#]  [ACTIVEDATE][Active Date]#
+#ifOML[#STEP9#][EL_VIEW_FIELD_DATE][#H#]  [INACTIVEDATE][Inactive Date]#
+#ifOML[#STEP9#][EL_VIEW_FIELD_DATE][#H#]  [STARTDATE][Start Date]#
+#ifOML[#STEP9#][EL_VIEW_FIELD_DATE][#H#]  [ENDDATE][End Date]#
+
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

@@ -1,0 +1,24 @@
+<!--- #INC![EL_SEARCH_ROOTS]#
+- Search and show ROOTS.dat contents from domain root
+--->
+#INC[EL_TOKENS_SEARCH]#
+#LOADTOKEN[
+ROOT          =[_DOM]
+WORD          =[]
+BOX_COLOR     =[w3-khaki]
+BOX_ROW_COLOR =[#OML[EL_FN_GET_ROOT_COLOR][#1#]#]
+PAGE          =[el_show]
+_DATA_MSG_    =MSG[Roots]
+_DATA_HREF_   =[#_ORBIT#page?r=#1.tr#&l=#LANG#]
+_DATA_BODY_   =[<a class="w3-link-plain" href="#_DATA_HREF_#"><div class="#BOX_ROW#">#OML[EL_FN_GET_ROOT_SHORT][#1#]#</div></a>]
+]#
+#OMLIF[#_STATIC_#][EL_SEARCH_ROOTS_STATIC]#
+<!--- Get the Roots data --->
+#FUNCTION[EL_GET_DATA][ROOTS]#
+#RESTORE[ROOT WORD BOX_COLOR BOX_ROW_COLOR PAGE _DATA_HREF_ _DATA_BODY_]#
+<pre>
+#while read ROOTS.dat
+Show ROOT image and text - not for DOMS - handle below
+</pre>
+<!--- Show the .earth and .earth.love DOMainS for this word - worked separately --->
+#INC![doms/EL_SEARCH_DOMS]#

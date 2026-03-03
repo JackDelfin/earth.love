@@ -1,0 +1,9 @@
+#_DATA_MSG_=MSG[Index]#
+#LOADTOKEN[
+BOX_COLOR   =[el-chakra3]
+_DATA_BODY_ =[<div class="#BOX_ROW#">#1.html#</div>]
+<!--- Special case for Index query - don't show user ./ --->
+_DATA_FOOT_ =[#_datasearch=REPLACE[#_datasearch#\]\[./\]\##NEXT_PREV#</div>]
+]#
+#FUNCTION[EL_GET_DATA][INDEX]#
+#RESTORE[_DATA_BODY_][_DATA_FOOT_][BOX_COLOR]#

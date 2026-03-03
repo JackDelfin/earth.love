@@ -1,0 +1,14 @@
+Back.earth
+Brake.earth
+Drum.earth
+Gas.earth
+Lever.earth
+Seat.earth
+Shock.earth
+Signal.earth
+Speedometer.earth
+Tail.earth
+Tank.earth
+Tire.earth
+Tube.earth
+Turn.earth

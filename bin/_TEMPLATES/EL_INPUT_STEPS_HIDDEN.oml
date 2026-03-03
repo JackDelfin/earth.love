@@ -1,0 +1,3 @@
+<!--- Show progress bar and hidden steps fields --->
+<input type="hidden" name="step" value="#STEP.1#">
+<input type="hidden" name="steps" value="#STEPS#">

@@ -1,0 +1,5 @@
+<!--- Search and Show Projects (Jobs) for this item --->
+#BOX_COLOR=[el-chakra3]#
+#_DATA_MSG_=OML[EL_FN_ROOT_NAME][JOBS]#
+#FUNCTION[EL_GET_DATA][JOBS]#
+#RESTORE[BOX_COLOR]#

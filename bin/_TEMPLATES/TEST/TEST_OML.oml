@@ -1,0 +1,645 @@
+#LOGSTATS[2]#
+#-------------------------------------------------------------------------------
+# Test Token OML Functions
+#-------------------------------------------------------------------------------
+
+#then=[Then Text]#-
+#else=[Else Text]#-
+#ASSIGN[]#-
+#cond0=[#nothing.EXISTS#]#-
+#cond1=[#nothing.NOTEXISTS#]#-
+#[]#-
+#text=[Hello]#-
+#num1=[7]#-
+#num2=[14]#-
+#num3=[21]#-
+#num7=[7.7]#-
+#[]#-[#num1#][#num2#][#num3#]
+
+<!--
+#-------------------------------------------------------------------------------
+# Token Manipulation Functions
+#-------------------------------------------------------------------------------
+# 'ASSIGN'       # [value]        - Token Assignment without parsing (also #token=[value]# without function name)
+
+#tok=[]#
+ASSIGN[]#           {#tok=ASSIGN[This is a Party#starter#!]##tok#}   <-- # tok=ASSIGN[This is a Party#starter #!]##tok #
+ASSIGN[]#           {#tok=ASSIGN[This is a Party#starter#!]##tok.noparse#}   <-- # tok=ASSIGN[This is a Party#starter #!]##tok.noparse #
+ASSIGN[]#           {#tok=[This is a Party#starter#!]##tok.raw#}   <-- # tok=[This is a Party#starter #!]##tok.raw #
+
+# 'EVAL'         # [condition]   - evaluates the boolean expression and returns boolean 1 or 0
+EVAL[]#             {#EVAL[1]#}   <-- [1]
+EVAL[]#             {#EVAL[0]#}   <-- [0]
+EVAL[]#             {#EVAL[]#}   <-- []
+EVAL[]#             {#EVAL[#none.0#]#}   <-- [#none.0 #]
+EVAL[]#             {#EVAL[#none.1#]#}   <-- [#none.1 #]
+EVAL[]#             {#EVAL[1][#then#][#else#]#}   <-- [1][#then#][#else#]
+EVAL[]#             {#EVAL[#blah.0#][#then#][#else#]#}   <-- [#blah.0#][#then#][#else#]
+
+#starter=ASSIGN[ STARTER!!]#
+# 'PARSE'        # [text]         - Parses the text, replacing tokens and functions, including modifiers
+PARSE[]#            {#PARSE[This is a Party#starter#!]#}   <-- [This is a Party#starter #!]
+
+-->
+
+#-------------------------------------------------------------------------------
+# Template and Data Include Functions
+#-------------------------------------------------------------------------------
+# 'INCLUDE'      # [TEMPLATE]          - Include a template file
+        #,'IFINCLUDE'    # [condition][TEMPLATE]   - Include template file if the expression is true
+        #,'DATA'# [DATAFILE][header][repeat_body][footer] - read and show data file
+        #,'DATATEMPLATE' # [DATAFILE][TEMPLATE] - | delimited data into TEMPLATE.oml
+
+<!--
+#-------------------------------------------------------------------------------
+# Conditional Functions
+#-------------------------------------------------------------------------------
+# 'IF'           # [condition][then][else] - traditional if statement, shows then or else
+IF[]#               {#IF[#text.exists#][#then#][#else#]#}   <-- [#text.exists#][#then#][#else#]
+IF[]#               {#IF[#cond0#][#then#][#else#]#}   <-- [#cond0#][#then#][#else#]
+IF[]#               {#IF[#cond1#][#then#][#else#]#}   <-- [#cond1#][#then#][#else#]
+IF[]#               {#IF[#blah.notexists#][#then#][#else#]#}   <-- [#blah.notexists #][#then#][#else#]
+
+New to Orbit: - token modifiers after the function call
+              - trailing "-" removes blank line created by function - keep it tight
+{#IF [#title.exists#]
+    [title exists]
+       [title NOT exists]#
+#title=[]#-
+#IF [#title.exists#]
+    [title exists]
+       [title NOT exists]#-
+#title=[#titlebak.parse#]#-
+}
+
+# myTitle.initcap =
+   IF [#title.exists#]
+        [#title# - exists]
+       [title NOT exists] #-
+#myTitle.initcap =
+   IF [#title.exists#]
+        [#title# - exists]
+       [title NOT exists]#-
+#title=[#titlebak.parse#]#
+{#myTitle#}
+
+# 'AND'          # [eval][eval]...[eval]   - returns 1 if ALL evals are true, 0 otherwise
+AND[]#              {#AND[#num1#][#num2#][#num3#]#}   <-- [#num1#][#num2#][#num3#]
+AND[]#              {#AND[1]#}   <-- [1]
+AND[]#              {#AND[0]#}   <-- [0]
+AND[]#              {#AND[#num1.ISNUMBER#][#num2.0#]#}   <-- [#num1.ISNUMBER#][#num2.0#]
+AND[]#              {#AND[#num1.ISNUMBER.NOT#][#num2.0#]#}   <-- [#num1.ISNUMBER.NOT#][#num2.0#]
+AND[]#              {#AND[0][1]#}   <-- [0][1]
+AND[]#              {#AND[1][0]#}   <-- [1][0]
+AND[]#              {#AND[0][11]#}   <-- [0][11]
+AND[]#              {#AND[11][0]#}   <-- [11][0]
+
+# 'OR'           # [eval][eval]...[eval]   - returns 1 if ANY of evals are true, 0 otherwise
+OR[]#               {#OR[#num1#][#num2#][#num3#]#}   <-- [#num1#][#num2#][#num3#]
+OR[]#               {#OR[1]#}   <-- [1]
+OR[]#               {#OR[0]#}   <-- [0]
+OR[]#               {#OR[#num1.ISNUMBER#][#num2.0#]#}   <-- [#num1.ISNUMBER#][#num2.0#]
+OR[]#               {#OR[#num1.ISNUMBER.NOT#][#num2.0#]#}   <-- [#num1.ISNUMBER.NOT#][#num2.0#]
+OR[]#               {#OR[0][1]#}   <-- [0][1]
+OR[]#               {#OR[1][0]#}   <-- [1][0]
+OR[]#               {#OR[0][11]#}   <-- [0][11]
+OR[]#               {#OR[11][0]#}   <-- [11][0]
+OR[]#               {#OR[0][0][0][0][0][0][0][0][0][11]#}   <-- [0][0][0][0][0][0][0][0][0][11]
+
+# 'EQUAL'        # [val1][val2].[then][else] - tests for equality, returning 1/0 or then/else.  2 calling modes
+EQUAL[]#            {#EQUAL[#num1#][#num2#][#then#][#else#]#}   <-- [#num1#][#num2#][#then#][#else#]
+EQUAL[]#            {#EQUAL[#num1#][#num1#][#then#][#else#]#}   <-- [#num1#][#num1#][#then#][#else#]
+EQUAL[]#            {#EQUAL[#num1#][#num2#][#then#]#}   <-- [#num1#][#num2#][#then#]
+EQUAL[]#            {#EQUAL[#num1#][#num1#]#}   <-- [#num1#][#num1#]
+
+# 'NOTEQUAL'     # Opposite of EQUAL
+NOTEQUAL[]#         {#NOTEQUAL[#num1#][#num2#][#then#][#else#]#}   <-- [#num1#][#num2#][#then#][#else#]
+NOTEQUAL[]#         {#NOTEQUAL[#num1#][#num1#][#then#][#else#]#}   <-- [#num1#][#num1#][#then#][#else#]
+NOTEQUAL[]#         {#notEQUAL[#num1#][#num2#][#then#]#}   <-- [#num1#][#num2#][#then#]
+NOTEQUAL[]#         {#NOTEQUAL[#num1#][#num1#]#}   <-- [#num1#][#num1#]
+
+# 'DECODE'       # [condition][if][then]...[if][then]...[else] - Like a case statement
+# 'CASE'         # Same as DECODELIKE, with built-in pattern matching
+# 'DECODELIKE'   # DECODE with wildcard expressions in the "if", using *% or _.?
+DECODE[]#            {#DECODE[#num1#][#num1#][#then#][#else#]#}   <-- [#num1#][#num1#][#then#][#else#]
+DECODE[]#            {#DECODE[#num1#][#num2#][#then#][#else#]#}   <-- [#num1#][#num2#][#then#][#else#]
+DECODE[]#            {#DECODE[#num1#][#num1#]#}   <-- [#num1#][#num1#]
+DECODE[]#            {#DECODE[#num1#][#num1#][#then#]#}   <-- [#num1#][#num1#][#then#]
+DECODE[]#            {#DECODE[#num1#][#num2#][#then#]#}   <-- [#num1#][#num2#][#then#]
+
+CASE[]#              {#CASE[#num1#1137][#num1#%7][#then#][#else#]#}   <-- [#num1#1137][#num1#%7][#then#][#else#]
+CASE[]#              {#CASE[#num1#1137][#num1#%3][#then#][#else#]#}   <-- [#num1#1137][#num1#%3][#then#][#else#]
+
+CASE[]#              {#CASE[#num1#][#num1#][#then#][#else#]#}   <-- [#num1#][#num1#][#then#][#else#]
+CASE[]#              {#CASE[#num1#][#num2#][#then#][#else#]#}   <-- [#num1#][#num2#][#then#][#else#]
+CASE[]#              {#CASE[#num1#][#num1#][#then#]#}   <-- [#num1#][#num1#][#then#]
+CASE[]#              {#CASE[#num1#][#num2#][#then#]#}   <-- [#num1#][#num2#][#then#]
+
+#tok=[1137]#-
+DECODELIKE[]#        {#DECODELIKE[#num1##tok#][#num1#%7][#then#7][#num1#%3][#then#3][#else#]#}   <-- [#num1##tok#][#num1#%7][#then#7][#num1#%3][#then#3][#else#]
+#tok=[113]#-
+DECODELIKE[]#        {#DECODELIKE[#num1##tok#][#num1#%7][#then#7][#num1#%3][#then#3][#else#]#}   <-- [#num1##tok#][#num1#%7][#then#7][#num1#%3][#then#3][#else#]
+#tok=[11]#-
+DECODELIKE[]#        {#DECODELIKE[#num1##tok#][#num1#%7][#then#7][#num1#%3][#then#3][#else#]#}   <-- [#num1##tok#][#num1#%7][#then#7][#num1#%3][#then#3][#else#]
+
+# 'EXISTS'       # [text].[then].[else] - conditionally show then/else if text is null
+# 'ISNOTNULL'    # Same as EXISTS
+# 'NOTNULL'      # Same as EXISTS
+# 'NOTEXISTS'    # [text].[then].[else] - conditionally show then/else if text is NOT null
+# 'ISNULL'       # Same as NOTEXISTS
+# 'NULL'         # Same as NOTEXISTS
+EXISTS[]#           {#EXISTS[#numx#][#then#][#else#]#}   <-- [#numx#][#then#][#else#]
+EXISTS[]#           {#EXISTS[#numx#][#then#]#}   <-- [#numx#][#then#]
+EXISTS[]#           {#EXISTS[#num1#][#then#][#else#]#}   <-- [#numx1][#then#][#else#]
+ISNOTNULL[]#        {#ISNOTNULL[#num1#][#then#][#else#]#}   <-- [#numx1][#then#][#else#]
+NOTNULL[]#          {#NOTNULL[#num1#][#then#][#else#]#}   <-- [#numx1][#then#][#else#]
+
+NOTEXISTS[]#        {#NOTEXISTS[#numx#][#then#][#else#]#}   <-- [#numx#][#then#][#else#]
+NOTEXISTS[]#        {#NOTEXISTS[#num1#][#then#][#else#]#}   <-- [#num1#][#then#][#else#]
+ISNULL[]#           {#ISNULL[#num1#][#then#][#else#]#}   <-- [#num1#][#then#][#else#]
+NULL[]#             {#NULL[#num1#][#then#][#else#]#}   <-- [#num1#][#then#][#else#]
+
+# 'LIKE'         # [val1][val2].[then][else] - Text wildcard expression (*% _.?) for equality, returning 1/0 or then/else.  2 calling modes
+LIKE[]#             {#LIKE[%9%][1149][#then#][#else#]#}   <-- [%9%][1149][#then#][#else#]
+LIKE[]#             {#LIKE[*.9][1149][#then#][#else#]#}   <-- [*.9][1149][#then#][#else#]
+LIKE[]#             {#LIKE[%7%][1149][#then#][#else#]#}   <-- [%7%][1149][#then#][#else#]
+LIKE[]#             {#LIKE[*.7][1149][#then#][#else#]#}   <-- [*.7][1149][#then#][#else#]
+LIKE[]#             {#LIKE[1149][%9%][#then#][#else#]#}   <-- [1149][%9%][#then#][#else#]
+LIKE[]#             {#LIKE[1149][*.9][#then#][#else#]#}   <-- [1149][*.9][#then#][#else#]
+LIKE[]#             {#LIKE[1149][%7%][#then#][#else#]#}   <-- [1149][%7%][#then#][#else#]
+LIKE[]#             {#LIKE[1149][*.7][#then#][#else#]#}   <-- [1149][*.7][#then#][#else#]
+
+# 'IN'           # [text][in1][in2]...[inx] - Checks for text in the specified arguments
+# 'INLIKE'       # Same as IN, but with wildcard expression (*% _.?)
+# 'NOTIN'        # Same as IN, but inverse
+# 'NOTINLIKE'    # Same as INLIKE, but inverse
+
+IN[]#               {#IN[#num1#][#num1#]#}   <-- [#num1#][#num1#]
+IN[]#               {#IN[#num1#][#num2#][#num3#][#num4#][#num7#]#}   <-- [#num1#][#num2#][#num3#][#num4#][#num7#]
+IN[]#               {#IN[#num1#][#num2#][#num3#][#num4#][#num7#][#num1#]#}   <-- [#num1#][#num2#][#num3#][#num4#][#num7#][#num1#]
+
+#tok=[137]#
+INLIKE[]#           {#INLIKE[#num1#13%][#num1#13]#}   <-- [#num1#13%][#num1#13]
+INLIKE[]#           {#INLIKE[#num1#13%][#num2#][#num3#][#num4#][#num7#]#}   <-- [#num1#13%][#num2#][#num3#][#num4#][#num7#]
+INLIKE[]#           {#INLIKE[#num1#13%][#num2#][#num3#][#num4#][#num7#][#num1#137]#}   <-- [#num1#13%][#num2#][#num3#][#num4#][#num7#][#num1#137]
+INLIKE[]#           {#INLIKE[#num1#13][#num2#][#num3#][#num4#][#num7#][#num1#1%]#}   <-- [#num1#13][#num2#][#num3#][#num4#][#num7#][#num1#1%]
+
+NOTIN[]#            {#NOTIN[#num1#][#num1#]#}   <-- [#num1#][#num1#]
+NOTIN[]#            {#NOTIN[#num1#][#num2#][#num3#][#num4#][#num7#]#}   <-- [#num1#][#num2#][#num3#][#num4#][#num7#]
+NOTIN[]#            {#NOTIN[#num1#][#num2#][#num3#][#num4#][#num7#][#num1#]#}   <-- [#num1#][#num2#][#num3#][#num4#][#num7#][#num1#]
+
+#tok=[137]#
+NOTINLIKE[]#        {#NOTINLIKE[#num1#13%][#num1#13]#}   <-- [#num1#13%][#num1#13]
+NOTINLIKE[]#        {#NOTINLIKE[#num1#13%][#num2#][#num3#][#num4#][#num7#]#}   <-- [#num1#13%][#num2#][#num3#][#num4#][#num7#]
+NOTINLIKE[]#        {#NOTINLIKE[#num1#13%][#num2#][#num3#][#num4#][#num7#][#num1#137]#}   <-- [#num1#13%][#num2#][#num3#][#num4#][#num7#][#num1#137]
+NOTINLIKE[]#        {#NOTINLIKE[#num1#13][#num2#][#num3#][#num4#][#num7#][#num1#1%]#}   <-- [#num1#13][#num2#][#num3#][#num4#][#num7#][#num1#1%]
+
+
+#-------------------------------------------------------------------------------
+# Numeric Conditional Functions (like a quick IF statement)
+#-------------------------------------------------------------------------------
+# 'GT'           # [val1][val2].[then][else] - Returns 1/0 if val1 is GREATER THANval2 (text and numbers) or returns then/else if specified.  2 calling modes
+GT[]#               {#GT[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+GT[]#               {#GT[#num3#][#num7#]#}   <-- [#num3#][#num7#]
+GT[]#               {#GT[#num7#][#num7#]#}   <-- [#num7#][#num7#]
+# 'GREATERTHAN'  # Same as GT
+GreaterThan[]#      {#GreaterThan[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+# 'LT'           # [val1][val2].[then][else] - Returns 1/0 if val1 is LESS THAN val2 (text and numbers) or returns then/else if specified.  2 calling modes
+LT[]#               {#LT[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+LT[]#               {#LT[#num3#][#num7#]#}   <-- [#num3#][#num7#]
+LT[]#               {#LT[#num7#][#num7#]#}   <-- [#num7#][#num7#]
+# 'LESSTHAN'     # Same as LT
+LESSTHAN[]#         {#LESSThan[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+# 'GE'           # Same as GT, but greater than or equal
+GE[]#               {#GE[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+GE[]#               {#GE[#num3#][#num7#]#}   <-- [#num3#][#num7#]
+GE[]#               {#GE[#num7#][#num7#]#}   <-- [#num7#][#num7#]
+# 'GREATEREQUAL' # Same as GE
+GREATEREQUAL[]#     {#GREATEREqual[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+# 'LE'           # Same as LT, but less than or equal
+LE[]#               {#LE[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+LE[]#               {#LE[#num3#][#num7#]#}   <-- [#num3#][#num7#]
+LE[]#               {#LE[#num7#][#num7#]#}   <-- [#num7#][#num7#]
+# 'LESSEQUAL'    # Same as LE
+LESSEQUAL[]#        {#LESSEQUAL[#num7#][#num3#]#}   <-- [#num7#][#num3#]
+
+# 'BETWEEN'      # [text/num][low][high].[then][else] - Returns 0/1 if text/num is between low and high.  Returns then/else if specified.  2 calling modes
+BETWEEN[]#          {#BETWEEN[#num7#][#num1#]#}   <-- [#num7#][#num1#] not enough args
+BETWEEN[]#          {#BETWEEN[#num7#][#num1#][#num3#]#}   <-- [#num7#][#num1#][#num3#]
+BETWEEN[]#          {#BETWEEN[#num7#][#num7#][#num3#]#}   <-- [#num7#][#num7#][#num3#]
+BETWEEN[]#          {#BETWEEN[#num7#][#num1#][#num7#]#}   <-- [#num7#][#num1#][#num7#]
+BETWEEN[]#          {#BETWEEN[#num7#][0][6.9]#}   <-- [#num7#][0][6.9]
+BETWEEN[]#          {#BETWEEN[3][0][6.9]#}   <-- [3][0][6.9]
+BETWEEN[]#          {#BETWEEN[#num7#][0][6.9][#then#][#else#]#}   <-- [#num7#][0][6.9][#then#][#else#]
+BETWEEN[]#          {#BETWEEN[3][0][6.9][#then#][#else#]#}   <-- [3][0][6.9][#then#][#else#]
+BETWEEN[]#          {#BETWEEN[#num7#][0][6.9][#then#]#}   <-- [#num7#][0][6.9][#then#]
+BETWEEN[]#          {#BETWEEN[3][0][6.9][#then#]#}   <-- [3][0][6.9][#then#]
+
+BETWEEN[]#          {#BETWEEN[c][a0][z6.9]#}   <-- [c][a0][z6.9]
+BETWEEN[]#          {#BETWEEN[a0][a0][z6.9]#}   <-- [a0][a0][z6.9]
+BETWEEN[]#          {#BETWEEN[a][a0][z6.9]#}   <-- [a][a0][z6.9]
+BETWEEN[]#          {#BETWEEN[c][a0][z6.9][#then#]#}   <-- [c][a0][z6.9][#then#]
+BETWEEN[]#          {#BETWEEN[a0][a0][z6.9][#then#]#}   <-- [a0][a0][z6.9][#then#]
+BETWEEN[]#          {#BETWEEN[a][a0][z6.9][#then#]#}   <-- [a][a0][z6.9][#then#]
+
+#-------------------------------------------------------------------------------
+# Looping Functions
+#-------------------------------------------------------------------------------
+# 'REPEAT'       # [times][text]   - Repeatedly displays the <text> <times> number of times.
+# 'WHILE'        # [expression][text][maxtimes] - Repeatedly displays the <text> while <expression> is TRUE, but not more than <maxtimes> number of times.
+
+
+#INCLUDE[TEST_NEST]#
+
+# REPEAT[7]
+[7]#
+#REPEAT[7]
+[7]#
+
+# REPEAT[7]
+[# i=ADD[# i#][1]## MULT[# i#][10]#]#
+#REPEAT[7]
+[#i=ADD[#i#][1]##MULT[#i#][10]#]#
+
+#WhIlE#
++++
+# WHILE [#ugh.1 #]
+[Hello]
+[7]#
++++
+#WHILE [#ugh.1#]
+[Hello]
+[7]#
+
+
+#-------------------------------------------------------------------------------
+# HTML Helper Functions
+#-------------------------------------------------------------------------------
+# 'SELECTED'     # [select/optionHTML][option_value][option_text][select_class][no_add_flag]
+                 # For SELECT/OPTION lists in HTML, marks an option as SELECTED, adding the option value/text if not present, and specifying the class style tag
+# 'COMMALIST'    # [val1][val2]...[valN] - Return a comma-separated list of all non-NULL arguments in the list
+# 'PIPELIST'     # [val1][val2]...[valN] - Return a pipe-separated (|), also vertical bar, list of all non-NULL arguments in the list
+# 'JSQUOTE'      # [text]                - Escapes JavaScript code, such as double quote
+
+#sel=[<select name=list>
+<option value=1>One</option>
+<option value=2>Two</option>
+<option value=3>Three</option>
+<option value=4>Four</option>
+<option value=5>Five</option>
+</select>
+]#
+
+SELECTED 2
+#SELECTED[#sel#][2]#
+
+SELECTED -2 no value
+#SELECTED[#sel#][-2]#
+
+SELECTED -2
+#SELECTED[#sel#][-2][Uno][class=required][0]#
+
+
+COMMALIST[]#        {#COMMALIST[Hello][Planet][e][3]#}   <-- [Hello][Planet][e][3]
+PIPELIST[]#         {#PIPELIST[Hello][Planet][e][3]#}   <-- [Hello][Planet][e][3]
+COMMALIST[]#        {#COMMALIST[]#}   <-- []
+PIPELIST[]#         {#PIPELIST[]#}   <-- []
+COMMALIST[]#        {#COMMALIST[a]#}   <-- [a]
+PIPELIST[]#         {#PIPELIST[a]#}   <-- [a]
+
+JSQUOTE[]#          {#JsQuote[ "java" 'script'
+]#}   <-- [test code]
+
+# 'HELP'         # [text][popup_text][required_flag] - Returns the full JavaScript syntax to show the text hyperlinked with the popup_text as help.  required_flag adds _req to the class option.
+# 'HELPOVER'     # [popup_text]          - Returns the JavaScript code for showing popup_text when mouse hovers over text
+
+HELP:     {#HELP[text][popup_text][required_flag]#}
+HELPOVER: {#HELPOVER[popup_text]#}
+
+-->
+
+# 'MSG'          # [code][message_text][message_help][comment_text] - Get the message text for the code specified, and the user or country default language
+# 'MSGHELP'      # [code][message_text][message_help][comment_text] - Returns the help text for a message code
+
+NEEDS DEVELOPMENT FOR MULTI LANGUAGE
+
+X MSG:      {#MSG[code]#}
+X MSGHELP:  {#MSGHELP[code]#}
+
+
+#-------------------------------------------------------------------------------
+# String Functions
+#-------------------------------------------------------------------------------
+# 'REPLACE'      # [text][find].[replace] - Replace <find> in <text> with <replace>.  First occurance only.
+REPLACE[]#          {#REPLACE[Hello Planet][e][3]#}   <-- [Hello Planet][e][3]
+REPLACE[]#          {#REPLACE[Hello Planet][et][etS]#}   <-- [Hello Planet][et][etS]
+REPLACE[]#          {#REPLACE[Hello Planet][Hel][HEL]#}   <-- [Hello Planet][Hel][HEL]
+REPLACE[]#          {#REPLACE[Hello Planet][hel][HEL]#}   <-- [Hello Planet][hel][HEL]
+
+# 'REPLACEALL'   # [text][find].[replace] - Replace <find> in <text> with <replace>.  ALL occurances.
+REPLACEALL[]#       {#REPLACEALL[Hello Planet][e][3]#}   <-- [Hello Planet][e][3]
+REPLACEALL[]#       {#REPLACEALL[Hello Planet][l]['L]#}   <-- [Hello Planet][l]['L]
+REPLACEALL[]#       {#REPLACEALL[Hello Planet][e][101]#}   <-- [Hello Planet][e][101]
+
+# 'IREPLACE'     # Case insensitive REPLACE
+IREPLACE[]#         {#IREPLACE[Hello Planet][E][3]#}   <-- [Hello Planet][E][3]
+IREPLACE[]#         {#IREPLACE[Hello Planet][ET][etS]#}   <-- [Hello Planet][ET][etS]
+IREPLACE[]#         {#IREPLACE[Hello Planet][hel][HEL]#}   <-- [Hello Planet][hel][HEL]
+
+# 'IREPLACEALL'  # Case insensitive REPLACEALL
+IREPLACEALL[]#      {#IREPLACEALL[Hello Planet][E][3]#}   <-- [Hello Planet][E][3]
+IREPLACEALL[]#      {#IREPLACEALL[Hello Planet][ET][etS]#}   <-- [Hello Planet][ET][etS]
+IREPLACEALL[]#      {#IREPLACEALL[Hello Planet][HEL][HEL]#}   <-- [Hello Planet][HEL][HEL]
+
+<!--- Successful --->
+# 'SUBSTR'       # [text][start].[length]  - Gets a substring from [text] beginning at [start] and getting [length] chars.  1-based substr (Oracle) - returns 0 if not found
+SUBSTR[]#           {#SUBSTR[abcde][3][2]#}   <-- [abcde][3][2] = [cd]
+SUBSTR[]#           {#SUBSTR[abcde][2]#}   <-- [abcde][2] = [bcde]
+# 'SUBSTR0'      # Same as SUBSTR, but 0-based (Perl) - returns -1 if not found, 0 for beginning of string
+SUBSTR0[]#          {#SUBSTR0[abcde][3][2]#}   <-- [abcde][3][2] = [de]
+SUBSTR0[]#          {#SUBSTR0[abcde][2]#}   <-- [abcde][2] = [cde]
+
+# 'INSTR'        # [text][find].[begin]   - Position of [find] in [text], starting at [begin]. 1-based offset, returns 0 if string not found, similar to Oracle "instr"
+INSTR[]#           {#INSTR[abcde][c][2]#}   <-- [abcde][c][2] = [3]
+INSTR[]#           {#INSTR[abcde][c][4]#}   <-- [abcde][c][4] = [0]
+INSTR[]#           {#INSTR[abcde][c]#}   <-- [abcde][c] = [3]
+# 'INDEX'        # [text][find].[begin]   - Position of [find] in [text], starting at [begin]. 0-based offset, returns -1 if string not found, similar to Perl "index"
+INDEX[]#           {#INDEX[abcde][c][2]#}   <-- [abcde][c][2] = [2]
+INDEX[]#           {#INDEX[abcde][c][4]#}   <-- [abcde][c][4] = [-1]
+INDEX[]#           {#INDEX[abcde][c]#}   <-- [abcde][c] = [2]
+# 'TRANSLATE'    # [text][from][to]       - Translates the characters in [from] to the characters in [to].
+TRANSLATE[]#        {#TRANSLATE[this is a word test][abcdefghij][1234567890]#   <-- [this is a word test][abcdefghij][1234567890] = [t89s 8s 1 wor4 t5st]
+
+#1=[ Hello ]#
+#2=[11]#
+#3=[ ]#
+# 'RPAD'         # [text][length].[char]  - Right pad text with char up to length
+RPAD[]#             {#RPAD[#1#][#2#][#3#]#}   <-- [#1#][#2#][#3#]
+RPAD[]#             {#RPAD[#1#][#2#]#}   <-- [#1#][#2#]
+RPAD[]#             {#RPAD[#1#]#}   <-- [#1#] Not enough args
+# 'LPAD'         # [text][length].[char]  - Left pad text with char up to length
+LPAD[]#             {#LPAD[#1#][#2#][#3#]#}   <-- [#1#][#2#][#3#]
+LPAD[]#             {#lPAD[#1#][#2#]#}   <-- [#1#][#2#]
+LPAD[]#             {#lPAD[#1#]#}   <-- [#1#] Not enough args
+# 'RTRIM'        # [text][char]           - Right Trim char from text
+RTRIM[]#            {#RTRIM[#1#][#3#]#}   <-- [#1#][#3#]
+RTRIM[]#            {#RTRIM[#1#]#}   <-- [#1#]
+# 'LTRIM'        # [text][char]           - Left Trim char from text
+LTRIM[]#            {#LTRIM[#1#][#3#]#}   <-- [#1#][#3#]
+LTRIM[]#            {#LTRIM[#1#]#}   <-- [#1#]
+# 'TRIM'         # [text][char]           - Right AND Left Trim char from text
+TRIM[]#             {#TRIM[#1#][#3#]#}   <-- [#1#][#3#]
+TRIM[]#             {#TRIM[#1#]#}   <-- [#1#]
+
+#text=[this is a multi line
+text entry
+with #one.1# token]#-
+Text:[#text#]
+
+# 'ROWS'         # [text].[max_linelength].[min_rows].[max_rows]                    - Returns number of rows or lines of text based on the max linesize, limiting by min_rows and max_rows
+ROWS[]#             {#ROWS[#text#]#}   <-- [#text #]
+ROWS[]#             {#ROWS[#text#][9]#}   <-- [#text #][9]
+ROWS[]#             {#ROWS[#text#][9][][4]#}   <-- [#text #][9][][4]
+ROWS[]#             {#ROWS[#text#][9][5]#}   <-- [#text #][9][5]
+
+#text=[this is a multi line text entry with]#-
+#                1         2         3         4
+#      01234567890123456789012345678901234567890
+Text:[#text.length#:#text#]
+1234567890
+WRAP[]#
+{#WRAP[#text#][10]#}   <-- [#text #][10]
+
+#text=[this is a multi line text entry with many variables this is a multi line text entry with many variables this is a multi line text entry with many variables this is a multi line text entry with many variables]#-
+#                1         2         3         4
+#      01234567890123456789012345678901234567890
+Text:[#text.length#:#text#]
+1234567890
+WRAP[]#
+{#WRAP[#text#][10]#}   <-- [#text #][10]
+{#WRAP[#text#][21]#}   <-- [#text #][21]
+{#WRAP[#text#][9]#}   <-- [#text #][9]
+
+
+# 'WRAP'         # [text].[max_linelength].[wordbreak_chars].[linebreak_chars]      - Wrap the text based on max linelength, and optionally wordbreak or linebreak characters
+# 'WRAPTOKEN'    # [tokenName].[max_linelength].[wordbreak_chars].[linebreak_chars] - Same as WRAP, but directed to the specified tokenName
+
+#text=[this is a multi line text entry with #one.1# token this is a multi line text entry with #one.1# token this is a multi line text entry with #one.1# token this is a multi line text entry with #one.1# token this is a multi line text entry with #one.1# token this is a multi line text entry with #one.1# token]#-
+Text:[#text.length#]
+
+WRAP[]#
+{#WRAP[#text#]#}   <-- [#text #][def 80]
+
+WRAP[]#
+{#WRAP[#text#][66]#}   <-- [#text #][66]
+
+WRAPTOKEN[]#
+{#WRAPTOKEN[text][20]#}   <-- [#text #][20]
+
+# 'STRIPTEXT'    # [text][begin_text][end_text].[replace_text].[match_pairs]        - Replace Text based on begin/end tags (<!--- --->), replacing with replace_text if specified, and matching pairs 0/1
+STRIPTEXT[]#        {#mytok.length = STRIPTEXT[#text#][ line][entry]##mytok#}   <-- [#text #][ line][entry]
+
+# 'APPEND'       # [text1].[text2].[linebreak]   - Appends text2 to text1, with optional likebreak; returns appended string
+APPEND[]#           {#APPEND[Append][more data]
+[
+]#}   <-- # app=APPEND[Append] ##app #
+APPEND[]#           {#APPEND[Append][ more data][\n]#}   <-- [Append]
+APPEND[]#           {#APPEND[Append][my new line]#}   <-- [Append][my new line]
+
+
+#-------------------------------------------------------------------------------
+# Numeric and Math Related Functions
+#-------------------------------------------------------------------------------
+# 'ROUND'        # [num][decimals: 0-4] - Rounds a number to decimals specified
+ROUND[]#            {#ROUND[#num7#][0]#}   <-- [#num7#][0]
+ROUND[]#            {#ROUND[#num7#][1]#}   <-- [#num7#][1]
+
+
+#num9=[0.1234567]#
+# 'TRUNC'        # [num][decimals: 0-4] - Truncates a number to decimals specified
+TRUNC[]#            {#TRUNC[#num9#][0]#}   <-- [#num9#][0]
+TRUNC[]#            {#TRUNC[#num9#][1]#}   <-- [#num9#][1]
+TRUNC[]#            {#TRUNC[#num9#][2]#}   <-- [#num9#][2]
+TRUNC[]#            {#TRUNC[#num9#][3]#}   <-- [#num9#][3]
+TRUNC[]#            {#TRUNC[#num9#][4]#}   <-- [#num9#][4]
+TRUNC[]#            {#TRUNC[#num9#][5]#}   <-- [#num9#][4]
+
+# 'SIGN'         # [num]                - Returns -1/0/1/null if num is negative, zero, positive, or null if not a number
+SIGN[]#             {#SIGN[-42]#}   <-- [-42]
+SIGN[]#             {#SIGN[42]#}   <-- [42]
+SIGN[]#             {#SIGN[0]#}   <-- [0]
+SIGN[]#             {#SIGN[#nothing#]#}   <-- [#nothing#]
+# 'ABS'          # [num]                - Returns absolute value of a number (positive)
+ABS[]#              {#ABS[-#num1#]#}   <-- [-#num1#]
+ABS[]#              {#ABS[#num1#]#}   <-- [#num1#]
+# 'MOD'          # [num][divisor]       - Returns the modulus (remainder) after a division
+MOD[]#              {#MOD[#num7#][#num1#]#}   <-- [#num7#][#num1#]
+MOD[]#              {#MOD[15][#num1#]#}   <-- [15][#num1#]
+MOD[]#              {#MOD[#num7#]#}   <-- [#num7#]
+
+# 'ADD'          # [num][num]...[num]   - Adds all the numbers in the list
+ADD[]#              {#ADD[#num1#][#num2#][#num3#]#}   <-- [#num1#][#num2#][#num3#]
+ADD[]#              {#ADD[#num1#]#}   <-- [#num1#]
+Error case:
+ADD[]#              {#ADD[15][apple]#}   <-- [15][apple]
+ADD[]#              {#ADD[apple][15][apple]#}   <-- [apple][15][apple]
+
+# 'SUB'          # [num][num]...[num]   - Subtracts all the numbers in the list from the first num
+SUB[]#              {#SUB[#num1#][#num2#][#num3#]#}   <-- [#num1#][#num2#][#num3#]
+SUB[]#              {#SUB[#num1#]#}   <-- [#num1#]
+# 'SUBTRACT'     # Same as SUB
+SUBTRACT[]#         {#SUBTRACT[#num1#][#num2#][#num3#]#}   <-- [#num1#][#num2#][#num3#]
+Error case:
+SUB[]#              {#SUB[15][apple]#}   <-- [15][apple]
+SUB[]#              {#SUB[apple][15][apple]#}   <-- [apple][15][apple]
+
+# 'MULT'         # [num][num]...[num]   - Multiplies all the numbers in the list
+MULT[]#             {#MULT[#num1#][#num2#][#num3#]#}   <-- [#num1#][#num2#][#num3#]
+MULT[]#             {#MULT[#num1#]#}   <-- [#num1#]
+# 'MULTIPLY'     # Same as MULT
+MULTIPLY[]#         {#MULTIPLY[#num1#][#num2#][#num3#]#}   <-- [#num1#][#num2#][#num3#]
+Error case:
+MULT[]#             {#MULT[15][apple]#}   <-- [15][apple]
+MULT[]#             {#MULT[apple][15][apple]#}   <-- [apple][15][apple]
+
+# 'DIV'          # [num][num]...[num]   - Divides all the numbers in the list from the first num
+DIV[]#              {#DIV[#num3#][#num2#][#num1#]#}   <-- [#num3#][#num2#][#num1#]
+DIV[]#              {#DIV[#num3#][#num1#]#}   <-- [#num3#][#num1#]
+DIV[]#              {#DIV[#num1#]#}   <-- [#num1#]
+# 'DIVIDE'       # Same as DIV
+DIVIDE[]#           {#DIVIDE[#num3#][#num2#][#num1#]#}   <-- [#num3#][#num2#][#num1#]
+Error case:
+DIVIDE[]#           {#DIVIDE[15][apple]#}   <-- [15][apple]
+DIVIDE[]#           {#DIVIDE[apple][15][apple]#}   <-- [apple][15][apple]
+
+# 'MIN'          # [a][b]...[n]         - Returns the minimum (String/Numeric) from the list
+MIN[]#              {#MIN[#num3#][#num2#][#num1#]#}   <-- [#num3#][#num2#][#num1#]
+MIN[]#              {#MIN[#num1#]#}   <-- [#num1#]
+
+# 'MAX'          # [a][b]...[n]         - Returns the maximum (String/Numeric) from the list
+MAX[]#              {#MAX[#num3#][#num2#][#num1#]#}   <-- [#num3#][#num2#][#num1#]
+MAX[]#              {#MAX[#num1#]#}   <-- [#num1#]
+
+# 'AVG'          # [a][b]...[n]         - Returns the average of all numbers in the list
+AVG[]#              {#AVG[#num3#][#num2#][#num1#]#}   <-- [#num3#][#num2#][#num1#]
+AVG[]#              {#AVG[#num1#]#}   <-- [#num1#]
+
+
+# 'DISTANCE'     # [lat,long][lat,long] - Returns distance between 2 Geo coordinates
+# 'BEARING'      # [lat,long][lat,long] - Returns distance between 2 Geo coordinates
+#    86322.Camp.Verde.AZ.USA|34.5668,-111.8561
+#    40065.Shelbyville.KY.USA|38.2139,-85.2172
+#    40069.Springfield.KY.USA|37.7029,-85.2219
+#    40205.Louisville.KY.USA|38.223,-85.686
+#    40506.Lexington.KY.USA|38.0336,-84.5042
+
+DISTANCE[]#         {#DISTANCE[34.5668,-111.8561][38.2139,-85.2172]#}   <-- [Camp Verde][Shelbyville]
+DISTANCE[]#         {#DISTANCE[34.5668,-111.8561][37.7029,-85.2219]#}   <-- [Camp Verde][Springfield]
+DISTANCE[]#         {#DISTANCE[37.7029,-85.2219] [38.2139,-85.2172]#}   <-- [Springfield][Shelbyville]
+DISTANCE[]#         {#DISTANCE[38.223,-85.686]   [38.0336,-84.5042]#}   <-- [Louisville][Lexington]
+DISTANCE[]#         {#DISTANCE[38.0336,-84.5042] [38.223,-85.686]#}   <-- [Lexington][Louisville]
+DISTANCE[]#         {#DISTANCE[37.7029,-85.2219] [38.223,-85.686]#}   <-- [Springfield][Louisville]
+DISTANCE[]#         {#DISTANCE[37.7029,-85.2219] [38.0336,-84.5042]#}   <-- [Springfield][Lexington]
+DISTANCE[]#         {#DISTANCE[38.2139,-85.2172] [38.223,-85.686]#}   <-- [Shelbyville][Louisville]
+DISTANCE[]#         {#DISTANCE[38.2139,-85.2172] [38.0336,-84.5042]#}   <-- [Shelbyville][Lexington]
+DISTANCE[]#         {#DISTANCE[38.2139,-85.2172] [38.0336,-84.5042][1]#}   <-- [Shelbyville][Lexington][1]km
+
+BEARING[]#          {#BEARING[34.5668,-111.8561][38.2139,-85.2172][1]#}   <-- [Camp Verde][Shelbyville]
+BEARING[]#          {#BEARING[34.5668,-111.8561][37.7029,-85.2219][1]#}   <-- [Camp Verde][Springfield]
+BEARING[]#          {#BEARING[37.7029,-85.2219] [38.2139,-85.2172][1]#}   <-- [Springfield][Shelbyville]
+BEARING[]#          {#BEARING[38.223,-85.686]   [38.0336,-84.5042][1]#}   <-- [Louisville][Lexington]
+BEARING[]#          {#BEARING[38.0336,-84.5042] [38.223,-85.686][1]#}   <-- [Lexington][Louisville]
+BEARING[]#          {#BEARING[37.7029,-85.2219] [38.223,-85.686][1]#}   <-- [Springfield][Louisville]
+BEARING[]#          {#BEARING[37.7029,-85.2219] [38.0336,-84.5042][1]#}   <-- [Springfield][Lexington]
+BEARING[]#          {#BEARING[38.2139,-85.2172] [38.223,-85.686][1]#}   <-- [Shelbyville][Louisville]
+BEARING[]#          {#BEARING[38.2139,-85.2172] [38.0336,-84.5042][1]#}   <-- [Shelbyville][Lexington]
+
+#-------------------------------------------------------------------------------
+# Orbit Internal Functions for Developers
+#-------------------------------------------------------------------------------
+# 'SYSDATE'        # [] - Returns the current System Date and Time
+SYSDATE[]#          {#SYSDATE[]#}   <-- []
+# 'TRANSACTIONID'  # [] - Returns a unique Transaction ID when processing data
+TRANSACTIONID[]#   {#TRANSACTION_ID[]#}   <-- []
+
+<!---SUCCESSFUL --->
+
+<!--  CACHE IN DEVELOPMENT
+# 'CACHE'          # [Token1][Token2]...[TokenX]  - Set the token cache flag (1) for specified Tokens in the list
+CACHE[]#            {#CACHE[num1][num2]#}   <-- [num1][num2]
+
+# 'UNCACHE'        # [Token1][Token2]...[TokenX]  - Unsets the token cache flag (0) for specified Tokens in the list
+UNCACHE[]#          {#UNCACHE[num1][num2]#}   <-- [num1][num2]
+-->
+
+<!--- SUCCESSFUL --->
+# 'STOP'           # [condition] - Stops processing immediately if condition is TRUE (1)
+STOP[]#             {#STOP[]#}   <-- []
+STOP[]#             {#STOP[0]#}   <-- [0]
+STOP[]#             {# STOP[1] #}   <-- [1] WORKS
+
+
+# 'DEBUG'          # [raw_text_flag] - If raw_text_flag = 1, show the contents of the token table in HTML table format, otherwise show without decoration - one per line
+DEBUG[]#            {#DEBUG[1]#}   <-- [1]
+DEBUG[]#            {#DEBUG[]#}   <-- []
+
+# 'LICENSE'        # []
+LICENSE[]#          {#LICENSE[]#}   <-- []
+
+# 'VERSION'        # []
+VERSION[]#          {#VERSION[]#}   <-- []
+
+VERSION[]#          {#VERSION[1]#}   <-- [1]
+
+#TIMESTAMP[]#
+
+#TIME[HH:MI:SEC]#
+#TIME[HH24 HH:MI:SS H1.MIN.SEC=S1 AM PM HOUR-Hour h24:mi:s1 AmPm]#
+
+#DATE[YYYY Month d1, Day]#
+#DATE[YYYY=YY.MM.DD Y1/M1/D1 MON MONTH DAY DY Month Mon month mon Day Dy day dy]#
+
+#time[hh24 hh:mi:ss h1.min.sec=s1 am pm hour hour h24:mi:s1 ampm]#
+#date[yyyy=yy.mm.dd y1/m1/d1 mon month day dy month mon month mon day dy day dy]#
+
+
+!-- FORMAT NEEDS FIX for date
+# 'FORMAT'       # 2 Formats: [date].[in_format].[out_format]   [number].[format]   - Formats the date/number to the specification given, or system default
+
+X FORMAT[]#           {#FORMAT[12-12-2021][MM-DD-YYYY]#}   <-- [12-12-2021][MM-DD-YYYY]
+X FORMAT[]#           {#xFORMAT[12-12-2021][MM-DD-YYYY][YYYY.Mon.DD]#}   <-- [12-12-2021][MM-DD-YYYY][YYYY.Mon.DD]
+
+
+<table>
+<tr><td align="right">#FIBONACCI[1][7][</td><td align="right">]#</td></tr>
+<tr><td align="right">#FIBONACCI[8][14][</td><td align="right">]#</td></tr>
+<tr><td align="right">#FIBONACCI[15][21][</td><td align="right">]#</td></tr>
+<tr><td align="right">#FIBONACCI[22][28][</td><td align="right">]#</td></tr>
+<tr><td align="right">#FIBONACCI[29][35][</td><td align="right">]#</td></tr>
+<tr><td align="right">#FIBONACCI[36][42][</td><td align="right">]#</td></tr>
+<tr><td align="right">#FIBONACCI[43][49][</td><td align="right">]#</td></tr>
+</table>
+
+#NUMFORMAT[,][.][(o)]#
+#fib=Fibonacci[13][13][ ]#
+#fib#
+#fib.omlblue.omlcircleNAV=FORMAT[#fib#][,.00$]#
+#fib#
+
+FORMAT[]#           {#FORMAT[1374247.7]#}   <-- [1374247.7]
+FORMAT[]#           {#FORMAT[1374247]#}   <-- [1374247]
+FORMAT[]#           {#FORMAT[-1374247.7]#}   <-- [-1374247.7]
+FORMAT[]#           {#FORMAT[-1374247]#}   <-- [-1374247]
+
+FORMAT[]#           {#FORMAT[1374247.7][$9,999.00]#}   <-- [1374247.7][$9,999.00]
+FORMAT[]#           {#FORMAT[174247][9,999.00]#}   <-- [174247][9,999.00]
+FORMAT[]#           {#FORMAT[-13247.7][9,999.00]#}   <-- [-13247.7][9,999.00]
+FORMAT[]#           {#FORMAT[-1347][9,999.00]#}   <-- [-1347][9,999.00]
+FORMAT[]#           {#FORMAT[-347][9,999.00]#}   <-- [-347][9,999.00]
+FORMAT[]#           {#FORMAT[347][9,999.00]#}   <-- [347][9,999.00]
+FORMAT[]#           {#FORMAT[-347][$9,999.00]#}   <-- [-347][$9,999.00]
+FORMAT[]#           {#FORMAT[347][$9,999.00]#}   <-- [347][$9,999.00]
+
+#SHOWSTATS[]#
+
+=== #TIMER[]# ===

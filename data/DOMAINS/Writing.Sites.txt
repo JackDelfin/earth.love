@@ -1,0 +1,11 @@
+Books.earth
+BookShelf.earth
+BookStore.earth
+BookStores.earth
+BookStores101.earth
+Cursive.earth
+Scribble.earth
+Scribbles.earth
+Scribbling.earth
+Scribe.earth
+Scribes.earth

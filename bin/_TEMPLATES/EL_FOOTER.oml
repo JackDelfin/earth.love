@@ -1,0 +1,8 @@
+#OML![EL_QUOTES]#
+#OML![EL_DEBUG_FOOTER]#
+<footer class="#FOOTER_BOX#">
+<small>#DATE[Day Month D1, YYYY H1:MIampm]#<br>Updated: #ENV_SYSDATE# (#TIMER[]#)
+<!--<br>#ENV_REMOTE_ADDR# #ENV_HTTP_USER_AGENT#--></small>
+</footer>
+</body>
+</html>

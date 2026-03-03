@@ -1,0 +1,7 @@
+<!--- EL_NAV_DROPDOWN [List] --->
+<div class="w3-dropdown-hover w3-center w3-round-xxlarge w3-white">
+  <button class="w3-button w3-round-xlarge w3-card-4 w3-hover w3-blue">#MSG[- &nbsp; Actions &nbsp; -]#</button>
+  <div class="w3-dropdown-content w3-bar-block w3-card-4 w3-hover w3-border w3-round-xlarge">
+#_1_#
+  </div>
+</div>

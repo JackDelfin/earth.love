@@ -1,0 +1,27 @@
+<!--- EL_NAV_GAME - Show the Game Menu --->
+#INCif[#omlCIRCLENAV.NOTEXISTS#][EL_TOKENS_NAV_OML]#
+#LOADMSG[
+FlowerHead =[Game Navigator]
+_NAV1      =[Game 1]
+_NAV2      =[Game 2]
+_NAV3      =[Game 3]
+_NAV4      =[Game 4]
+_NAV5      =[Game 5]
+_NAV6      =[Game 6]
+_NAV7      =[Game 7]
+]#
+#LOADTOKEN[
+PMENU     =[GAME]
+_subroot1 =[earth1.love]
+_subroot2 =[earth2.love]
+_subroot3 =[earth3.love]
+_subroot4 =[earth4.love]
+_subroot5 =[earth5.love]
+_subroot6 =[earth6.love]
+_subroot7 =[earth7.love]
+_NAVLINK  =[<a class="w3-link-plain" href="#ELSHOW#&pmenu=#pmenu#&domain=#_subroot#">#_NAVTEXT#</a>]
+]#
+<div class="w3-container">
+<h2 class="#CLASS_FLOWER_HEAD# el-chakra2">#FlowerHead#</h2>
+<div class="w3-container">#include![EL_VIEW_FLOWER]#</div>
+</div>

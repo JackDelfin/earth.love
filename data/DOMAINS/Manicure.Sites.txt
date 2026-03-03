@@ -1,0 +1,8 @@
+Board.earth
+Brush.earth
+Buffer.earth
+Knife.earth
+Nail.earth
+Pusher.earth
+Stick.earth
+Toenail.earth

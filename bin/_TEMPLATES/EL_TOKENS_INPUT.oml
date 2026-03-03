@@ -1,0 +1,20 @@
+#LOADTOKEN[
+CLASS_INPUT_FIELD  =[ class="w3-container w3-margin-top"]
+CLASS_INPUT_COLOR  =[ w3-light-grey]
+CLASS_INPUT_TEXT   =[ class="w3-input w3-margin-7 w3-padding w3-round-xlarge#CLASS_INPUT_COLOR#"]
+CLASS_INPUT_DATE   =[ class="w3-input w3-margin-7 w3-padding w3-round-xlarge#CLASS_INPUT_COLOR#"]
+CLASS_INPUT_NUMBER =[ class="w3-input w3-margin-7 w3-padding w3-round-xlarge#CLASS_INPUT_COLOR#"]
+CLASS_SELECT       =[ class="w3-select w3-margin-7 w3-padding w3-round-xlarge#CLASS_INPUT_COLOR#"]
+CLASS_TEXTAREA     =[ class="w3-code w3-input w3-margin-7 w3-padding w3-round-xlarge#CLASS_INPUT_COLOR#"]
+CLASS_REQUIRED     =[ w3-sand w3-required]
+
+elADD_POST         =[#_ORBIT#eladd]
+elDEL_POST         =[#_ORBIT#eldel]
+elEDIT_POST        =[#_ORBIT#eledit]
+elNEW_POST         =[#_ORBIT#elnew]
+elSHOW_POST        =[#_ORBIT#elshow]
+
+H                  =[EL_INPUT_HIDDEN]
+]#
+<!--- Backup certain tokens for easy reference for RESTORE - no need to backup in function --->
+#BACKUP[CLASS_INPUT_COLOR]#

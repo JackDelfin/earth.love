@@ -1,0 +1,24 @@
+<!--- EL_VIEW_FLOWER_BASIC - Set #_TOPNAV1# ... #_TOPNAV7# prior to call --->
+<!---#_TOPCLASS=[w3-container w3-circle w3-border-circle w3-padding-64 w3-center]#--->
+#_TOPCLASS=[w3-container w3-circle w3-padding-16 w3-center]#
+<div class="w3-container w3-center">
+<table border="0" cellpadding="0"><tr>
+<td valign="middle" align="center">
+<div>
+<div class="#_TOPCLASS# w3-pale-blue">#_TOPNAV5#</div>
+<div class="#_TOPCLASS# w3-light-blue">#_TOPNAV6#</div>
+</div>
+</td><td valign="middle" align="center">
+<div>
+<div class="#_TOPCLASS# w3-pale-green">#_TOPNAV4#</div>
+<div class="#_TOPCLASS# w3-purple">#_TOPNAV7#</div>
+<div class="#_TOPCLASS# w3-pale-red"><div class="w3-center">#_TOPNAV1#</div></div>
+</div>
+</td><td valign="middle" align="center">
+<div>
+<div class="#_TOPCLASS# w3-pale-yellow">#_TOPNAV3#</div>
+<div class="#_TOPCLASS# w3-amber">#_TOPNAV2#</div>
+</div>
+</td>
+</tr></table>
+</div>

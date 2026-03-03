@@ -1,0 +1,18 @@
+brand
+bullet
+corral
+cowboy boots
+cowboy hat
+gun
+gun belt
+herd
+holster
+horse
+lasso
+pistol
+ranch
+rifle
+rodeo
+saddle
+stampede
+ten-gallon hat

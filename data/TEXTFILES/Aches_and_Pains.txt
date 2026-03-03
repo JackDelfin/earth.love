@@ -1,0 +1,10 @@
+backache
+chills
+cough
+earache
+fever
+headache
+infection
+runny nose
+sore throat
+stomach ache

@@ -1,0 +1,7 @@
+# autostart - ~/.config/lxsession/LXDE-el/autostart
+@lxpanel --profile LXDE-el
+@pcmanfm --desktop --profile LXDE-el
+@xset s off
+@xset -dpms
+@xset s noblank
+@/usr/bin/firefox-esr --private-window --kiosk http://MY.earth.love/o/page?a=NewsFlash&m=Action

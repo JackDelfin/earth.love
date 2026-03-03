@@ -1,0 +1,26 @@
+<!--- EL_NAV_SWOT - Show the SWOT Analysis --->
+#LOADMSG[
+MSG_Head   =[SWOT Navigator]
+_NAV1      =[Strengths]
+_NAV2      =[Weaknesses]
+_NAV3      =[Opportunities]
+_NAV4      =[Threats]
+_NAV5      =[Root Cause]
+_NAV6      =[Root Solution]
+_NAV7      =[Elder Approval]
+]#
+#LOADTOKEN[
+PMENU     =[SWOT]
+_subroot1 =[Strengths.earth]
+_subroot2 =[Weaknesses.earth]
+_subroot3 =[Opportunities.earth]
+_subroot4 =[Threats.earth]
+_subroot5 =[Causes.earth]
+_subroot6 =[Solutions.earth]
+_subroot7 =[Wisdoms.earth]
+_NAVLINK  =[<a class="w3-link-plain" href="#ELSHOW#&pmenu=#pmenu#&domain=#_subroot#">#_NAVTEXT#</a>]
+]#
+<div class="w3-container">
+<h2 class="#CLASS_HEAD# el-chakra2">#MSG_Head#</h2>
+<div class="w3-container">#include![EL_VIEW_SWOT]#</div>
+</div>

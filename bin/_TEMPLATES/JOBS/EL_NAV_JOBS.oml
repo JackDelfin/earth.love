@@ -1,0 +1,27 @@
+<!--- Get the Token configurations for Navigation - touchy~feely stuff --->
+#INCif[#omlCIRCLENAV.NOTEXISTS#][EL_TOKENS_NAV_OML]#
+#LOADMSG[
+FlowerHead =[Projects Navigator]
+_NAV1      =[Skills]
+_NAV2      =[Find]
+_NAV3      =[Apply]
+_NAV4      =[Teach]
+_NAV5      =[Lead]
+_NAV6      =[Learn]
+_NAV7      =[Connect]
+]#
+#LOADTOKEN[
+PMENU     =[JOBS]
+_subroot1 =[JOBS_Skills]
+_subroot2 =[JOBS_Find]
+_subroot3 =[JOBS_Apply]
+_subroot4 =[JOBS_Teach]
+_subroot5 =[JOBS_Lead]
+_subroot6 =[JOBS_Learn]
+_subroot7 =[JOBS_Connect]
+_NAVLINK  =[<a class="w3-link-plain" href="#ELSHOW#&pmenu=#pmenu#&menu=#_subroot#">#_NAVTEXT#</a>]
+]#
+<div class="w3-container">
+<h3 class="#CLASS_FLOWER_HEAD# w3-yellow">#FlowerHead#</h3>
+<div class="w3-container">#include![EL_VIEW_FLOWER]#</div>
+</div>

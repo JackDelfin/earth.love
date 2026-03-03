@@ -1,0 +1,11 @@
+amazon
+apple
+facebook
+google
+ibm
+microsoft
+motorola
+netflix
+oracle
+sap
+twitter

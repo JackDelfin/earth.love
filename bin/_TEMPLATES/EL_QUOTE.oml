@@ -1,0 +1,6 @@
+#found=NOTIN[#_1_#][][][""]#
+#STOP[#found.NOT#]#
+<div class="w3-panel w3-leftbar w3-sand w3-round-xxlarge">
+<p class="w3-xlarge w3-serif">
+<i>#_1_#</i></p>
+<p>#_2_#</p></div>

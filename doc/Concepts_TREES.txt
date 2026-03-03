@@ -1,0 +1,49 @@
+--------------------------------------------------
+TREES Directory
+--------------------------------------------------
+Stores the TREE Directory data in the TREES home
+--------------------------------------------------
+
+The TREE directories will have a .TREE suffix to
+distinguish them as directory trees.
+(up to 200 max characters-OS_Limitation).
+
+They are typically stored in the TREES directory
+off of the EARTH_LOVE root, but this is configurable.
+
+--------------------------------------------------
+Example
+--------------------------------------------------
+
+Food and Beverage
+
+
+Directory:
+--------------------------------------------------
+TREES/Food.TREE
+
+Potential Files:
+--------------------------------------------------
+BRANCHES.dat => food types; food cooking; food growing
+NAME.dat     => Food and Beverage
+TREE.dat     => food.TREE
+TREES.dat    => food.types.TREE; cooking.TREE;
+                growing.TREE; beverages.TREE
+DIRSORT.dat  => Override sort of the directories in this TREE
+TEXT.dat     => (General text for the TREE)
+WORDS.dat    => All Words found in the TREE name
+KEYWORDS.dat => Keywords found in the TREE name
+DOWNWORD.dat => Keywords found in the TREE and BRANCHES
+LINKS.dat    => food.love; food.earth.love; beverages.earth
+
+WORDS
+--------------------------------------------------
+The individual words from the TREE name will have a
+TREES.dat and BRANCHES.dat in the WORDS tree, containing all
+TREES the word is on, cross-referencing the
+WORDS, TREES, and BRANCHES.
+WORDS would be like the flower or fruit...
+
+--------------------------------------------------
+
+-Forest Dweller

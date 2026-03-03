@@ -1,0 +1,52 @@
+--------------------------------------------------
+PHRASES Directory
+--------------------------------------------------
+Stores the PHRASE or word-path in PHRASES Directory
+--------------------------------------------------
+
+PHRASES and BRANCHES are stored similarly, each in
+their own corresponding directory structure.
+
+A PHRASE may or may not be a BRANCH, and
+a BRANCH may or may not be a PHRASE.
+
+A PHRASE is an associated collection of WORDS.
+
+A BRANCH is like a sub-heading in the directory TREE.
+
+The forward direction of the PHRASE is stored here
+like this: (PHRASES/stored/here/like/this)
+(up to 200 max characters-OS_Limitation).
+
+--------------------------------------------------
+Example
+--------------------------------------------------
+
+Life, Liberty, and the Pursuit of Happiness.
+
+CREATES:
+
+Directory:
+--------------------------------------------------
+PHRASES/life/liberty/and/the/pursuit/of/happiness
+
+Potential Files:
+--------------------------------------------------
+PHRASE.dat   => life liberty and the pursuit of happiness
+NAME.dat     => Life, Liberty, and the Pursuit of Happiness.
+TREES.dat    => Directory.TREE; Human.Rights.TREE
+TEXT.dat     => (General text for the PHRASE)
+WORDS.dat    => life; liberty; and; then; pursuit; of; happiness
+KEYWORDS.dat => life; liberty; pursuit; happiness
+LINKS.dat    => happiness.earth; life.earth.love; liberty.earth.love
+
+WORDS
+--------------------------------------------------
+The individual words from the PHRASE will have a
+PHRASES.dat in the WORDS tree, containing all
+PHRASES the word is on, cross-referencing the
+WORDS and PHRASES.
+
+--------------------------------------------------
+
+-Phrase Coordinator

@@ -1,0 +1,14 @@
+Claimed.earth
+Continued.earth
+Denied.earth
+Explained.earth
+JustSaid.earth
+Ordered.earth
+Predicted.earth
+Promised.earth
+Protested.earth
+Related.earth
+Said.earth
+Stated.earth
+Testified.earth
+Told.earth

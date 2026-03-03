@@ -1,0 +1,10 @@
+#ROOT=[BOOKS]#
+#OBJECT=[BOOK]#
+#INC[EL_HEADER_ROOT]#
+#INC[EL_FORM_SEARCH][Search Books]#
+#INC[EL_SEARCH_RESULTS]#
+#OML[#ROOT.upper#/EL_SEARCH_#ROOT#]#
+
+<div class="w3-container w3-center">
+#OML[#ROOT.upper#/EL_NEW_#OBJECT#_BUT]#
+</div>

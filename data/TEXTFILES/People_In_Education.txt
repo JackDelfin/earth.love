@@ -1,0 +1,29 @@
+administrator
+chair
+classmate
+coach
+cook
+council
+dean
+department chair
+graduate assistant
+graduate student
+head teacher
+headmaster
+instructor
+janitor
+lab assistant
+lecturer
+librarian
+president
+principal
+professor
+provost
+pupil
+schoolboy
+schoolgirl
+secretary
+student
+teacher
+undergraduate
+vice-president

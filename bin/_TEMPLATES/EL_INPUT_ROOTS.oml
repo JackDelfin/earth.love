@@ -1,0 +1,12 @@
+<!--- #OML[EL_INPUT_ROOTS][DATA][Label]# Root select--->
+#INC[EL_INPUT_HEADER]#
+<input type="text"#CLASS_INPUT_TEXT# name="#_data_#Q" size="42" value="#_value_.html#">
+<input type="hidden" name="#_data_#" size="42" value="#_value_.html#">
+<!--- List out the Results from the "Q"uery for user to select --->
+#_OPTIONS_=DATA[LOCS][]#DATA_LIST#
+<select name="#_data_#SEL" #CLASS_SELECT#>
+#SELECTED[#_options_#][#_value_#][#_3_#][][#_req_#]#
+</select>
+
+
+#INC[EL_INPUT_FOOTER]#

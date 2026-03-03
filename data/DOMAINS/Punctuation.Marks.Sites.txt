@@ -1,0 +1,5 @@
+Asterisk.earth
+Colon.earth
+Comma.earth
+Period.earth
+Question.earth

@@ -1,0 +1,49 @@
+<!--- EL_NAV_SWOT - Show the SWOT Analysis --->
+#LOADMSG[
+MSG_Head   =[Planet Earth SWOT Analysis]
+_NAV1      =[Strengths]
+_NAV2      =[Weaknesses]
+_NAV3      =[Opportunities]
+_NAV4      =[Threats]
+_NAV5      =[Root Cause]
+_NAV6      =[Root Solution]
+_NAV7      =[Elder Approval]
+]#
+#LOADTOKEN[
+PMENU     =[SWOT]
+_subroot1 =[Strengths.earth]
+_subroot2 =[Weaknesses.earth]
+_subroot3 =[Opportunities.earth]
+_subroot4 =[Threats.earth]
+_subroot5 =[Causes.earth]
+_subroot6 =[Solutions.earth]
+_subroot7 =[Wisdoms.earth]
+_NAVLINK  =[<a class="w3-link-plain" href="#ELSHOW#&pmenu=#pmenu#&domain=#_subroot#">#_NAVTEXT#</a>]
+]#
+<div>
+<h2 class="#CLASS_HEAD# w3-greyscale-min el-chakra7">#MSG_Head#</h2>
+
+#CLASS_SUSTAINABILITY=[w3-card w3-padding-small w3-round-xlarge]#
+
+<br>
+<div class="#CLASS_SUSTAINABILITY# w3-greyscale-min el-chakra2">
+<h2 class="#CLASS_HEAD# w3-amber">#MSG[Ecology (Environment)]#</h2>
+<div class="w3-container">#include![EL_VIEW_SWOT]#</div>
+<br>
+</div>
+
+<br>
+<div class="#CLASS_SUSTAINABILITY# w3-greyscale-min el-chakra4">
+<h2 class="#CLASS_HEAD# w3-pale-green">#MSG[Community (Culture)]#</h2>
+<div class="w3-container">#include![EL_VIEW_SWOT]#</div>
+<br>
+</div>
+
+<br>
+<div class="#CLASS_SUSTAINABILITY# w3-greyscale-min el-chakra6">
+<h2 class="#CLASS_HEAD# w3-light-blue">#MSG[Economics (Efficiency)]#</h2>
+<div class="w3-container">#include![EL_VIEW_SWOT]#</div>
+<br>
+</div>
+
+</div>

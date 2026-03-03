@@ -1,0 +1,25 @@
+#ROOT=[JOBS]#
+<div class="w3-container">
+<h2>#MSG[Create Project]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+#OML[EL_INPUT_STEPS][4]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [NAME_REQ][Project Name]#
+#ifOML[#STEP1.0.NOT#][EL_INPUT_VIEW][]    [NAME_REQ][]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [SHORT][Short Name]#
+#ifOML[#STEP1#][EL_INPUT_TEXTAREA][#H#]   [DESC][Description]#
+#ifOML[#STEP2#][EL_INPUT_DATA_COLOR][#H#] [COLOR]#
+#ifOML[#STEP2#][EL_INPUT_TEXT][#H#]       [LOCS][Locations]#
+
+#ifOML[#STEP3#][EL_INPUT_TEXTAREA][#H#]   [SPECIFIC][Specific Goal][2]#
+#ifOML[#STEP4#][EL_INPUT_TEXTAREA][#H#]   [MEASURE][Measure of Success][2]#
+#ifOML[#STEP5#][EL_INPUT_TEXTAREA][#H#]   [ACTION][Next Action Step][2]#
+#ifOML[#STEP6#][EL_INPUT_TEXTAREA][#H#]   [REALISTIC][Realistic Expectations][2]#
+#ifOML[#STEP7#][EL_INPUT_TEXTAREA][#H#]   [TIMELINE][Timeline][2]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

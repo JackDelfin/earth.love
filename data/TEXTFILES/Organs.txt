@@ -1,0 +1,14 @@
+appendix
+colon
+diaphragm
+gall bladder
+heart
+hearts
+intestine
+large intestine
+liver
+lung
+pancreas
+small intestine
+spleen
+stomach

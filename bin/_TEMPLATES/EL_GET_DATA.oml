@@ -1,0 +1,15 @@
+<!--- #EL_GET_DATA[DataType]#   - uses current root and word to get data for the DataType
+- make sure to set load #INC[EL_TOKENS_SEARCH]# prior calling EL_GET_DATA
+--->
+#_datafile.lower=PARSE[#_1_#]#
+#LOADTOKEN[
+_datasearch =PARSE[##_datafile#Q#]
+_datastart  =PARSE[##_datafile#S#]
+_datamax    =PARSE[##_datafile#M#]
+_datamax    =NVL[#_datamax#][#MAX_DEF#]
+silent      =NOTEXISTS[#_datasearch#]
+]#
+#DATA[#ROOT#][#word#][#_datafile#][#_datasearch#][#_datastart#][#_datamax#]
+     [#_DATA_HEAD_#]
+     [#_DATA_BODY_#]
+     [#_DATA_FOOT_#][|][#silent#]#

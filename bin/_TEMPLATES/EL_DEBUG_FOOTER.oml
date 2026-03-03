@@ -1,0 +1,15 @@
+#EXISTS[#_DEBUG_#][<pre>$O->Append_Token('_DEBUG_', "");<br>#_DEBUG_#</pre>]#
+#STOP[#DEBUG.0.NOT#]#
+<!---
+Show in EL_FOOTER as #OML[EL_DEBUG_FOOTER]#  Turn off with 1 above
+Example:
+  $O->Append_Token('_DEBUG_', '['.$Fields.']');
+  $O->Append_Token('_URGENT_MESSAGE_', '['.$Fields.']');
+--->
+#OML[EL_DEBUG]#
+<pre>
+<!--- Show System generated tokens - capture and redisplay to control layout with nested logic --->
+#DEBUG[0][^_.*$]#
+#DEBUG[0][_BACK$]#
+#SHOWSTATS[1]#
+</pre>

@@ -1,0 +1,9 @@
+<!--- Search and show Catalog / Category contents --->
+#INC[EL_TOKENS_SEARCH]#
+#BOX_COLOR=[el-chakra6]#
+#PAGE=[el_show]#
+#OBJECT=[search]#
+#_DATA_MSG_=MSG[Contents]#
+#_DATA_FOOT_=[#RESTORE[PAGE OBJECT]##NEXT_PREV#</div>]#
+#FUNCTION[EL_GET_DATA][CAT]#
+#RESTORE[_DATA_FOOT_ BOX_COLOR]#

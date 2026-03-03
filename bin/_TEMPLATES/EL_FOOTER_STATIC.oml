@@ -1,0 +1,5 @@
+<footer class="#FOOTER_BOX#">
+<small>#DATE[Day Month D1, YYYY H1:MIampm]#<br>Updated: #ENV_SYSDATE#</small>
+</footer>
+</body>
+</html>

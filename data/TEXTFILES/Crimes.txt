@@ -1,0 +1,27 @@
+arson
+assault
+bigamy
+blackmail
+bribery
+burglary
+child abuse
+conspiracy
+espionage
+forgery
+fraud
+genocide
+hijacking
+homicide
+kidnapping
+manslaughter
+mugging
+murder
+perjury
+rape
+riot
+robbery
+shoplifting
+slander
+smuggling
+treason
+trespassing

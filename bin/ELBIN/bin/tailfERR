@@ -1,0 +1,23 @@
+#!/bin/bash
+# tailfERR [LOVE_directory_suffix]   [DOM_prefix]
+# - check Error log files
+
+LOVENUM=$1;
+DOM=$2;
+
+# See if LOVENUM is a number - switch parameters for ease of use
+if [ -n "$LOVENUM" ] && [ -z "${LOVENUM//[0-9]}" ]; then
+  echo "Checking in /LOVE$LOVENUM";
+  # $LOVENUM is a number
+else
+  # LOVENUM is not a number
+  # Assume we are searching for DOM
+  if [ "$DOM" == "" ]; then
+    DOM=$LOVENUM;
+    # Search ALL LOVE roots
+    LOVENUM="*";
+  fi
+fi
+
+tail -f /LOVE$LOVENUM/*/$DOM*/_LOGS/error.log /LOVE$LOVENUM/$DOM*/_LOGS/*error.log;
+

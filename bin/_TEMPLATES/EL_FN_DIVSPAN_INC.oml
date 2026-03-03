@@ -1,0 +1,25 @@
+<!--- Include boxes with responsive layout:
+  #FUNCTION[EL_FN_DIVSPAN_INC]   [EL_SEARCH_LOCS][EL_SEARCH_GUILDS][EL_SEARCH_ORGS][EL_SEARCH_JOBS]#
+--->
+#_i1_=PARSE[#_1_#]#
+#_i2_=PARSE[#_2_#]#
+#_i3_=PARSE[#_3_#]#
+#_i4_=PARSE[#_4_#]#
+#_inc1_.trim=ifINC[#_i1_.exists#][#_i1_#]#
+#_inc2_.trim=ifINC[#_i2_.exists#][#_i2_#]#
+#_inc3_.trim=ifINC[#_i3_.exists#][#_i3_#]#
+#_inc4_.trim=ifINC[#_i4_.exists#][#_i4_#]#
+#_inccnt_=REPLACEALL[#_inc1_.EXISTS##_inc2_.EXISTS##_inc3_.EXISTS##_inc4_.EXISTS#][0]#
+#DIVSPAN=DECODE[#_inccnt_#]
+  [1111][quarter]
+  [111][third]
+  [11][half]
+  [1][threequarter]
+  []#
+#STOP[#DIVSPAN.NOTEXISTS#]#
+<div class="w3-row w3-container">
+#EXISTS[#_inc1_#][<div class="w3-#DIVSPAN#">#_inc1_#</div>]#
+#EXISTS[#_inc2_#][<div class="w3-#DIVSPAN#">#_inc2_#</div>]#
+#EXISTS[#_inc3_#][<div class="w3-#DIVSPAN#">#_inc3_#</div>]#
+#EXISTS[#_inc4_#][<div class="w3-#DIVSPAN#">#_inc4_#</div>]#
+</div>

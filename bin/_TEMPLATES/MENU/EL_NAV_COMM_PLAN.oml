@@ -1,0 +1,17 @@
+#MENU=[COMM_PLAN]#
+<!--- Get the Token configurations for Navigation - touchy~feely stuff --->
+#INCif[#omlCIRCLENAV.NOTEXISTS#][EL_TOKENS_NAV_OML]#
+#_FLOWER_HEAD_COLOR_=[el-chakra3]#
+#OML[EL_HEADER_NAV_FLOWER]#
+#LOADMSG[
+FlowerHead =[Plan]
+_NAV1      =[Find Home]
+_NAV2      =[Grow Food]
+_NAV3      =[Build Structures]
+_NAV4      =[Teach Skills]
+_NAV5      =[Make Things Locally]
+_NAV6      =[Community Outreach]
+_NAV7      =[Six Sisters]
+]#
+#_Flower=INCLUDE[EL_VIEW_FLOWER]#
+#FlowerDIV#

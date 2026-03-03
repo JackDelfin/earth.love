@@ -1,0 +1,23 @@
+back tire
+brake lever
+brake pedal
+chain
+clutch lever
+disk brake
+drum brake
+engine
+fender
+front tire
+gas tank
+gear shift
+handlebar
+headlight
+inner tube
+muffler
+rearview mirror
+seat
+shock absorber
+speedometer
+spokes
+tail light
+turn signal

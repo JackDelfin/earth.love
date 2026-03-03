@@ -1,0 +1,13 @@
+bee
+caterpiller
+cicada
+cockroach
+cricket
+dragonfly
+fly
+grasshopper
+insects
+locust
+mosquito
+spider
+wasp

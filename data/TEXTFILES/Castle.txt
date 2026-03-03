@@ -1,0 +1,11 @@
+archer
+cannon
+drawbridge
+dungeon
+knight
+moat
+samurai
+shield
+sword
+wall
+watch tower

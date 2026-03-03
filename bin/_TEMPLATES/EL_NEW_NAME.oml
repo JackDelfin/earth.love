@@ -1,0 +1,14 @@
+#ROOT=[NAMES]#
+<div class="w3-container">
+<h2>#MSG[Create Name]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_TEXT][NAME_REQ][First Name]#
+#OML[EL_INPUT_TEXT][MIDDLENAME][Middle Name]#
+#OML[EL_INPUT_TEXT][LASTNAME][Last Name]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

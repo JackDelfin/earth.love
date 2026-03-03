@@ -1,0 +1,10 @@
+<!--- Set the STEP and STEPS tokens for multiple input steps
+  #OML[EL_INPUT_STEPS][TotalSteps]#
+  ex:
+  #OML[EL_INPUT_STEPS][2]#
+  #ifOML[#STEP2#][EL_INPUT_TEXT][EL_INPUT_HIDDEN] [SHORT][Short Name]#
+--->
+#STEP=PARSE[#STEP.1#]#
+#x=PARSE[STEP#step#=[1]]#
+#PARSE[##x##]#
+#STEPS=NVL[#STEPS#][#_1_#]#

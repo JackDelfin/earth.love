@@ -1,0 +1,6 @@
+Colon.earth
+Hearts.earth
+Intestine.earth
+Liver.earth
+Lung.earth
+Stomach.earth

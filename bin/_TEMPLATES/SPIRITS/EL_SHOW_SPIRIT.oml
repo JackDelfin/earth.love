@@ -1,0 +1,42 @@
+<!--- Make sure search didn't get here by mistake - redirect back to Root Search --->
+#ifOML[#_WORDFOUND_.0.NOT#][EL_SHOW_#ROOT#]#
+#STOP[#_WORDFOUND_.0.NOT#]#
+<!--- Show the Header Record - Spirit Name --->
+#OML[EL_HEADER_OBJECT]#
+
+<!--- Fields START --->
+#OML[EL_VIEW_FIELD]        [NAME_REQ][Spiritual Community Name]#
+#OML[EL_VIEW_FIELD]        [SHORT][Short Name]#
+#OML[EL_VIEW_FIELD]        [DESC][Description]#
+#OML[EL_VIEW_FIELD_COLOR]  [Color]#
+
+#OML[EL_VIEW_FIELD]        [LOCS][Locations]#
+#OML[EL_VIEW_FIELD]        [GUILDS][Guilds]#
+#OML[EL_VIEW_FIELD]        [COMMS][Communities]#
+#OML[EL_VIEW_FIELD]        [ORGS][Organizations]#
+#OML[EL_VIEW_FIELD]        [JOBS][Projects]#
+#OML[EL_VIEW_FIELD]        [PERSONS][Persons]#
+#OML[EL_VIEW_FIELD]        [RESOURCES][Resources]#
+
+#OML[EL_VIEW_FIELD]        [INACTIVE][Inactive]#
+#OML[EL_VIEW_FIELD_DATE]   [ACTIVEDATE][Active Date]#
+#OML[EL_VIEW_FIELD_DATE]   [INACTIVEDATE][Inactive Date]#
+#OML[EL_VIEW_FIELD_DATE]   [STARTDATE][Start Date]#
+#OML[EL_VIEW_FIELD_DATE]   [ENDDATE][End Date]#
+<!--- Fields END --->
+
+<!--- Locations and Communities for this Spirit --->
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_LOCS]
+  [EL_SEARCH_GUILDS]
+  [EL_SEARCH_COMMS]#
+
+<!--- Organizations and Projects this Spirit is associated with --->
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_ORGS]
+  [EL_SEARCH_JOBS]#
+
+<!--- Links and Paths for this Spirit --->
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_LINKS]
+  [EL_SEARCH_PATHS]#

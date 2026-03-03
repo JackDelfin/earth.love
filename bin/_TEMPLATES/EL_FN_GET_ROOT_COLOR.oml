@@ -1,0 +1,2 @@
+<!--- #EL_FN_GET_ROOT_COLOR[root]# - returns root color --->
+w3-#FIELD[#_1_#][][COLOR]#

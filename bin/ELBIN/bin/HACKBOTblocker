@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source /home/el/.bashrc;
+cd /home/el/PLAYS/blocker;
+
+STAMP=`date +%Y%m%d`;
+CRONOUT="HACKBOTblocker_$STAMP.out";
+
+echo "-----------------------------------------" |tee -a $CRONOUT;
+echo `date +%Y%m%d_%H%M%S`" HACKBOTblocker" |tee -a $CRONOUT;
+echo "-----------------------------------------" |tee -a $CRONOUT;
+
+/ELBIN/getBots.sh |tee -a $CRONOUT;
+/ELBIN/getHackers.sh |tee -a $CRONOUT;
+./ipUFWBOTblock.sh |tee -a $CRONOUT;
+./ipUFWHACKblock.sh |tee -a $CRONOUT;
+

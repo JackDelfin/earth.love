@@ -1,0 +1,216 @@
+air conditioner
+apartment
+appliances
+ashtray
+attic
+awning
+back door
+backyard
+baluster
+barbecue
+baseboard
+basement
+bath tub
+bathroom
+bathtub
+beam
+bed
+bedding
+bedroom
+blanket
+blinds
+bolt
+bookcase
+brick
+broom
+bunk bed
+carpet
+carport
+ceiling
+cellar
+cement
+chair
+chimney
+closet
+clothes dryer
+clothes washer
+column
+concrete
+cornice
+couch
+counter
+crib
+cupboard
+curtain
+curtain rod
+curtains
+cushion
+desk
+dining room
+dish washer
+doggie door
+doghouse
+door
+door bell
+door jamb
+doorknob
+doorstep
+doorway
+dormer
+downspout
+downstairs
+drain
+drapes
+dresser
+driveway
+dryer
+duct
+dustpan
+eaves
+electrical outlet
+electrical system
+entrance
+entry
+entryway
+family room
+fan
+faucet
+fence
+fenced yard
+fireplace
+floor
+foundation
+frame
+front door
+front stoop
+furnace
+furniture
+fuse box
+gable
+garage
+garage door
+garage door opener
+garbage can
+garden
+garden shed
+gate
+girder
+glass
+greenhouse
+gutters
+hall
+hall closet
+hallway
+hamper
+heater
+hinge
+home
+hose
+house
+inglenook
+insulation
+jamb
+key
+kitchen
+ladder
+lamp
+lanai
+laundry
+laundry room
+lawnmower
+library
+light
+light switch
+linen closet
+lintel
+living room
+lock
+loft
+lumber
+mailbox
+mantle
+mat
+mirror
+mop
+nail
+newel
+nook
+nursery
+overhang
+paint
+painting
+paneling
+pantry
+patio
+picture
+picture frame
+plaster
+plumbing
+plywood
+pool
+porch
+portico
+quilt
+rafter
+railing
+rake
+range
+recreation room
+roof
+room
+rug
+sash
+screen door
+screw
+shed
+shelf
+shelves
+shingle
+shower
+shutters
+siding
+sill
+sink
+skylight
+sliding glass door
+sofa
+soffit
+staircase
+stairs
+stairway
+steps
+stoop
+storage shed
+storm door
+stove
+swimming pool
+table
+threshold
+throw rug
+toilet
+trash can
+trellis
+trim
+tub
+upstairs
+vacuum cleaner
+vase
+Venetian blinds
+vent
+wainscoting
+walkway
+wall
+wall-to-wall carpet
+washer
+washing machine
+waste basket
+water heater
+weather stripping
+welcome mat
+window
+window pane
+window sill
+wire
+wood
+wood stove
+yard

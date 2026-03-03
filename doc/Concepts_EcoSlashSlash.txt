@@ -1,0 +1,13 @@
+e://word
+(eco-slash-slash)
+
+Shortcut for HTTP://word.EARTH.LOVE
+
+How about just e: ?
+
+e:Guilds  ->  http://guilds.earth
+
+e:Guild   ->  http://guild.earth.love
+-- goes to earth.love because guild.earth
+   is not in the planetary domain list (yet)
+

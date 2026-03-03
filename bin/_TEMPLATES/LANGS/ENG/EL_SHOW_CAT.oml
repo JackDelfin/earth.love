@@ -1,0 +1,13 @@
+#BOX_HEAD_COLOR=[el-chakra6]#
+<div class="#BOX_HEAD#"><h1>#MSG[Category:]# #word#</h1></div>
+#RESTORE[BOX_HEAD_COLOR]#
+
+#OML[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_CAT]
+  [EL_SEARCH_PHRASES]#
+
+#OML[doms/EL_SEARCH_DOMS]#
+
+#OML[EL_SEARCH_NO_RESULTS]#
+
+#INC[EL_ADD_BUTTONS]#

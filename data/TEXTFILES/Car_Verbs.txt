@@ -1,0 +1,19 @@
+accelerate
+back up
+change gears
+crash
+de-accelerate
+fasten seat-belt
+fill up with gas
+idle the engine
+park
+pass
+push the accelerator
+push the clutch
+race
+run out of gas
+shift into drive
+shift into reverse
+slow down
+speed up
+stop

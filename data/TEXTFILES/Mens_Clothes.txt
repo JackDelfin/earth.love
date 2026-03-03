@@ -1,0 +1,23 @@
+belt
+bow tie
+boxer shorts
+briefs
+button-down collar
+cardigan
+crew-neck sweater
+double-breasted jacket
+necktie
+overcoat
+pants
+parka
+raincoat
+shirt
+socks
+sport coat
+suit coat
+suspenders
+trench
+turtleneck sweater
+undershirt
+V-necked sweater
+vest

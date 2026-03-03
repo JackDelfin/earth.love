@@ -1,0 +1,2 @@
+<!--- #OML[EL_BUTTON_NEW][root][object][Button Name]# --->
+<a class="#BUTTON_CLASS# #BUTTON_NEW_COLOR#" href="#SHOWPAGE_BUTTON#&r=#NVL[#_1_#][#ROOT#]#&o=#_2_#&p=el_new#_extra_params_#">#MSG[#_3_#]#</a>

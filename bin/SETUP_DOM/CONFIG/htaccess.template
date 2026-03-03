@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "#DOM# WEB MASTER"
+Require valid-user
+AuthUserFile #DOMAIN_DIR#/.htpasswd

@@ -1,0 +1,23 @@
+bulb dibble
+dibble
+garden hoe
+garden line
+hedge shears
+hoe
+lawn edger
+lawn rake
+lopping shears
+mattock
+pitch fork
+post-hole digger
+pruning shears
+rake
+seeder
+shovel
+small hand cultivator
+spade
+spading fork
+tree pruner
+trowel
+weeder
+weeding hoe

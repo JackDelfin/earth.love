@@ -1,0 +1,37 @@
+<!--- EL_VIEW_FLOWER - Set _NAV1 ... _NAV7 and _NAVLINK prior to call --->
+#OMLIF[#omlCIRCLENAV.EXISTS#][EL_TOKENS_NAV_OML]#
+#_NAVWORD=PARSE[#_NAV1#]##_subroot=[#_subroot1#]##_NAVTEXT.omlRed.omlCIRCLENAV=PARSE[#_NAVWORD#]#
+#Petal_1=PARSE[#_NAVLINK#]#
+#_NAVWORD=PARSE[#_NAV2#]##_subroot=[#_subroot2#]##_NAVTEXT.omlOrange.omlCIRCLENAV=PARSE[#_NAVWORD#]#
+#Petal_2=PARSE[#_NAVLINK#]#
+#_NAVWORD=PARSE[#_NAV3#]##_subroot=[#_subroot3#]##_NAVTEXT.omlYellow.omlCIRCLENAV=PARSE[#_NAVWORD#]#
+#Petal_3=PARSE[#_NAVLINK#]#
+#_NAVWORD=PARSE[#_NAV4#]##_subroot=[#_subroot4#]##_NAVTEXT.omlGreen.omlCIRCLENAV=PARSE[#_NAVWORD#]#
+#Petal_4=PARSE[#_NAVLINK#]#
+#_NAVWORD=PARSE[#_NAV5#]##_subroot=[#_subroot5#]##_NAVTEXT.omlBlue.omlCIRCLENAV=PARSE[#_NAVWORD#]#
+#Petal_5=PARSE[#_NAVLINK#]#
+#_NAVWORD=PARSE[#_NAV6#]##_subroot=[#_subroot6#]##_NAVTEXT.omlIndigo.omlCIRCLENAV=PARSE[#_NAVWORD#]#
+#Petal_6=PARSE[#_NAVLINK#]#
+#_NAVWORD=PARSE[#_NAV7#]##_subroot=[#_subroot7#]##_NAVTEXT.omlViolet.omlCIRCLENAV=PARSE[#_NAVWORD#]#
+#Petal_7=PARSE[#_NAVLINK#]#
+<div class="w3-container w3-center">
+<table border="0" cellpadding="0" align="center"><tr>
+<td valign="middle" align="center">
+<div>
+#Petal_5#
+#Petal_6#
+</div>
+</td><td valign="middle" align="center">
+<div>
+#Petal_4#
+#Petal_7#
+#Petal_1#
+</div>
+</td><td valign="middle" align="center">
+<div>
+#Petal_3#
+#Petal_2#
+</div>
+</td>
+</tr></table>
+</div>

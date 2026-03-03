@@ -1,0 +1,23 @@
+butter compartment
+compressor
+condenser coil
+crisper
+dairy compartment
+defrost heater
+defrost timer
+drain pan
+egg tray
+evaporator coil
+fan
+freezer compartment
+freezer door
+gasket
+glass cover
+handle
+ice cube tray
+meat keeper
+refrigerator compartment
+shelf
+storage door
+switch
+thermostat control

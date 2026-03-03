@@ -1,0 +1,15 @@
+Baptist.earth
+Buddhism.earth
+Catholic.earth
+Christian.earth
+Folk.earth
+God.earth
+Hinduism.earth
+Jesuschrist.earth
+Jewish.earth
+Judaism.earth
+Monk.earth
+Muslim.earth
+Paganism.earth
+Religion.earth
+Religious.earth

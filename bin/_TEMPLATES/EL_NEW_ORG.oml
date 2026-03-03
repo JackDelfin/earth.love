@@ -1,0 +1,23 @@
+#ROOT=[ORG]#
+<div class="w3-container">
+<h2>#MSG[Create Organization]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+#OML[EL_INPUT_STEPS][4]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][NAME_REQ][Organization Name]#
+#ifOML[#STEP1.0.NOT#][EL_INPUT_VIEW][]    [NAME_REQ][]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][SHORT][Short Name]#
+
+#ifOML[#STEP2#][EL_INPUT_SELECT][TYPE_REQ][Type of Organization][#_def#]
+      [Community Business|Corporation|Organization|Other]#
+#ifOML[#STEP2#][EL_INPUT_DATA_COLOR][#H#] [COLOR]#
+
+#ifOML[#STEP3#][EL_INPUT_TEXT][LOCS][Locations]#
+#ifOML[#STEP4#][EL_INPUT_TEXTAREA][DESC][Description]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

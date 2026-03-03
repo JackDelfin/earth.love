@@ -1,0 +1,77 @@
+United States of America
+Armed Forces Americas
+Armed Forces Afr/Can/Eur/Mid East
+Alaska
+Alabama
+Armed Forces Pacific
+Arkansas
+American Samoa
+Arizona
+California
+Colorado
+Connecticut
+District Of Columbia
+Delaware
+Florida
+Federated States Of Micronesia
+Georgia
+Guam
+Hawaii
+Iowa
+Idaho
+Illinois
+Indiana
+Kansas
+Kentucky
+Louisiana
+Massachusetts
+Maryland
+Maine
+Marshall Islands
+Michigan
+Minnesota
+Missouri
+Northern Mariana Islands
+Mississippi
+Montana
+North Carolina
+North Dakota
+Nebraska
+New Hampshire
+New Jersey
+New Mexico
+Nevada
+New York
+Ohio
+Oklahoma
+Oregon
+Pennsylvania
+Puerto Rico
+Palau
+Rhode Island
+South Carolina
+South Dakota
+Tennessee
+Texas
+Utah
+Virginia
+Virgin Islands
+Vermont
+Washington
+Wisconsin
+West Virginia
+Wyoming
+Canadian Provinces
+Alberta
+British Columbia
+Manitoba
+New Brunswick
+Newfoundland and Labrador
+Nova Scotia
+Northwest Territories
+Nunavut
+Ontario
+Prince Edward Island
+Quebec
+Saskatchewan
+Yukon

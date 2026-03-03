@@ -1,0 +1,17 @@
+Baseball.earth
+Batting.earth
+Cap.earth
+Cricket.earth
+Derby.earth
+Diving.earth
+Football.earth
+Hard.earth
+Hat.earth
+Hats.earth
+Hats101.earth
+Helmet.earth
+Knit.earth
+Riding.earth
+Skull.earth
+Swim.earth
+Visor.earth

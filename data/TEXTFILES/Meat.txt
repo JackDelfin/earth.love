@@ -1,0 +1,21 @@
+bacon
+beef
+chicken
+chicken breast
+chicken leg
+chicken wing
+ham
+hamburger
+heart
+hot dog
+kidney
+lamb chop
+mutton
+pork
+roast
+sausage
+steak
+tongue
+turkey
+veal
+venison

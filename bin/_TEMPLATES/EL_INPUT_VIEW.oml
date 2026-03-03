@@ -1,0 +1,7 @@
+<!--- #OML[EL_VIEW_FIELD]  [Data: NAME/SHORT/DESC]  [Label: <optional>]#
+ex) #OML[EL_VIEW_FIELD][SHORT][Short Name]#
+--->
+#OML[EL_INPUT_HEADER_VIEW]#
+<div#CLASS_FIELD_VIEW#>#_value_.html#</div>
+</div>
+#RESTORE[CLASS_INPUT_COLOR][CLASS_LABEL_COLOR]#

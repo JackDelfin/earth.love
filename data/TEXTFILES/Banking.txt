@@ -1,0 +1,40 @@
+account
+alarm
+ATM
+bankbook
+bills
+borrow
+bounced check
+burglar alarm
+cash
+cashier
+check
+checking account
+coins
+credit
+credit card
+currency
+customer
+deposit
+foreign currency rate
+foreign exchange
+forgery
+guard
+interest
+joint account
+lend
+loan
+manager
+money
+mortgage
+passbook
+pay
+save
+savings
+savings account
+security guard
+teller
+time deposit account
+vault
+withdraw
+withdrawl

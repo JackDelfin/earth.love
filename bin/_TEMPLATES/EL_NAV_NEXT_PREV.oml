@@ -1,0 +1,32 @@
+#_prev=PARSE[##_datafile#_prev#]#
+#_next=PARSE[##_datafile#_next#]#
+#stop=AND[#_prev.NOTEXISTS#][#_next.NOTEXISTS#][#_datasearch.NOTEXISTS#]#
+#STOP[#stop#]#
+#TokEnLoad[
+BUTTON_BO_NAME     ==
+BUTTON_GO_NAME     =Go
+BUTTON_BO          =[<a class="w3-link=plain" href="#showpage##word.tr#&ff=#_FORMFIELDS_.TR#&#_datafile#S=#_datastart#&#_datafile#M=#_datamax#&#_datafile#Q=#_datasearch#&l=list"><div class="w3-badge w3-card-4 w3-hover w3-gray w3-round-large w3-medium">#BUTTON_BO_NAME#</div></a>]<!---BubblesOff Button--->
+BUTTON_GO          =[<input type="submit" class="w3-button w3-card-4 w3-hover w3-light-green w3-greyscale-min w3-round-xxlarge w3-small" value="#BUTTON_GO_NAME#">]
+]#
+<!---=p:#_prev#-n:#_next#-?:#PARSE[##_datafile#Q#]#-s:#PARSE[##_datafile#S#]#-m:#PARSE[##_datafile#M#]#=--->
+#_FORMFIELDS_=APPEND[#_FORMFIELDS_#][#_datafile#Q][,]#
+#_FORMFIELDS_=APPEND[#_FORMFIELDS_#][#_datafile#S][,]#
+#_FORMFIELDS_=APPEND[#_FORMFIELDS_#][#_datafile#M][,]#
+<div class="w3-container w3-round-xlarge #BOX_COLOR#"><table class="" border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+<td valign="middle" align="left">#EXISTS[#_prev#][
+<a class="w3-link-plain w3-large w3-badge w3-card-4 w3-hover w3-gray" href="#showpage##word.tr#&ff=#_FORMFIELDS_.TR#&#_datafile#S=#_prev#&#_datafile#M=#_datamax#&#_datafile#Q=#_datasearch#"><b>&laquo;</b></a>
+][&nbsp;]#</td>
+<td valign="middle" align="center"><form name="np#_datafile#" class="w3-margin-bottom-0" action="#showpage_post#" method="post">#INC[EL_INPUT_SEARCH_HIDDEN]#
+<input type="hidden" name="word" value="#word.html#">
+<input type="hidden" name="#_datafile#S" value="#_datafileS#">
+#BUTTON_BO#
+<input type="text" class="w3-light-grey w3-round-large w3-small" name="#_datafile#Q" size="7" value="#_datasearch.html#">
+#INC[EL_INPUT_FIELDS]#
+#MAX_RECORDS_OPTIONS=OPTIONS[#MAX_RECORDS_LIST#]#
+<select class="w3-small" name="#_datafile#M">#SELECTED[#MAX_RECORDS_OPTIONS#][#_datamax#]#</select> #BUTTON_GO#</form></td>
+<td valign="middle" align="left">
+#EXISTS[#_next#][
+<a class="w3-link-plain w3-large w3-badge w3-card-4 w3-hover w3-gray" href="#showpage##word.tr#&ff=#_FORMFIELDS_.TR#&#_datafile#S=#_next#&#_datafile#M=#_datamax#&#_datafile#Q=#_datasearch#"><b>&raquo;</b></a>
+][&nbsp;]#
+</td>
+</tr></table></div>

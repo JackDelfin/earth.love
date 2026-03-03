@@ -1,0 +1,9 @@
+#STOP[#STEP.ISNUMBER.NOT#]#
+#STOP[#STEPS.0.NOT#]#
+#PREV_STEP=SUB[#STEP.1#][1]#
+#STOP[#PREV_STEP.NOT#]#
+<!--- Get Previous Button Label --->
+#BUTTON_PREV=MSG[&laquo; Previous]#
+<input type="button" class="w3-button w3-orange w3-round-large" value="#BUTTON_PREV#"
+ onclick="document.forms.data.action.value='PREV'; document.forms.data.step.value='#PREV_STEP#'; document.forms.data.submit(); return 0;">
+ &nbsp; &nbsp;

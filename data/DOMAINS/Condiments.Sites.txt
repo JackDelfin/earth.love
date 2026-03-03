@@ -1,0 +1,11 @@
+Creams.earth
+Ketchup.earth
+Mayonnaise.earth
+Mustard.earth
+Pepper.earth
+Pickle.earth
+Pickles.earth
+Salts.earth
+Sauce.earth
+Sauces.earth
+Sweets.earth

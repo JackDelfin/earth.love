@@ -1,0 +1,38 @@
+#!/bin/bash
+# sites
+#
+# Show Sites available/enabled Stats
+#
+#echo;
+#echo "---------------------------------";
+#echo "SITES";
+#echo "---------------------------------";
+#echo "SSL  Available : "`ls /etc/apache2/sites-available/*-le-ssl*conf 2>/dev/null|wc -l`;
+#echo "SSL  Enabled   : "`ls /etc/apache2/sites-enabled/*-le-ssl*conf 2>/dev/null|wc -l`;
+#echo "---------------------------------";
+#echo "HTTP Available : "`ls /etc/apache2/sites-available/*conf 2>/dev/null|sed -e'/-le-ssl/d'|wc -l`;
+#echo "HTTP Enabled   : "`ls /etc/apache2/sites-enabled/*conf 2>/dev/null|sed -e'/-le-ssl/d'|wc -l`;
+#echo "---------------------------------";
+#echo "TOTAL Available: "`ls /etc/apache2/sites-available/*.conf 2>/dev/null|wc -l`;
+#echo "TOTAL Enabled  : "`ls /etc/apache2/sites-enabled/*.conf 2>/dev/null|wc -l`;
+#echo "---------------------------------";
+#echo;
+
+SSLAvailable=`ls /etc/apache2/sites-available/*-le-ssl*conf 2>/dev/null|wc -l`;
+SSLEnabled=`ls /etc/apache2/sites-enabled/*-le-ssl*conf 2>/dev/null|wc -l`;
+HTTPAvailable=`ls /etc/apache2/sites-available/*conf 2>/dev/null|sed -e'/-le-ssl/d'|wc -l`;
+HTTPEnabled=`ls /etc/apache2/sites-enabled/*conf 2>/dev/null|sed -e'/-le-ssl/d'|wc -l`;
+TOTALAvailable=`ls /etc/apache2/sites-available/*.conf 2>/dev/null|wc -l`;
+TOTALEnabled=`ls /etc/apache2/sites-enabled/*.conf 2>/dev/null|wc -l`;
+
+echo;
+echo "---------------------------------";
+printf "SITES         SSL    HTTP   TOTAL\n";
+echo "---------------------------------";
+printf "Available %7d %7d %7d\n" $SSLAvailable $HTTPAvailable $TOTALAvailable;
+printf "Enabled   %7d %7d %7d\n" $SSLEnabled $HTTPEnabled $TOTALEnabled;
+echo "---------------------------------";
+echo;
+
+exit 1;
+

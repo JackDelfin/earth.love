@@ -1,0 +1,2 @@
+<!--- EL_SEARCH_DOMS_STATIC - static file generation --->
+#_DATA_HREF_=[#DOTDOT##DATAPATH[#root#][#1#]#doms.html]#

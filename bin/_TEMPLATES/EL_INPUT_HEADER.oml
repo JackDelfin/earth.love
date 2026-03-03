@@ -1,0 +1,12 @@
+<!--- #OML[EL_INPUT_HEADER]# --->
+#_data_=PARSE[_#_1_.lower#]#
+#_req_=iLIKE[#_data_#][*_req]#
+#_value_=iREPLACE[#_data_#][_req$]#<!--- Don't use _req for storing value --->
+#_datafile_=LTRIM[#_value_#][_]#
+#_value_=GETTOKEN[#_value_#]#
+<!--- Label Information --->
+#_label_=NVL[#_2_#][#_1_.initcap#]#
+#CLASS_LABEL_COLOR=IF[#_req_#][#CLASS_REQUIRED#][#CLASS_LABEL_COLOR#]#
+#CLASS_INPUT_COLOR=IF[#_req_#][#CLASS_REQUIRED#][#CLASS_INPUT_COLOR#]#
+<div#CLASS_INPUT_FIELD#>
+#EXISTS[#_label_#][<label#CLASS_LABEL#>#MSG[#_label_#]#</label>]#

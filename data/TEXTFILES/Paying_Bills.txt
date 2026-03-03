@@ -1,0 +1,7 @@
+account number
+amount due
+cash
+check book
+credit card
+overdue
+write a check

@@ -1,0 +1,10 @@
+AirForce.earth
+AirLines.earth
+AirPorts.earth
+AirPorts101.earth
+Helecopter.earth
+Helecopters.earth
+Helicopter.earth
+Helicopters.earth
+Planes.earth
+Wings.earth

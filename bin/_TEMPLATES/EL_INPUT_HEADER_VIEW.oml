@@ -1,0 +1,12 @@
+<!--- #OML[EL_INPUT_HEADER_VIEW]# - null label hides the label --->
+#_data_=PARSE[_#_1_.lower#]#
+#_req_=iLIKE[#_data_#][*_req]#
+#_value_=iREPLACE[#_data_#][_req$]#<!--- Don't use _req for storing value --->
+#_datafile_=LTRIM[#_value_#][_]#
+#_value_=PARSE[##_value_##]#
+<!--- Label Information --->
+#_label_=PARSE[#_2_#]#
+#CLASS_LABEL_COLOR=IF[#_req_#][#CLASS_REQUIRED#][#CLASS_LABEL_COLOR#]#
+#CLASS_FIELD_VIEW_COLOR=IF[#_req_#][#CLASS_REQUIRED#][#CLASS_FIELD_VIEW_COLOR#]#
+<div>
+#EXISTS[#_label_#][<label#CLASS_LABEL#>#MSG[#_label_#]#</label>]#

@@ -1,0 +1,10 @@
+baritone
+bugle
+cornet
+euphonium
+flugelhorn
+French horn
+sousaphone
+trombone
+trumpet
+tuba

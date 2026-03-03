@@ -1,0 +1,21 @@
+#LOADMOD[usermod21]#
+<!---#LOADMOD[all]#--->
+
+Test: #Function21[]#
+
+RTRIM
+#x=[   x   ]#
+x=[   x   ]
+....[#x#]....
+....[#x.rtrim#]....RTRIM
+....[#x.ltrim.length#]....LTRIM.LENGTH
+
+....[#x.func21#]....FUNC21
+#ERROR_TEXT#
+
+#omlWRAP=[<<<#OML#>>>]#
+
+#x=[rhyme]#
+
+x.omlWRAP
+#x.omlWRAP#

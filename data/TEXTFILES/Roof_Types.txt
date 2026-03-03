@@ -1,0 +1,10 @@
+dome roof
+flat roof
+gable roof
+hip roof
+hip-and-valley roof
+lean-to roof
+monitor roof
+pavilion roof
+pitched roof
+rotunda roof

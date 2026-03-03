@@ -1,0 +1,17 @@
+#!/bin/perl
+use strict;
+use warnings;
+
+my $ip=shift;
+
+my $dig=`dig +short -x $ip`;
+chomp($dig);
+$dig='comms error' if ($dig =~ /.*communications error.*/);
+
+my $GEO=`geoiplookup $ip |sed -e's/GeoIP Country Edition: //'`;
+chomp($GEO);
+
+print "$ip 	$GEO 	$dig\n";
+
+exit 1;
+

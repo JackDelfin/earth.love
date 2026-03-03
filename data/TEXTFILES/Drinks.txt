@@ -1,0 +1,23 @@
+beer
+brandy
+cocktail
+cocoa
+coffee
+coke
+green tea
+ice coffee
+ice tea
+juice
+lemonade
+liquor
+milk
+milkshake
+orange juice
+punch
+soda
+soft drink
+tea
+tomato juice
+water
+whiskey
+wine

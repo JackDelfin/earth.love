@@ -1,0 +1,74 @@
+<!--- TESTING --->
+#omlCIRCLE=[<div id="circle"><div id="cirtext">#OML#</div></div>]#
+#omlCIRCLE1=[<div id="circle1"><div id="cirtext">#OML#</div></div>]#
+#omlCIRCLE2=[<div id="circle2"><div id="cirtext">#OML#</div></div>]#
+#omlCIRCLE3=[<div id="circle3"><div id="cirtext">#OML#</div></div>]#
+#omlCIRCLE4=[<div id="circle4"><div id="cirtext">#OML#</div></div>]#
+#omlCIRCLE5=[<div id="circle5"><div id="cirtext">#OML#</div></div>]#
+#omlOVAL=[<div class="oval">#OML#</div>]#
+#omlCIRCLE2F=[<div id="circle2"#bgcolor#>#OML#</div>]#
+
+<style>
+#circle {
+  position: relative;
+  display: inline-block;
+  border-radius: 50%;
+  border:1px solid;
+  padding: 35px;
+  margin: 5px auto;
+}
+#circle.1 { padding: 42px; }
+.bg-red { background-color: red; }
+.bg-orange { background-color: orange; }
+.bg-yellow { background-color: yellow; }
+.bg-green { background-color: green; }
+.bg-blue { background-color: blue; }
+.bg-indigo { background-color: indigo; }
+.bg-violet { background-color: violet; }
+.circle.2 { padding: 49px; }
+#circle.3 { padding: 56px; }
+<!---#circle.3.r { background-color: red; }
+#circle.3.o { background-color: orange; }
+#circle.3.y { background-color: yellow; }
+#circle.3.g { background-color: green; }
+#circle.3.b { background-color: blue; }
+#circle.3.i { background-color: indigo; }
+#circle.3.v { background-color: violet; }--->
+}
+#circle.4 { padding: 63px; }
+#circle.5 { padding: 70px; }
+#cirtext {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.cirtext.b { color: black; };
+#cirtext-w { color: white; };
+.oval {
+  border-radius: 50%;
+  border:1px solid;
+  display: inline-block;
+  padding: 35px;
+  margin: 5px auto;
+}
+<!---
+  #height: 65px;
+  #width: 115px;
+  #border:1px solid blue;
+  margin: 20px auto;
+  background: lightgreen;
+  align-items: center;
+  text-align: center;
+  display: inline-block;
+  background-color: lightgrey;
+  border-radius: 50%;
+  line-height: 65px;
+  display: flex;
+  text-align: center;
+  background: red;
+  clip-path: circle();
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  --->
+</style>

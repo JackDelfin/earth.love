@@ -1,0 +1,15 @@
+<h2 class="#CLASS_HEAD# el-chakra5">#word.initcap#</h2>
+
+#_data=DATAFILE[#root#][#WORD#][TEXT]#
+#EXISTS[#_data#][<div>#_data#</div>]#
+
+#INC[EL_TOKENS_SEARCH]#
+
+#OML[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_CATS]
+  [EL_SEARCH_PHRASES]#
+
+#OML[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_LINKS]
+  [EL_SEARCH_PATHS]
+  [EL_SEARCH_WORDS]#

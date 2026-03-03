@@ -1,0 +1,4 @@
+#INC![ACTIVATION/AH]#
+#STOP[#ENV_BOT#]#<!--- Stop if BOT was detected --->
+<a href="/o/page?p=activation/activating&r=activation&d=#ENV_SERVER_NAME#">#REPLACE[#ENV_SERVER_NAME.upper#][.EARTH]# ACTIVATION</a>
+#INC[ACTIVATION/AF]#

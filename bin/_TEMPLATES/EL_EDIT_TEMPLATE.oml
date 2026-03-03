@@ -1,0 +1,19 @@
+<div class="w3-container">
+<h2>#MSG[Edit OML Template]##EXISTS[#WORD#][- #WORD.omlINDIGO#]#</h2>
+#OML[EL_FORM_DATA][eledit]#
+<input type="hidden" name="domain" value="#DOMAIN.html#">
+<input type="hidden" name="root" value="#ROOT.html#">
+<input type="hidden" name="lang" value="#LANG.html#">
+<input type="hidden" name="word" value="#WORD.html#">
+<label>#MSG[Title:]#</label>
+<input type="text" name="_title" value="#_title.html#" #W3INPUT#>
+<label>#MSG[Link:]#</label>
+<textarea name="_link" rows=3 cols=42 #W3TEXTAREA#>#_link.html#</textarea>
+<label>#MSG[Description:]#</label>
+<textarea name="_description" rows=7 cols=42 #W3TEXTAREA#>#_description.html#</textarea>
+<label>#MSG[Tags:]#</label>
+<input type="text" name="_tags" value="#_tags.html#" #W3INPUT#>
+#INC[EL_INPUT_FIELDS]#
+#SAVE_BUTTON#
+</form>
+</div>

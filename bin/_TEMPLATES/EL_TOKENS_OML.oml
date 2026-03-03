@@ -1,0 +1,5 @@
+<!--- #OML[EL_TOKENS_OML]# - Generally available defined OML Modifiers ie #x.omlBADGE# --->
+#LOADTOKEN[
+omlCIRCLE =[<table border="0"><tr><td><div class="w3-circle w3-padding-small w3-center #COLOR#"><h4><b>#OML#</b></h4></div></td></tr></table>]
+omlBADGE  =[<span class="w3-badge w3-#NVL[#BADGE_COLOR#][red]#">#OML#</span>]
+]#

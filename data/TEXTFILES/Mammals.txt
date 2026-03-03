@@ -1,0 +1,629 @@
+aardvark
+Abyssinian
+Affenpinscher
+Afghan Hound
+African Bush Elephant
+African Civet
+African elephant
+African Forest Elephant
+African Palm Civet
+African wild cat
+African Wild Dog
+agouti
+Ainu
+Airedale Terrier
+Airedoodle
+Akbash
+Akita
+Alaskan Malamute
+alpaca
+Alpine Dachsbracke
+Amazon River Dolphin
+American Alsatian
+American bison
+American Bulldog
+American Cocker Spaniel
+American Coonhound
+American Eskimo Dog
+American Foxhound
+American Hairless Terrier
+American Pit Bull Terrier
+American Staffordshire Terrier
+American Water Spaniel
+Amur Leopard
+Anatolian Shepherd Dog
+anteater
+antelope
+ape
+Appenzeller Dog
+Arctic fox
+Arctic Hare
+Arctic wolf
+armadillo
+Arsinoitherium
+artiodactyls
+Asian Elephant
+Asian Palm Civet
+Asiatic Black Bear
+Aussiedoodle
+Aussiedor
+Australian Cattle Dog
+Australian Kelpie Dog
+Australian Labradoodle
+Australian Mist
+Australian Shepherd
+Australian Terrier
+Axolotl
+Aye Aye
+aye-aye
+baboon
+bactrian camel
+badger
+Balinese
+Banded Palm Civet
+bandicoot
+Basenji Dog
+Bassador
+Basset Fauve de Bretagne
+Basset Hound
+Bassetoodle
+bat
+Bavarian Mountain Hound
+Beagador
+Beagle
+bear
+Bearded Collie
+beaver
+Bedlington Terrier
+beluga whale
+Bengal Tiger
+Bernedoodle
+Bernese Mountain Dog
+Bichon Frise
+Biewer Terrier
+bighorn sheep
+bilby
+binturong
+Birman
+bison
+black bear
+black bear hamster
+Black Rhinoceros
+Black Russian Terrier
+Bloodhound
+Blue Lacy Dog
+blue whale
+Bluetick Coonhound
+bobcat
+Boglen Terrier
+Bolognese Dog
+Bombay
+bongo
+bonobo
+Borador
+Border Collie
+Border Terrier
+Bordoodle
+Bornean Orang-utan
+Borneo Elephant
+Boston Terrier
+Bottlenose Dolphin
+bowhead whale
+Boxador
+Boxer Dog
+Boxerdoodle
+Boykin Spaniel
+Brazilian Terrier
+British Timber
+brown bear
+buffalo
+bull
+Bull Shark
+Bull Terrier
+Bulldog
+Bullmastiff
+Burmese
+bushbaby
+Cairn Terrier
+California sea lion
+camel
+Canaan Dog
+Canadian Eskimo Dog
+cape buffalo
+Capybara
+capybera
+caracal
+caribou
+carnivora
+Carolina Dog
+cat
+catamount
+cattle
+Cavador
+Cavalier King Charles Spaniel
+Cavapoo
+cavy
+Cesky Fousek
+Cesky Terrier
+Chameleon
+Chamois
+cheetah
+Chesapeake Bay Retriever
+Chihuahua
+chimpanzee
+chinchilla
+Chinese Crested Dog
+Chinook
+chipmunk
+Chipoo
+Chow Chow
+Clouded Leopard
+Clumber Spaniel
+coati
+Cockapoo
+collared peccary
+Collie
+colugo
+Common Toad
+Corgidor
+Corgipoo
+Cotton-top Tamarin
+cougar
+cow
+coyote
+coypu
+Crab-Eating Macaque
+Cross River Gorilla
+Curly Coated Retriever
+Cuscus
+Dachsador
+Dachshund
+Dall sheep
+Dall's porpoise
+Dalmadoodle
+Dalmador
+Dalmatian
+deer
+Deutsche Bracke
+dhole
+dingo
+Doberman Pinscher
+Doedicurus
+dog
+Dogo Argentino
+Dogue De Bordeaux
+dolphin
+donkey
+Dormouse
+Double Doodle
+Doxiepoo
+Drever
+dromedary
+duck-billed platypus
+dugong
+Dunker
+Dusky Dolphin
+Eastern Gorilla
+Eastern Lowland Gorilla
+echidna
+Egyptian Mau
+ekaltadelta
+eland
+elephant
+elephant seal
+Elephant Shrew
+elk
+Emperor Tamarin
+English Cocker Spaniel
+English Shepherd
+English Springer Spaniel
+Entlebucher Mountain Dog
+Eohippus
+Epagneul Pont Audemer
+ermine
+Eskimo Dog
+Eskipoo
+Estrela Mountain Dog
+Fallow Deer
+False Killer Whale
+fennec fox
+ferret
+Field Spaniel
+fin whale
+Finnish Spitz
+Fishing Cat
+Flat-Coated Retriever
+flying squirrel
+fossa
+fox
+Fox Terrier
+French Bulldog
+fruit bat
+Fur Seal
+galagos
+gazelle
+Geoffroys Tamarin
+gerbil
+German Pinscher
+German Shepherd Guide
+German Sheprador
+Giant Panda Bear
+Giant Schnauzer
+Giant Schnoodle
+gibbon
+giraffe
+Glen Of Imaal Terrier
+Glyptodon
+gnu
+goat
+Goldador
+golden lion tamarin
+Golden Retriever
+Golden-Crowned Flying Fox
+Goldendoodle
+gopher
+gorilla
+gray whale
+great apes
+Great Dane
+Great Danoodle
+Great Pyrenees
+Greater Swiss Mountain Dog
+Greenland Dog
+Grey Mouse Lemur
+Grey Seal
+Greyhound
+grizzly bear
+groundhog
+guinea pig
+hamster
+hare
+harp seal
+Harrier
+Havanese
+Havapoo
+hedgehog
+Highland Cattle
+Himalayan
+hippo
+hippopotamus
+Honduran White Bat
+Honey Badger
+horse
+howler monkey
+Human
+human being
+humpback whale
+Huskador
+Huskydoodle
+hyena
+Hyracotherium
+hyrax
+ibex
+Ibis
+Ibizan Hound
+impala
+Indian Elephant
+Indian Palm Squirrel
+Indian Rhinoceros
+Indochinese Tiger
+Indri
+insectivores
+Irish Doodle
+Irish Setter
+Irish Terrier
+Irish WolfHound
+Italian Greyhound
+Jack Russell
+Jackal
+jaguar
+Japanese Chin
+Japanese Macaque
+Japanese Terrier
+Javan Rhinoceros
+Javanese
+javelina
+Jerboa
+kangaroo
+kangaroo rat
+karakul
+Kerry Blue Terrier
+killer whale
+kinkajou
+koala
+Kudu
+Labmaraner
+Labradane
+Labradoodle
+Labrador Retriever
+Labraheeler
+lagomorph
+Lakeland Terrier
+lemming
+lemur
+leopard
+Leopard Cat
+Leopard Seal
+Lhasapoo
+Liger
+lion
+llama
+longhorn
+loris
+lynx
+macaque
+Macrauchenia
+Maine Coon
+Malayan Civet
+Malayan Tiger
+Maltese
+Maltipoo
+mammal
+mammoth
+manatee
+Manchester Terrier
+mandrill
+Maned Wolf
+marine mammals
+Markhor
+marmoset
+marmot
+marsupial
+Masked Palm Civet
+Mastador
+Mastiff
+mastodon
+meerkat
+Mexican Free-Tailed Bat
+mice
+Mini Labradoodle
+Miniature Bull Terrier
+mink
+Minke Whale
+mole
+mongoose
+Mongrel
+monkey
+monotreme
+Moorhen
+moose
+Morganucodon
+Mountain Gorilla
+mountain lion
+mouse
+Mule
+musk ox
+Muskox
+muskrat
+mustelids
+nabarlek
+naked mole-rat
+narwhal
+Neanderthal
+Neapolitan Mastiff
+Newfoundland
+Newfypoo
+Norfolk Terrier
+North American Black Bear
+northern elephant seal
+northern fur seal
+Northern Inuit Dog
+northern right whale
+Norwegian Forest
+Norwich Terrier
+numbat
+nutria
+ocelot
+okapi
+Old English Sheepdog
+onager
+opossum
+Orang-utan
+orangutan
+orca
+oryx
+otter
+ox
+Pademelon
+panda
+pangolin
+panther
+Parson Russell Terrier
+Patas Monkey
+Patterdale Terrier
+Peekapoo
+Pekingese
+Pere Davids Deer
+perissodactyls
+Persian
+Petit Basset Griffon Vendéen
+Pheasant
+Pied Tamarin
+pig
+pika
+Pink Fairy Armadillo
+pinnipeds
+Pitador
+placental mammals
+platybelodon
+platypus
+Pointer
+polar bear
+Pomapoo
+Pomeranian
+Poochon
+Poodle
+Poogle
+porcupine
+porpoise
+Possum
+primates
+Proboscideans
+Proboscis Monkey
+pronghorn
+Pug
+Pugapoo
+puma
+Pygmy Hippopotamus
+Pygmy Marmoset
+Pyrador
+Pyredoodle
+quagga
+quokka
+quoll
+rabbit
+raccoon
+Raccoon Dog
+Ragdoll
+rat
+Rat Terrier
+Red Deer
+Red Fox
+red kangaroo
+red panda
+red wolf
+Red-handed Tamarin
+reindeer
+rhino
+rhinoceros
+right whale
+ring-tailed lemur
+ringtail possum
+river otter
+Rock Hyrax
+rodent
+Rottweiler
+Russell Terrier
+Russian Blue
+Saarloos Wolfdog
+Saber-Toothed Tiger
+Sable
+Saiga
+Saint Berdoodle
+Saint Bernard
+Samoyed
+Saola
+Schnoodle
+Scimitar-horned Oryx
+Scottish Terrier
+Sea Lion
+sea otter
+seal
+Sealyham Terrier
+serval
+sheep
+Sheepadoodle
+Shepadoodle
+Shiba Inu
+Shih Poo
+Shih Tzu
+shrew
+siamang
+Siamese
+Siberian
+Siberian Husky
+Siberian Tiger
+Siberpoo
+Silky Terrier
+skunk
+Skye Terrier
+sloth
+Smilodon
+Smooth Fox Terrier
+Snapping Turtle
+snow leopard
+Snowshoe
+Snowshoe Hare
+Somali
+South China Tiger
+Spanador
+Spectacled Bear
+spectacled porpoise
+Sperm Whale
+Spider Monkey
+spiny anteater
+Springerdoodle
+squirrel
+Squirrel Monkey
+Sri Lankan Elephant
+Staffordshire Bull Terrier
+Steller's Sea Cow
+Stoat
+sugar glider
+Sumatran Elephant
+Sumatran Orang-utan
+Sumatran Rhinoceros
+Sumatran Tiger
+Sun Bear
+Swedish Vallhund
+Taco Terrier
+tamarin
+Tamaskan
+Tapanuli Orang-utan
+tapir
+tarsier
+Tasmanian devil
+Tasmanian tiger
+Teddy Roosevelt Terrier
+Tenterfield Terrier
+Terrier
+three-toed sloth
+Tibetan Mastiff
+Tibetan Terrier
+Tiffany
+tiger
+Toy Fox Terrier
+Toy Poodle
+tree shrew
+Tuatara
+Turkish Angora
+Uakari
+ungulates
+Utonagan
+vampire bat
+Vaquita
+Vervet Monkey
+Virginia opossum
+wallaby
+walrus
+warthog
+Water Buffalo
+Water Vole
+weasel
+Weddell seal
+Weimardoodle
+Welsh Corgi
+Welsh Terrier
+West Highland Terrier
+Western Gorilla
+Western Lowland Gorilla
+Westiepoo
+whale
+Wheaten Terrier
+Whippet
+White Rhinoceros
+White Tiger
+White-Faced Capuchin
+White-tailed Deer
+Whoodle
+Wild Boar
+wildebeest
+Wire Fox Terrier
+wolf
+wolverine
+wombat
+woodchuck
+woodland caribou
+woolly mammoth
+Woolly Monkey
+woolly rhinoceros
+Xerus
+yak
+Yorkie Poo
+Yorkshire Terrier
+zebra
+Zebu
+Zonkey
+zorilla
+zorro
+Zorse

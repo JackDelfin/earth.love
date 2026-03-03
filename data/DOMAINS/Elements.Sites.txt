@@ -1,0 +1,12 @@
+Aluminum.earth
+Gold.earth
+Helium.earth
+Lead.earth
+Mercury.earth
+Nickel.earth
+Nitrogen.earth
+Oxygen.earth
+Platinum.earth
+Silicon.earth
+Silver.earth
+Tin.earth

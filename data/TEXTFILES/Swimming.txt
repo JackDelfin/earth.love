@@ -1,0 +1,19 @@
+backstroke
+breaststroke
+butterfly
+crawl
+deep end
+diving
+diving board
+dog paddle
+lake
+life guard
+ocean
+river
+shallow end
+sidestroke
+swimming lane
+swimming pool
+synchronized swimming
+turn
+water

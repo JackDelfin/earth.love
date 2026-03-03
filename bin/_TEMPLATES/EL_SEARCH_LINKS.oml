@@ -1,0 +1,5 @@
+#BOX_COLOR=[el-chakra2]#
+#_DATA_MSG_=MSG[Links]#
+#_DATA_BODY_=[<a class="w3-link-plain" href="#1.tr#"><div class="#BOX_ROW#">#1.html#</div></a>]#
+#FUNCTION[EL_GET_DATA][LINKS]#
+#RESTORE[_DATA_BODY_][BOX_COLOR]#

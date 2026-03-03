@@ -1,0 +1,6 @@
+<!--- EL_HEADER_WORD - Show the Word header - used for EL_ADD_ --->
+#STOP[#_WORDFOUND_.0.NOT#]#
+#OML[EL_FN_SET_WORD]#<!--- Set _word_short_ _word_name_ _word_color_ --->
+#BOX_ROW_COLOR=NVL[#_word_color_#][#_root_color_#][#BOX_ROW_COLOR#]#
+<div class="#HEADER_WORD_BOX# w3-center"><h2>#NVL[#_WORD_NAME_#][#_WORD_SHORT_#]#</h2></div>
+#RESTORE[BOX_ROW_COLOR]#

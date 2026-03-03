@@ -1,0 +1,10 @@
+Dome.love
+Dome.Roof.earth
+Domes.earth
+EarthDomes.earth
+Hip.earth
+Hip.Roof.earth
+Monitor.earth
+Roof.earth
+Roofing.earth
+Roofs.earth

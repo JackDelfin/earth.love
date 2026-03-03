@@ -1,0 +1,15 @@
+beans
+bread
+cereal
+eggs
+fats
+fish
+fruit
+meat
+nuts
+oils
+pasta
+poultry
+rice
+sweets
+vegetables

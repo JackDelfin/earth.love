@@ -1,0 +1,13 @@
+<!--- F.oml  -  ATTN: Raw Dog Header Group Advertisement BELOW
+      Raw Dog Footer - basic ending to a simple story.
+      Perhaps you heard about us from the
+      Raw Dog Header Group at H.oml, #INC[H]#
+      * Great for a quick add to a test page #INC[F]#
+      - Kentucky Hemp Dogs Association
+--->
+<footer class="#FOOTER_BOX#">
+<small>#DATE[Day Month D1, YYYY H1:MIampm]#<br>Updated: #ENV_SYSDATE# (#TIMER[]#)
+<!--<br>#ENV_REMOTE_ADDR# #ENV_HTTP_USER_AGENT#--></small>
+</footer>
+</body>
+</html>

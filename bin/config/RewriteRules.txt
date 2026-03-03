@@ -1,0 +1,133 @@
+
+####################################################################
+# REVERT REWRITE RULES
+####################################################################
+sudo sed -i -e'/Include.*elRewrite/d' -e's/access.log.*combined.*expr=.*/access.log combined/' -e'/env=botlog/d' -e'/env=hacklog/d' /etc/apache2/sites-available/*.conf
+
+grep HACK /etc/apache2/sites-available/*conf
+sudo apachectl configtest
+sudo systemctl restart apache2
+
+####################################################################
+# SET REWRITE RULES
+####################################################################
+sudo sed -i -e's/ErrorLog/Include \/etc\/apache2\/elRewrite.conf\nErrorLog/' -e's/CustomLog.*access/&.log combined "expr=(-z reqenv(\x27hacklog\x27) \&\& -z reqenv(\x27botlog\x27))"\n&HACK.log combined env=hacklog\n&BOT.log combined env=botlog/' -e's/log.log combined/log/' /etc/apache2/sites-available/*.conf
+
+grep HACK /etc/apache2/sites-available/*conf
+sudo apachectl configtest
+sudo systemctl restart apache2
+
+####################################################################
+INSTALL
+####################################################################
+
+cd ~/PATCHES
+wget earth1.love/PATCHES/elRewrite.conf
+sudo cp -pv elRewrite.conf /etc/apache2
+
+# Run Set Rewrite Rules script above
+
+
+####################################################################
+# elRewrite.conf - log BOT HACK requests and set ENV_BOT=1
+#
+# Virtual Host should look something like this:
+#
+# Include /etc/apache2/elRewrite.conf
+# ErrorLog /LOVE/EARTH/culture.earth/_LOGS/error.log
+# CustomLog /LOVE/EARTH/culture.earth/_LOGS/access.log combined "expr=(-z reqenv('hacklog') && -z reqenv('botlog'))"
+# CustomLog /LOVE/EARTH/culture.earth/_LOGS/accessHACK.log combined env=hacklog
+# CustomLog /LOVE/EARTH/culture.earth/_LOGS/accessBOT.log combined env=botlog
+#
+#
+RewriteEngine on
+#
+# Block WP and PHP requests
+#
+RewriteCond %{REQUEST_URI} ^/(wp-login.php|wp-admin/|wp-content/plugins/|wp-includes/).* [OR,NC]
+RewriteCond %{REQUEST_URI} ^.*[\/\.?]wp[s]*[-\/\.\ ].* [OR,NC]
+RewriteCond %{REQUEST_URI} ^.*[/]php.* [OR,NC]
+RewriteCond %{THE_REQUEST} "^.*\.php[/\s?1234567890 ].*$" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /wordpress.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /components.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /wp.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /bk.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /bc.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /backup.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /back.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /new.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /old.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /main.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.* /home.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.*/\.git.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.*/\.env.*" [OR,NC]
+RewriteCond %{THE_REQUEST} "^.*/\.quarantine.*" [OR,NC]
+RewriteCond %{THE_REQUEST} ^{[\\"]method":.* [NC]
+# Forbidden
+RewriteRule ^ - [F,e=hacklog:1,L]
+#
+# Set Env for Robots
+#
+RewriteCond %{HTTP_USER_AGENT}  ^.*bingbot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*Googlebot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*Indeedbot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*Slackbot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*Brightbot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*gptbot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*statbot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*meta-externalagent.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*externalagent.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*facebookexternal.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*Expanse.*paloaltonetworks.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*crawler.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*spider.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*/bot.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*bot/.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*/Inspect.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*Inspect/.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*internet-measurement.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  ^.*Go-http-client.*$ [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  "^-$" [OR,NC]
+RewriteCond %{HTTP_USER_AGENT}  "^$" [OR,NC]
+RewriteCond %{REQUEST_URI}  "^.*/ads.txt.*" [OR,NC]
+RewriteCond %{REQUEST_URI}  "^.*/robots.txt.*" [NC]
+# Set Environment Var for bot #ENV_BOT# - handle in Orbit
+RewriteRule . - [ENV=BOT:1,e=botlog:1]
+####################################################################
+
+# TESTING
+
+# Show what remains after parsing out wp/php/bot
+tail -n1000 /LOVE/*/*/_LOGS/access.log /LOVE/*/_LOGS/access.log \
+  |sed -e'/[\/\.?]wp[s]*[-\/\. ]/Id' \
+       -e'/[\.\/=?]php/Id' \
+       -e'/php[:\/]/Id' \
+       -e'/{[\\"]*method[\\"]*:/Id' \
+       -e'/bingbot/Id' \
+       -e'/Googlebot/Id' \
+       -e'/Indeedbot/Id' \
+       -e'/Slackbot/Id' \
+       -e'/Brightbot/Id' \
+       -e'/gptbot/Id' \
+       -e'/[\/]robots/Id' \
+       -e'/dotbot/Id' \
+       -e'/bot[\/);\.]/Id' \
+       -e'/[\/-]bot/Id' \
+  |grep -i -e wp -ephp -ebot
+
+
+
+# Remove bot requests
+tail -f /LOVE/*/*/_LOGS/access.log /LOVE/*/_LOGS/access.log \
+  |sed -e'/\/wp[s]*[-\/\.]/d' \
+       -e'/[\.\/]php/d' \
+       -e'/bingbot/d' \
+       -e'/Googlebot/d' \
+       -e'/Slackbot/d' \
+       -e'/gptbot/d' \
+       -e'/robots/d' \
+       -e'/dotbot/d' \
+       -e'/bot[\/)]/Id'
+
+
+

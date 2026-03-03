@@ -1,0 +1,12 @@
+Anniversary.earth
+Birthday.earth
+Christmas.earth
+Cocktail.earth
+Dinner.earth
+Dress.earth
+Dressup.earth
+Formal.earth
+Funeral.earth
+Going.Away.earth
+Graduation.earth
+Wedding.earth

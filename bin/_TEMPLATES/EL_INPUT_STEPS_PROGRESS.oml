@@ -1,0 +1,5 @@
+#STOP[#STEPS.NOTEXISTS#]#
+<!--- Next Steps Progress Bar --->
+#_pct_.percent=DIV[#step.1#][#steps#]#
+#EXISTS[#STEPS#]
+[<div class="w3-grey w3-center w3-round-xlarge"><div class="w3-panel w3-yellow w3-center w3-round-xlarge" style="width:#_pct_#"><strong>#MSG[Step]# #step.1#<br>#_pct_#</strong></div></div>]#

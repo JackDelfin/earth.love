@@ -1,0 +1,15 @@
+Egg.earth
+Elbow.earth
+Lasagna.earth
+Noodle.earth
+Noodles.earth
+Pasta.earth
+Pie.earth
+Pizza.earth
+Pizza101.earth
+Pizzas.earth
+Shells.earth
+Spaghetti.earth
+Spaghetti.Wheels.earth
+Stars.earth
+Thin.earth

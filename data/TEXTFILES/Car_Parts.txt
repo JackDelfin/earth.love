@@ -1,0 +1,205 @@
+accelerator
+air cleaner
+air conditioner
+air conditioning
+air filter
+air vent
+airbag
+alarm
+all-wheel drive
+alternator
+alternator gauge
+antenna
+anti-lock brakes
+armrest
+ashtray
+auto
+automatic transmission
+automobile
+axle
+baby car seat
+baby seat
+back-up lights
+battery
+bench seat
+blinker
+bonnet
+boot
+brake
+brake light
+brake pedal
+brakes
+bucket seat
+bumper
+camshaft
+car
+carburetor
+catalytic converter
+CD player
+chassis
+child car seat
+chrome trim
+clock
+clutch
+computer
+console
+cooling system
+crankshaft
+cruise control
+cylinder
+dashboard
+defroster
+diesel engine
+differential
+dip stick
+distributor
+door
+door handle
+drive belt
+drive shaft
+driver's seat
+emergency brake
+emergency flare
+emergency lights
+emissions
+engine
+engine block
+exhaust pipe
+exhaust system
+fan belt
+fender
+filter
+floor mat
+fog light
+four-wheel drive
+frame
+front seat
+front turn signal
+fuel
+fuel cap
+fuel gauge
+fuse
+gas
+gas gauge
+gas pedal
+gas tank
+gas tank cap
+gasket
+gasoline
+gasoline level gauge
+gauge
+gear
+gear shift
+gear stick
+gearbox
+gearshift
+glove compartment
+GPS
+grille
+hand brake
+headlamp
+headlight
+headlight switch
+headrest
+heater
+high-beam headlights
+hood
+horn
+hubcap
+hybrid
+ignition
+instrument panel
+interior light
+internal combustion engine
+jack
+key
+license plate
+lights
+lock
+low-beam headlights
+lug bolt
+lug nut
+manifold
+manual transmission
+master cylinder
+mat
+mirror
+moon roof
+motor
+mud flap
+muffler
+navigation system
+odometer
+oil
+oil cap
+oil dipstick
+oil filter
+oil gauge
+oil tank
+parking brake
+parking lights
+passenger seat
+pedal
+piston
+power brakes
+power steering
+power window switch
+radiator
+radiator grill
+radio
+rag top
+rear seat
+rear turn signal
+rear window
+rear window defroster
+rear-view mirror
+rearview mirror
+reverse light
+rims
+roof
+roof rack
+rotary engine
+seat
+seat belt
+shift
+shock absorber
+side airbags
+side mirror
+side window
+spare tire
+spark plug
+speaker
+speedometer
+spoiler
+starter
+steering column
+steering wheel
+sun visor
+sunroof
+suspension
+tachometer
+tailgate
+taillight
+temperature gauge
+thermometer
+tire
+trailer hitch
+transmission
+trim
+trip computer
+trunk
+turbo charger
+turn signal
+undercarriage
+unleaded gas
+valve
+vents
+visor
+warning light
+wheel
+wheel well
+wheels
+window
+windscreen
+windshield
+windshield wiper

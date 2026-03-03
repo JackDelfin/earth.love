@@ -1,0 +1,25 @@
+<div class="w3-dropdown-hover w3-center w3-round-xxlarge w3-white">
+  <button class="w3-button w3-round-xlarge w3-card-4 w3-hover w3-green">#MSG[- &nbsp; New Actions &nbsp; -]#</button>
+  <div class="w3-dropdown-content w3-bar-block w3-border w3-card-4 w3-hover w3-round-xxlarge">
+<div>- Community -</div>
+#OML[EL_NEW_COMM_BUT]#
+#OML[EL_NEW_PERSON_BUT]#
+#OML[EL_NEW_NAME_BUT]#
+#OML[EL_NEW_GUILD_BUT]#
+#OML[EL_NEW_LOC_BUT]#
+<div>- Projects -</div>
+#OML[EL_NEW_ORG_BUT]#
+#OML[EL_NEW_JOB_BUT]#
+#OML[EL_NEW_RESOURCE_BUT]#
+#OML[EL_NEW_NEED_BUT]#
+<div>- Knowledge -</div>
+#OML[EL_NEW_WORD_BUT]#
+#OML[EL_NEW_TREE_BUT]#
+#OML[EL_NEW_BOOK_BUT]#
+#OML[EL_NEW_QUOTE_BUT]#
+<div>- Structure -</div>
+#OML[EL_NEW_LANG_BUT]#
+#OML[EL_NEW_DOM_BUT]#
+#OML[EL_NEW_ROOT_BUT]#
+  </div>
+</div>

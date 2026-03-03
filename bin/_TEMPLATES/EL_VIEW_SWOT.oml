@@ -1,0 +1,43 @@
+<!--- EL_VIEW_SWOT - Show the Strengths / Weaknesses  / Opportunities / Threats Grid --->
+#TOKENLOAD[
+CLASS_SWOT      =[w3-half w3-container w3-card-4 w3-border w3-center w3-round-xlarge w3-padding-small]
+CLASS_SWOT_HEAD =[w3-card-4 w3-border w3-margin-4 w3-center w3-round-xlarge w3-padding-small]
+CLASS_SWOT_ITEM =[w3-button w3-white w3-card-4 w3-border w3-margin-4 w3-center w3-round-xlarge w3-padding-small]
+Help            = HELPOVER[Add Item]
+BUT_SWOT_ADD    =[<a #HELP# href=""><div class="w3-link-plain w3-hover w3-card w3-badge w3-cursive w3-large #SWOT_COLOR#">+</div></a>]
+]#
+
+<div class="w3-row">
+#SWOT_COLOR=[w3-pale-green]#
+<div class="#CLASS_SWOT# #SWOT_COLOR#">
+<h3 class="#CLASS_SWOT_HEAD# w3-green">Strengths #BUT_SWOT_ADD#</h3>
+<div class="#CLASS_SWOT_ITEM#">Compassion</div>
+<div class="#CLASS_SWOT_ITEM#">Hearts</div>
+<div class="#CLASS_SWOT_ITEM#">Light Workers</div>
+</div>
+#SWOT_COLOR=[w3-pale-red]#
+<div class="#CLASS_SWOT# #SWOT_COLOR#">
+<h3 class="#CLASS_SWOT_HEAD# w3-red">Weaknesses #BUT_SWOT_ADD#</h3>
+<div class="#CLASS_SWOT_ITEM#">Central Banking</div>
+<div class="#CLASS_SWOT_ITEM#">For-Profit Corporations</div>
+</div>
+</div>
+
+<div class="w3-row">
+#SWOT_COLOR=[w3-light-blue]#
+<div class="#CLASS_SWOT# #SWOT_COLOR#">
+<h3 class="#CLASS_SWOT_HEAD# w3-indigo">Opportunities #BUT_SWOT_ADD#</h3>
+<div class="#CLASS_SWOT_ITEM#">Intentional Communities</div>
+<div class="#CLASS_SWOT_ITEM#">Light Warriors</div>
+<div class="#CLASS_SWOT_ITEM#">Local Currency</div>
+<div class="#CLASS_SWOT_ITEM#">Local Trade</div>
+<div class="#CLASS_SWOT_ITEM#">Share Surplus</div>
+</div>
+#SWOT_COLOR=[w3-amber]#
+<div class="#CLASS_SWOT# #SWOT_COLOR#">
+<h3 class="#CLASS_SWOT_HEAD# w3-orange">Threats #BUT_SWOT_ADD#</h3>
+<div class="#CLASS_SWOT_ITEM#">Big Tech</div>
+<div class="#CLASS_SWOT_ITEM#">Individualism</div>
+<div class="#CLASS_SWOT_ITEM#">Rigid Systems</div>
+</div>
+</div>

@@ -1,0 +1,24 @@
+ambulance
+bicycle
+bulldozer
+bus
+car
+concrete mixer
+container truck
+crane truck
+dump truck
+fire engine
+jeep
+minibus
+motorcycle
+police car
+road grader
+scooter
+sidecar
+snowplow
+sports car
+tank
+taxi
+taxicab
+tractor
+wrecker

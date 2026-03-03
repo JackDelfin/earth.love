@@ -1,0 +1,12 @@
+baler
+combine harvester
+cultivator
+disk harrow
+fertilizer distributor
+harrow
+manure spreader
+ribbing plow
+rotary hoe
+seed drill
+subsoil plow
+tractor

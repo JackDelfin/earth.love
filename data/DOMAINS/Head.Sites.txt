@@ -1,0 +1,11 @@
+Cheek.earth
+Chin.earth
+Gums.earth
+Head.earth
+Jaw.earth
+Lip.earth
+Mole.earth
+Mouth.earth
+Nose.earth
+Tongue.earth
+Tooth.earth

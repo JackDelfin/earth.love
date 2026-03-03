@@ -1,0 +1,7 @@
+<!--- #OML[EL_INPUT_SELECT][DATA][Label][optionname][separated option list (,|)]# --->
+#OML[EL_INPUT_HEADER]#
+#_options_=OPTIONS[#_4_#]#
+<select name="#_data_#" #CLASS_SELECT#>
+#SELECTED[#_options_#][#_value_#][#_3_#][][#_req_#]#
+</select>
+#OML[EL_INPUT_FOOTER]#

@@ -1,0 +1,16 @@
+barge
+dredger
+dugout
+galley
+gondola
+hovercraft
+icebreaker
+kayak
+motorboat
+outrigger
+rafts
+rowboat
+sampan
+submarine
+tanker
+tugboat

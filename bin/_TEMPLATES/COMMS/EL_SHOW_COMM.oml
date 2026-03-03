@@ -1,0 +1,62 @@
+<!--- Make sure search didn't get here by mistake - redirect back to Root Search --->
+#ifOML[#_WORDFOUND_.0.NOT#][EL_SHOW_#ROOT#]#
+#STOP[#_WORDFOUND_.0.NOT#]#
+<!--- Show the Header Record - Community Name --->
+#OML[EL_HEADER_OBJECT]#
+
+#OML[EL_VIEW_FIELD][NAME][Community Name]#
+#OML[EL_VIEW_FIELD][SHORT][Short Name]#
+#OML[EL_VIEW_FIELD][TYPE][Type]#
+#OML[EL_VIEW_FIELD][DESC][Description]#
+#OML[EL_VIEW_FIELD][COLOR][Color]#
+
+#OML[EL_VIEW_FIELD][LOCS][Locations]#
+#OML[EL_VIEW_FIELD][GUILDS][Guilds]#
+#OML[EL_VIEW_FIELD][ORGS][Organizations]#
+#OML[EL_VIEW_FIELD][JOBS][Projects]#
+#OML[EL_VIEW_FIELD][RESOURCES][Resources]#
+#OML[EL_VIEW_FIELD][NEEDS][Resource Needs]#
+
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_GUILDS]
+  [EL_SEARCH_ORGS]#
+
+#OML[EL_SEARCH_LOCS]#
+
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_JOBS]
+  [EL_SEARCH_RESOURCES]
+  [EL_SEARCH_NEEDS]#
+
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_CAT]
+  [EL_SEARCH_DIRECTORIES]
+  [EL_SEARCH_LINKS]
+  [EL_SEARCH_PATHS]#
+
+<!---div class="w3-container w3-center">
+#OML[EL_NEW_GUILD_BUT]#
+#OML[EL_NEW_ORG_BUT]#
+#OML[EL_NEW_LOC_BUT]#
+-- Jobs --
+#OML[EL_NEW_JOB_BUT]#
+#OML[EL_NEW_RESOURCE_BUT]#
+#OML[EL_NEW_NEED_BUT]#
+-- People --
+#OML[EL_NEW_PERSON_BUT]#
+</div--->
+
+ <div class="w3-dropdown-hover w3-center w3-round-xxlarge w3-white">
+  <button class="w3-button w3-round-xlarge w3-card-4 w3-hover w3-green">#MSG[- &nbsp; Actions &nbsp; -]#</button>
+  <div class="w3-dropdown-content w3-bar-block w3-border w3-round-xlarge">
+#OML[EL_NEW_GUILD_BUT]#
+#OML[EL_NEW_ORG_BUT]#
+#OML[EL_NEW_LOC_BUT]#
+<br>-- Jobs --
+#OML[EL_NEW_JOB_BUT]#
+#OML[EL_NEW_RESOURCE_BUT]#
+#OML[EL_NEW_NEED_BUT]#
+<br>-- People --
+#OML[EL_NEW_PERSON_BUT]#
+  </div>
+ </div>

@@ -1,0 +1,34 @@
+agogo bells
+bass drum
+bell lyre
+bongos
+castanets
+celeste
+chimes
+claves
+conga
+cowbell
+crash cymbals
+cymbal
+cymbals
+drum
+drum set
+glockenspiel
+gong
+kettledrum
+maracas
+marimba
+orchestra bells
+ride cymbal
+scraper
+sizzle cymbal
+snare drum
+splash cymbal
+steel drums
+tenor drum
+timbales
+timpani
+tom-tom
+triangle
+vibraphone
+xylophone

@@ -1,0 +1,37 @@
+TIME: #TIMER[]#
+#FIBONACCI[0][9]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#V=INC[TEST/TEST_FIB]#
+#INC[TEST/TEST_FIB]#
+
+TIME: #TIMER[]#
+
+<!---#NUM1=[45.76]#
+#NUM7=[2345.76]#
+# 'ABS'          # [num]                - Returns absolute value of a number (positive)
+ABS[]#              {#ABS[-#num1#]#}   <-- [-#num1#]
+ABS[]#              {#ABS[#num1#]#}   <-- [#num1#]
+# 'MOD'          # [num][divisor]       - Returns the modulus (remainder) after a division
+MOD[]#              {#MOD[#num7#][#num1#]#}   <-- [#num7#][#num1#]
+MOD[]#              {#MOD[15][#num1#]#}   <-- [15][#num1#]
+MOD[]#              {#MOD[#num7#]#}   <-- [#num7#]
+
+--->

@@ -1,0 +1,32 @@
+#-------------------------------------------------------------------------------
+# Test Token OML Functions
+#-------------------------------------------------------------------------------
+
+# 'DISTANCE'     # [lat,long][lat,long] - Returns distance between 2 Geo coordinates
+# 'BEARING'      # [lat,long][lat,long] - Returns distance between 2 Geo coordinates
+#    86322.Camp.Verde.AZ.USA|34.5668,-111.8561
+#    40065.Shelbyville.KY.USA|38.2139,-85.2172
+#    40069.Springfield.KY.USA|37.7029,-85.2219
+#    40205.Louisville.KY.USA|38.223,-85.686
+#    40506.Lexington.KY.USA|38.0336,-84.5042
+
+DISTANCE[]#         {#DISTANCE[34.5668,-111.8561][38.2139,-85.2172]#}   <-- [Camp Verde][Shelbyville]
+DISTANCE[]#         {#DISTANCE[34.5668,-111.8561][37.7029,-85.2219]#}   <-- [Camp Verde][Springfield]
+DISTANCE[]#         {#DISTANCE[37.7029,-85.2219] [38.2139,-85.2172]#}   <-- [Springfield][Shelbyville]
+DISTANCE[]#         {#DISTANCE[38.223,-85.686]   [38.0336,-84.5042]#}   <-- [Louisville][Lexington]
+DISTANCE[]#         {#DISTANCE[38.0336,-84.5042] [38.223,-85.686]#}   <-- [Lexington][Louisville]
+DISTANCE[]#         {#DISTANCE[37.7029,-85.2219] [38.223,-85.686]#}   <-- [Springfield][Louisville]
+DISTANCE[]#         {#DISTANCE[37.7029,-85.2219] [38.0336,-84.5042]#}   <-- [Springfield][Lexington]
+DISTANCE[]#         {#DISTANCE[38.2139,-85.2172] [38.223,-85.686]#}   <-- [Shelbyville][Louisville]
+DISTANCE[]#         {#DISTANCE[38.2139,-85.2172] [38.0336,-84.5042]#}   <-- [Shelbyville][Lexington]
+DISTANCE[]#         {#DISTANCE[38.2139,-85.2172] [38.0336,-84.5042][1]#}   <-- [Shelbyville][Lexington][1]km
+
+BEARING[]#          {#BEARING[34.5668,-111.8561][38.2139,-85.2172][1]#}   <-- [Camp Verde][Shelbyville]
+BEARING[]#          {#BEARING[34.5668,-111.8561][37.7029,-85.2219][1]#}   <-- [Camp Verde][Springfield]
+BEARING[]#          {#BEARING[37.7029,-85.2219] [38.2139,-85.2172][1]#}   <-- [Springfield][Shelbyville]
+BEARING[]#          {#BEARING[38.223,-85.686]   [38.0336,-84.5042][1]#}   <-- [Louisville][Lexington]
+BEARING[]#          {#BEARING[38.0336,-84.5042] [38.223,-85.686][1]#}   <-- [Lexington][Louisville]
+BEARING[]#          {#BEARING[37.7029,-85.2219] [38.223,-85.686][1]#}   <-- [Springfield][Louisville]
+BEARING[]#          {#BEARING[37.7029,-85.2219] [38.0336,-84.5042][1]#}   <-- [Springfield][Lexington]
+BEARING[]#          {#BEARING[38.2139,-85.2172] [38.223,-85.686][1]#}   <-- [Shelbyville][Louisville]
+BEARING[]#          {#BEARING[38.2139,-85.2172] [38.0336,-84.5042][1]#}   <-- [Shelbyville][Lexington]

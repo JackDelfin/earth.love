@@ -1,0 +1,5 @@
+<!--- Search and Show Spirits for this item --->
+#BOX_COLOR=[w3-violet]#
+#_DATA_MSG_=MSG[Love]#
+#FUNCTION[EL_GET_DATA][SPIRITS]#
+#RESTORE[BOX_COLOR]#

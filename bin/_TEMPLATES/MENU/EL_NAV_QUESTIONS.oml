@@ -1,0 +1,19 @@
+<a href="#SHOWPAGE#help"><div class="w3-container">
+<table width="42px" border=0 cellpadding=0 cellspacing=0>
+<tr>
+<td>
+<div class="w3-badge w3-blue">Where?</div>
+<div class="w3-badge w3-indigo">How?</div>
+</td>
+<td class="w3-center">
+<div class="w3-badge w3-green">Why?</div>
+<div class="w3-badge w3-violet">Which?</div>
+<div class="w3-badge w3-red">Who?</div>
+</td>
+<td>
+<div class="w3-badge w3-yellow">When?</div>
+<div class="w3-badge w3-orange">What?</div>
+</td>
+</tr>
+</table>
+</div></a>

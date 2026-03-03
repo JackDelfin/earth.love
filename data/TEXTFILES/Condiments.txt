@@ -1,0 +1,12 @@
+catsup
+dill pickle
+ketchup
+mayonnaise
+mustard
+olive
+pepper
+relish
+salt
+sauce
+sour cream
+sweet pickle

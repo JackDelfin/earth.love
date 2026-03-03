@@ -1,0 +1,3 @@
+<!--- #EL_FN_ROOT_COLOR[root]# - returns _root_color_ --->
+#_root_color_=FIELD[#ROOT#][][COLOR]#
+#EXISTS[#_root_color_#][w3-#_root_color_#][#BOX_ROW_COLOR#]#

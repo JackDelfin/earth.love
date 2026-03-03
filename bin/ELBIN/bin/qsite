@@ -1,0 +1,100 @@
+#!/bin/perl
+#
+# qsite.pl <site*>
+# - show information for a site or group of sites
+use strict;
+use warnings;
+
+my $siteIN=shift;
+
+my $DomainConfig;
+my $DomainEnabled;
+my $Domain;
+my $DomainName;
+my $DomainDir;
+my $docroot;
+my $leconf;   # letsencrypt config
+my $lewebroot;
+my $cnt=0;
+
+my @SITES=`ls /etc/apache2/sites-available/$siteIN*.conf;`;
+
+if (scalar @SITES == 0) {
+  print "\n;No sites found for $siteIN!\n\n";
+  exit 1;
+}
+
+foreach $DomainConfig (@SITES) {
+  chomp($DomainConfig);
+  
+  print "\nSite: $DomainConfig\n";
+  
+  #
+  # Show the Server Name
+  #
+  $Domain = `grep -ie "^[ \t]*ServerName" $DomainConfig`;
+  chomp($Domain);
+  print "-- $Domain\n";
+  $DomainName = $Domain;
+  $DomainName =~ s/ServerName//;
+  $DomainName =~ s/^[ \t]*//;
+  
+  #
+  # Get DocumentRoot from /etc/apache2/sites-available
+  #
+  if (-e $DomainConfig) {
+    $docroot = `grep -ie "^[ \t]*DocumentRoot" $DomainConfig`;
+    chomp($docroot);
+  
+    #
+    # Show the Document Root
+    #
+    print "-- $docroot\n";
+  
+    # Get the domain directory
+    $DomainDir = $docroot;
+    $DomainDir =~ s/^[ \t]*DocumentRoot[ \t]*//;  # Remove DocumentRoot from string
+    $DomainDir =~ s/_WEB$//;    # Remove _WEB from end of string
+
+    # Check if the DomainDir is a valid directory (DO NOT CREATE AUTOMATICALLY)
+    if (-d $DomainDir) {
+      print "-- DomainDir: $DomainDir\n";
+    } else {
+      print "-- ERROR: Akashic Domain Directory [$DomainDir] does not exist for $Domain!\n";
+      next;
+    }
+  }
+
+  #
+  # Check enabled status
+  #
+  $DomainEnabled = $DomainConfig;
+  $DomainEnabled =~ s/available/enabled/;
+  if (-e $DomainEnabled) {
+    print "-- Enabled\n";
+  } else {
+    print "-- *** NOT *** Enabled\n";
+  }
+
+  #
+  # Check the letsencrypt settings
+  #
+  if ($DomainConfig =~ /-le-ssl/) {
+    $leconf = "/etc/letsencrypt/renewal/$DomainName.conf";
+    if (!-e $leconf) {
+      print "-- ERROR: $leconf NOT FOUND!\n";
+    } else {
+      $lewebroot = `grep -e"^$DomainName" $leconf;`;
+      print "-- HTTPS: $leconf\n";
+      print "-- HTTPS webroot: $lewebroot";
+    }
+  }
+  
+  $cnt++;
+  
+} #foreach
+
+print "\n\nTotal: $cnt\n\n";
+
+exit 1;
+

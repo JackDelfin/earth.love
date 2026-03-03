@@ -1,0 +1,6 @@
+Bed.earth
+Bedding.earth
+Bedroom.earth
+Bedrooms.earth
+Beds.earth
+Bedtime.earth

@@ -1,0 +1,56 @@
+--------------------------------------------------
+PATHS Directory
+--------------------------------------------------
+Stores the domain name PATH in PATHS (reverse order)
+--------------------------------------------------
+
+PATHS are domain names stored in the DNS and can
+quickly take someone to the desired destination by
+bypassing the TREES.
+
+PATHS are like a Directory Index.
+
+PATHS are similar to BRANCHES, but have a 
+DNS server entry associated with them, making
+them "live" indexes.
+
+They are stored in reverse word order in the PATHS
+directory.
+
+The reverse of the domain name PATH is stored in
+PATHS, in "reverse domain order" (order/domain/reverse).
+(up to 200 max characters-OS_Limitation).
+
+--------------------------------------------------
+Example
+--------------------------------------------------
+
+local.resource.trades.earth.love
+
+CREATES:
+
+Directory:
+--------------------------------------------------
+PATHS/trades/resource/local
+
+Potential Files:
+--------------------------------------------------
+PATH.dat     => local.resource.trades.earth.love
+TREES.dat    => economics.TREE; local.trade.TREE
+TEXT.dat     => (General text for the PATH)
+WORDS.dat    => local; resource; trades
+KEYWORDS.dat => resource; trades
+LINKS.dat    => local.resource.trades.earth
+                local.resource.trades.earth.love
+
+WORDS
+--------------------------------------------------
+The individual words from the PATH will have a
+PATHS.dat in the WORDS tree, containing all
+PATHS the word is on, cross-referencing the
+WORDS and PATHS.
+
+--------------------------------------------------
+
+ok.got.it
+it.got.ok

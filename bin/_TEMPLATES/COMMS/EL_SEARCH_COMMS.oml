@@ -1,0 +1,21 @@
+<!--- Search and show Community Results --->
+#ROOT=[COMMS]#
+#OBJECT=[COMM]#
+<div class="w3-row w3-container w3-round-xlarge">
+  <div class="w3-third">
+#BOX_COLOR=[w3-green]#
+#_DATA_MSG_=MSG[Communities]#
+#FUNCTION[EL_GET_DATA][COMMS]#
+  </div>
+  <div class="w3-third">
+#BOX_COLOR=[w3-blue]#
+#_DATA_MSG_=MSG[Links]#
+#FUNCTION[EL_GET_DATA][LINKS]#
+  </div>
+  <div class="w3-third">
+#BOX_COLOR=[w3-light-green]#
+#_DATA_MSG_=MSG[Federations]#
+#FUNCTION[EL_GET_DATA][FEDS]#
+  </div>
+</div>
+#RESTORE[ROOT][BOX_COLOR]#

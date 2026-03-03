@@ -1,0 +1,14 @@
+#STOP[#MENU.EXISTS#]#<!--- Don't show if we have a menu --->
+<div class="#MOBILE#">
+<form name="search" action="#showpage_post#" method="post" class="w3-container w3-margin-bottom-0">
+<input type="hidden" name="root" value="#ROOT#">
+<input type="hidden" name="lang" value="#LANG#">
+<input type="hidden" name="page" value="el_show">
+<input type="hidden" name="object" value="search">
+<input type="hidden" name="menu" value="">
+<input type="hidden" name="action" value="">
+#EXISTS[#_1_#][<label>#MSG[#_1_#]#</label>]#
+<input type="text" class="w3-input w3-light-grey w3-round-xlarge" name="word" size=42 value="#word.html#">
+#BUTTON_SEARCH#
+</form>
+</div>

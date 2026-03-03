@@ -1,0 +1,10 @@
+cotton
+denim
+leather
+linen
+rubber
+silk
+straw
+suede
+wool
+woolen

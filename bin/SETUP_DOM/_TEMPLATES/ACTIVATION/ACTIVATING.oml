@@ -1,0 +1,13 @@
+#INC[ACTIVATION/AH]#
+#STOP[#ENV_BOT#]#<!--- Stop if BOT was detected --->
+<pre>
+Activating #ENV_SERVER_NAME#<br>
+ACTIVATIONS
+-----------------------------
+
+
+
+
+</pre>
+#INC[ACTIVATION/AF]#
+

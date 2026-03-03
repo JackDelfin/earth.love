@@ -1,0 +1,333 @@
+#LOGSTATS[2]#
+#-------------------------------------------------------------------------------
+#
+# TOKEN MODIFIERS within OML (Orbit Markup Language)
+#
+#-------------------------------------------------------------------------------
+<!--- SUCCESSFUL--->
+Hack a recursive loop: # token=[#token.trim.space]#
+#token=[#token.trim.space#]#
+[#token.raw#]
+#token=PARSE[#token#]#
+
+#-------------------------------------------------------------------------------
+# String Modifiers
+#-------------------------------------------------------------------------------
+# '.trim'        # Trims the left and right \t \n <space>
+# '.ltrim'       # Left Trim \t \n <space>
+# '.rtrim'       # Right Trim \t \n <space>
+# '.space'       # Replace multiple spaces with single space
+# '.length'      # Returns length of Token value
+# '.upper'       # Uppercase the Token value
+# '.lower'       # Lowercase the Token value
+# '.initcap'     # Initial Capitalize
+# '.initname'    # Initial Capitalize with proper Name rules
+# '.namecap'     # Same as .initname
+
+#token = [    aBc<html>        phd    	]#-
+------------------------------------------
+ASSIGNED: [#token#]#
+------------------------------------------
+
+UNK       :[#token.UNK#]
+
+trim      :[#token.trim#]
+ltrim     :[#token.ltrim#]
+rtrim     :[#token.rtrim#]
+space     :[#token.space#]
+trim.space:[#token.trim.space#]
+space.trim:[#token.space.trim#]
+length    :[#token.length#]
+length multi:[#token.trim.space.length#]
+
+#token2=assign[    dr   john  p.    mcdoe   ,   phd    ]#
+[#token2#]
+upper     :[#token2.upper#]
+lower     :[#token2.lower#]
+initcap   :[#token2.initcap#]
+namecap   :[#token2.namecap...#]
+initname  :[#token2.initname#]
+
+#-------------------------------------------------------------------------------
+# Existence Modifiers used for Boolean Conditions
+#-------------------------------------------------------------------------------
+# '.0'           # Returns '0' if Token is null or blank
+# '.1'           # Returns '1' if Token is null
+# '.not'         # Returns the inverse of the Boolean value 0/1
+# '.isnumber'    # Returns '1' if the  Token value is a Number
+# '.exists'      # Returns '1' if the Token value exists (IS NOT NULL), '0' otherwise
+# '.isnotnull'   # Same as .exists
+# '.notexists'   # Returns '1' if the Token value does NOT exist (IS NULL), '0' otherwise
+# '.isnull'      # Same as .notexists
+# '.null'        # Returns 'NULL' if Token is null or blank
+# '.eval'        # Evaluates and parses the Token value contents, returning boolean 0/1
+
+#token=[]#[#token#]
+0         :[#token.0#]
+1         :[#token.1#]
+nbsp      :[#token.nbsp#]
+null      :[#token.null#]
+
+#token=[#token.EXISTS#]#[#token#]
+0         :[#token.0#]
+1         :[#token.1#]
+nbsp      :[#token.nbsp#]
+null      :[#token.null#]
+
+#token=[#token.NOTexists#]#[#token#]
+0         :[#token.0#]
+1         :[#token.1#]
+nbsp      :[#token.nbsp#]
+null      :[#token.null#]
+
+#token=[]#
+not       :[#token.not#] [#token.0.NOT#] [#token.1.NOT#] _ 1 0
+#token=[15]#
+not       :[#token.not#] #token=[0]#[#token.not#] 0 1
+#token=[xx]#
+not       :[#token.not#] _
+
+#tok=[#junk2.NOTEXISTS#]#
+eval      :[#tok.eval#][#tokX.eval#][#tok.NOT.eval#] 1 0 0
+
+#token=[]#
+exists    :[#token.exists#] [#token.0.exists#] [#token.NULL.exists#] 0 1 NULL
+isnotnull :[#token.isnotnull#] [#token.0.isnotnull#] 0 1
+notexists :[#token.notexists#] [#token.0.notexists#] 1 0
+isnull    :[#token.isnull#] [#token.1.isnull#] 1 0
+null      :[#token.null#] [#token.1.null#] NULL 1
+
+#token=[11]#[#token#]
+isnumber  :[#token.isnumber#] [#token.1.isnumber#] [#token.0.isnumber#]
+#token=[]#[#token#]
+isnumber  :[#token.isnumber#]
+#token=[-1]#[#token#]
+isnumber  :[#token.isnumber#]
+#token=[0]#[#token#]
+isnumber  :[#token.isnumber#]
+#token=[1]#[#token#]
+isnumber  :[#token.isnumber#]
+#token=[-14]#[#token#]
+isnumber  :[#token.isnumber#]
+#token=[a15]#[#token#]
+isnumber  :[#token.isnumber#]
+
+
+
+#-------------------------------------------------------------------------------
+# Modifiers
+#-------------------------------------------------------------------------------
+# '.rows'        # Returns the number of rows (carriage returns, \n) in the data
+# '.cols'        # Returns the max column length of all the lines
+
+#token=
+[This is a test of line
+
+wrapping
+in   Orbit
+]##Token:[#token#]
+rows      :[#token.rows#]
+cols      :[#token.cols#]
+
+#-------------------------------------------------------------------------------
+# HTML Modifiers
+#-------------------------------------------------------------------------------
+# '.html'        # escape any HTML text for display
+# '.raw'         # same as .html (older convention in Oracle)
+# '.nbsp'        # Returns '&nbsp;' if the Token value is null
+# '.tr'          # Translate special HTML characters for Form Gets
+# '.checked'     # Returns 'CHECKED' if the boolean is 1 (true)
+# '.checkbox'    # Returns the Token value of CHECK_ON or CHECK_OFF based on boolean evaluation
+# '.notags'      # Replaces < with &lt; and > with &gt; and & with &amp;
+# '.noparse'     # Replace # with &#035;, essentially showing Orbit Tokens unparsed
+# '.noquote'     # Replace " with &quot;
+# '.untag'       # Replace (&amp; &lt; &gt;) with (& < >)
+# '.unparse'     # Replace &#035; with #
+# '.unraw'       # Replace (&amp; &lt; &gt; &#035; &quot;) with (& < > # ")
+# '.nohtml'      # Removes all HTML tags from the text
+# '.jsquote'     # Escapes JavaScript code, such as double quote
+# '.br'          # Changes all \n Carriage Returns to html <br>
+# '.nowrap'      #
+
++++
+#token = [    aBc<html>  "#text#"    <head> Header</table>]#Token:[#token#]
+
+html      :[#token.html#]
+raw       :[#token.raw#]
+
+#token=[
+< text
+>
+#
+%
++
+{
+}
+| this is yet another test
+\
+^
+~
+[
+]
+`
+;
+/
+?
+:
+@
+=
+&
+$
+]#
+tr        :[#token.tr#]
+
+
+notags    :[#token.notags#]
+noparse   :[#token.noparse#]
+noquote   :[#token.noquote#]   # '.noquote'     # Replace " with &quot;
+nohtml    :[#token.nohtml#]
+
++++
+#token=PARSE[#token.raw#]#Token:[#token.raw#]
+
+untag     :[#token.untag#]   # '.untag'       # Replace (&amp; &lt; &gt;) with (& < >)
+unparse   :[#token.unparse#]   # '.unparse'     # Replace &#035; with #
+unraw     :[#token.unraw#]   # '.unraw'       # Replace (&amp; &lt; &gt; &#035; &quot;) with (& < > # ")
+
+#CHECK_ON=[Y]#
+#CHECK_OFF=[N]#
+
+#cb=[#CHECK_ON.EXISTS#]#-
+[#cb#]
+checked   :[#cb.checked#]
+checkbox  :[#cb.checkbox#][#cb.NOT.checkbox#]
+
+#token=[]#-
+[]
+checked   :[#token.1.checked#]  [#token.0.checked#]  [#token.NOT.checked#]
+checkbox  :[#token.1.checkbox#]  [#token.0.checkbox#]  [#token.NOT.checkbox#]
+
+#js=[ $i = 'true';  "
+]##Token:[#js#]
+jsquote   :[#js.jsquote#]   <-- [#js#]
+
++++
+#token = [    aBc<html>  "#TOKx#" &test;  <head> Header</table>
+</body>   &amp; &lt; &gt; 	]##Token:[#token#]
+
+notags    :[#token.notags#]
+noparse   :[#token.noparse#]
+noquote   :[#token.noquote#]   # '.noquote'     # Replace " with &quot;
+nohtml    :[#token.nohtml#]
+br        :[#token.br#]
+nowrap    :[#token.nowrap#]
+
++++
+#token = [    aBc<html>  "#TOKx#" &test;  <head> Header</table></body>]#-
+Token:[#token.noparse#]
+#token=PARSE[#token.raw#]#
+Token:[#token.raw#]
+
+# '.untag'       # Replace (&amp; &lt; &gt;) with (& < >)
+untag     :[#token.untag#]
+# '.unparse'     # Replace &#035; with #
+unparse   :[#token.unparse#]
+# '.unraw'       # Replace (&amp; &lt; &gt; &#035; &quot;) with (& < > # ")
+unraw     :[#token.unraw#]
+
+#token=[&lt; &amp; &gt;]#
+Token:[#token#]
+# '.untag'       # Replace (&amp; &lt; &gt;) with (& < >)
+untag     :[#token.untag#]
+
+
+#-------------------------------------------------------------------------------
+# Numeric Modifiers
+#-------------------------------------------------------------------------------
+# '.sign'        # Returns -1 for negative numbers, 1 for positive, 0, or null
+# '.round'       # Rounds the number to closest integer
+# '.round2'      # Rounds to 2 decimal places (useful for currency), pads with 0
+# '.round1'      # Rounds to 1 decimal place, pads with 0
+# '.trunc'       # Truncates the number, returning integer
+# '.abs'         # Absolute Value (converts negative to positive)
+# '.ceil'        # Ceiling of the number
+# '.floor'       # Floor of the number
+# '.percent'     # Shows the number in percentage format, multiplying by 100 and adding %
+# '.percent1'    # Shows percent with 1 decimal places, padding with 0
+# '.percent2'    # Shows percent with 2 decimal places, padding with 0
+
+#token=[]#
+sign      :[#token.0.sign#] [#token.1.sign#] #token=[-6]# [#token.sign#]
+
+#token=[137.123]#
+[#token#]
+round     :[#token.round#]
+round2    :[#token.round2#]
+round1    :[#token.round1#]
+trunc     :[#token.trunc#]
+abs       :[#token.abs#]
+ceil      :[#token.ceil#]
+floor     :[#token.floor#]
+percent   :[#token.percent#]
+
+#token=[137.777]#
+[#token#]
+round     :[#token.round#]
+round2    :[#token.round2#]
+round1    :[#token.round1#]
+trunc     :[#token.trunc#]
+abs       :[#token.abs#]
+ceil      :[#token.ceil#]
+floor     :[#token.floor#]
+percent   :[#token.percent#]
+percent1  :[#token.percent1#]
+percent2  :[#token.percent2#]
+
+#token=[-14.67]#
+[#token#]
+round     :[#token.round#]
+round2    :[#token.round2#]
+round1    :[#token.round1#]
+trunc     :[#token.trunc#]
+abs       :[#token.abs#]
+ceil      :[#token.ceil#]
+floor     :[#token.floor#]
+percent   :[#token.percent#]
+percent1  :[#token.percent1#]
+percent2  :[#token.percent2#]
+
+#token=[.67]#
+[#token#]
+percent   :[#token.percent#]
+percent1  :[#token.percent1#]
+percent2  :[#token.percent2#]
+
+#token=[.999999999]#
+[#token#]
+percent   :[#token.percent#]
+percent1  :[#token.percent1#]
+percent2  :[#token.percent2#]
+
+#token=[.799999999]#
+[#token#]
+percent   :[#token.percent#]
+percent1  :[#token.percent1#]
+percent2  :[#token.percent2#]
+
+
+#-------------------------------------------------------------------------------
+# Caching Modifiers
+#-------------------------------------------------------------------------------
+# '.cache'       # Sets the Token cache flag so it will not be parsed further - returns Token value
+# '.uncache'     # Unsets the Token cache flag - returns Token value
+
+#token=[#nothing.exists#]#
+[#token.raw#]
+cache     :[#token.cache#]
+uncache   :[#token.uncache#]
+<!---SUCCESSFUL --->
+
+#SHOWSTATS[]#
+
+=== #TIMER[]# ===
+

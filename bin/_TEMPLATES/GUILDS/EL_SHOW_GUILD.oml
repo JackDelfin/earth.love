@@ -1,0 +1,50 @@
+<!--- Make sure search didn't get here by mistake - redirect back to Root Search --->
+#ifOML[#_WORDFOUND_.0.NOT#][#ROOT.upper#/EL_SHOW_#ROOT#]#
+#STOP[#_WORDFOUND_.0.NOT#]#
+<!--- Show the Header Record - Guild Name --->
+#OML[EL_HEADER_OBJECT]#
+
+<!--- Fields START --->
+#OML[EL_VIEW_FIELD]   [NAME_REQ][Guild Name]#
+#OML[EL_VIEW_FIELD]   [SCOPE_REQ][Scope]#
+#OML[EL_VIEW_FIELD]   [SHORT][Short Name]#
+#OML[EL_VIEW_FIELD]   [TYPE_REQ][Guild Type]#
+
+#OML[EL_VIEW_FIELD]   [COLOR][Color]#
+#OML[EL_VIEW_FIELD]   [PATH][Web Site]#
+#OML[EL_VIEW_FIELD]   [DESC][Description]#
+
+#OML[EL_VIEW_FIELD]   [PARENT][Parent Guild]#
+
+#OML[EL_VIEW_FIELD]   [LOCS][Locations]#
+#OML[EL_VIEW_FIELD]   [COMMS][Communities]#
+#OML[EL_VIEW_FIELD]   [ORGS][Organizations]#
+#OML[EL_VIEW_FIELD]   [JOBS][Projects]#
+<!--- Fields END --->
+
+
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_LOCS]
+  [EL_SEARCH_COMMS]#
+
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_ORGS]
+  [EL_SEARCH_JOBS]#
+
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_CAT]
+  [EL_SEARCH_DIRECTORIES]#
+
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_LINKS]
+  [EL_SEARCH_PATHS]#
+
+<div class="w3-container w3-center">
+#OML[EL_NEW_GUILD_BUT]#
+#OML[EL_NEW_JOB_BUT]#
+#OML[EL_NEW_LOC_BUT]#
+#OML[EL_NEW_PERSON_BUT]#
+#OML[EL_NEW_ORG_BUT]#
+#OML[EL_NEW_RESOURCE_BUT]#
+#OML[EL_NEW_NEED_BUT]#
+</div>

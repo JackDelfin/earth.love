@@ -1,0 +1,5 @@
+<!--- Search and Show Guilds for this item --->
+#BOX_COLOR=[w3-indigo]#
+#_DATA_MSG_=MSG[Books]#
+#FUNCTION[EL_GET_DATA][BOOKS]#
+#RESTORE[BOX_COLOR]#

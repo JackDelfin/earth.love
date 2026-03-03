@@ -1,0 +1,5 @@
+#INCLUDE[EL_TOKENS]#
+#INCLUDE![EL_HEADER]#
+#INCif![#OBJECT.exists#][#ROOT.upper#/EL_SHOW_#OBJECT#]#
+#INCif![#MENU.exists#][#ROOT.upper#/EL_NAV_#MENU#]#
+#INCLUDE![EL_FOOTER]#

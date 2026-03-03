@@ -1,0 +1,13 @@
+clear
+cloudy
+cold
+cool
+foggy
+hot
+humid
+rainy
+snowy
+stormy
+sunny
+warm
+windy

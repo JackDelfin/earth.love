@@ -1,0 +1,11 @@
+Boa.earth
+Bull.earth
+Monitor.earth
+Musk.earth
+Pit.earth
+Rat.earth
+Ribbon.earth
+Snake.earth
+Star.earth
+Viper.earth
+Worm.earth

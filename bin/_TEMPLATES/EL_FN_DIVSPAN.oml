@@ -1,0 +1,14 @@
+<!--- Include boxes with responsive layout:
+  #FUNCTION[EL_FN_DIVSPAN]   [EL_SEARCH_LOCS][EL_SEARCH_GUILDS][EL_SEARCH_ORGS][EL_SEARCH_JOBS]#
+--->
+#DIVSPAN=DECODE[1]
+  [#_4_.EXISTS#][quarter]
+  [#_3_.EXISTS#][third]
+  [#_2_.EXISTS#][half]
+  [threequarter]#
+<div class="w3-row w3-container">
+#EXISTS[#_1_#][<div class="w3-#DIVSPAN#">#_1_#</div>]#
+#EXISTS[#_2_#][<div class="w3-#DIVSPAN#">#_2_#</div>]#
+#EXISTS[#_3_#][<div class="w3-#DIVSPAN#">#_3_#</div>]#
+#EXISTS[#_4_#][<div class="w3-#DIVSPAN#">#_4_#</div>]#
+</div>

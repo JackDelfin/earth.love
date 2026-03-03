@@ -1,0 +1,263 @@
+--------------------------------------------------
+               earth.love Concepts
+--------------------------------------------------
+
+earth.love is re-introducing some tried and
+true concepts that make things a little simpler.
+
+Hope you enjoy!
+
+
+--------------------------------------------------
+ECO syntax:
+--------------------------------------------------
+
+earth.love has a new syntax for text formatting
+to allow words or phrases to be "hidden" linked,
+so it doesn't have to interfere with reading.
+
+It's called ECO, or eco, or "eco", or 'eco'.
+Not pronounced "echo", like "E:" without "lon".
+
+It's very flexible as you'll see.
+The case is preserved the way the word is written.
+So choose your favorite shorthand and don't worry
+about those "#" "@" or "underscore link" showing
+up in your text.
+
+eco://Vision
+ECO://Vision
+
+(See Future Syntax Support for Certain Applications)
+
+
+--------------------------------------------------
+TREES Directory
+--------------------------------------------------
+Stores the TREE Directory data in the TREES home
+------------------------------------------
+
+The TREE directories have a .TREE suffix to
+distinguish them as directory trees.
+(up to 200 max characters-OS_Limitation).
+
+A directory TREE is a navigatable path based
+on WORDS and PHRASES (aka BRANCHES).
+
+Example:
+
+  TREES/Food.TREE
+
+
+More => See Concepts_TREES.txt
+
+
+--------------------------------------------------
+BRANCHES Directory
+--------------------------------------------------
+Stores the BRANCH or word-path) in BRANCHES
+--------------------------------------------------
+
+BRANCHES are the same as PHRASES as far as storage.
+
+The forward direction of the PHRASE or BRANCH is
+stored like:
+
+  BRANCHES/stored/here/like/this
+  
+(up to 200 max characters-OS_Limitation).
+
+
+More => See Concepts_BRANCHES.txt
+
+
+--------------------------------------------------
+WORDS Directory
+--------------------------------------------------
+Stores a WORD in the WORDS structure (/w/o/r/d/word)
+--------------------------------------------------
+
+A word in earth.love is symbolized by several
+characters or numbers, and only quote ('),
+dash, or hyphen (-).
+
+Words are stored in the WORDS structure.
+
+For example, the word "Values" would be stored
+as a directory in lowercase:
+
+  WORDS/v/a/l/u/e/s/values
+
+
+More => See Concepts_WORDS.txt
+
+
+--------------------------------------------------
+PHRASES Directory
+--------------------------------------------------
+Stores the PHRASE or word-path in PHRASES Directory
+--------------------------------------------------
+
+PHRASES are similar to BRANCHES, but stored in the
+PHRASES directory.  PHRASES are not necessarily
+contained in a BRANCH or TREE, but do contain
+more than one word.
+
+Example:
+
+  PHRASES/Bee/Keeping/Guilds
+
+This could be a home for a community group or guild
+that is not listed on a directory yet.
+
+You can reference PHRASES and BRANCHES with the
+ECO syntax within certain applications, otherwise
+if a DNS lookup is needed, a PATH would need to be
+defined for the PHRASE, which you can define
+in the PHRASE edit screen.
+
+Not a PATH, but is a PHRASE:
+  eco://Vision.of.Utopia
+
+
+More => See Concepts_PHRASES.txt
+
+
+--------------------------------------------------
+PATHS
+--------------------------------------------------
+Stores the domain name PATH in PATHS (reverse order)
+--------------------------------------------------
+
+PATHS are domain names stored in the DNS and can
+quickly take someone to the desired destination by
+bypassing the TREES.
+
+PATHS are like a Directory Index.
+
+PATHS are similar to BRANCHES, but have a 
+DNS server entry associated with them, making
+them "live" indexes.
+
+They are stored in reverse word order in the PATHS
+directory.
+
+http://vision.earth.love  is an "http" style
+eco://missions.earth      is an "eco" style
+eco://Missions            also "eco" style
+
+
+More => See Concepts_PATHS.txt
+
+
+--------------------------------------------------
+"ECO"-style PATH Support
+--------------------------------------------------
+
+The "eco"-style path recognition should be
+supported in most web browsers, apps,
+VR devices, and augmented reality glasses
+and goggles.
+
+If you have older software or device models
+that has been repurposed and need software
+or hardware (BIOS) patches, check out:
+
+  eco://software.patches
+
+...or, sorry if that doesn't work for you...
+
+  http://patches.earth
+
+You'll generally find traditional http:// links
+at the bottom of older articles in the 2020's
+and even into the 2040's as repurposed hardware
+and software made its way around to remote
+locations.
+
+To register a "CooL" link that you think the
+community should take a look at, remember
+you can go directly to "LINKS" under the word.
+
+  e:links.gardening
+
+  http://links.gardening.earth
+
+and always...
+
+  http://links.gardening.earth.love
+
+... And then you can enter the WORD or PHRASE
+    appropriate link there.
+
+-------
+oK NOTE
+-------
+Remember in the old style, you may need to
+include "earth.love" as the extension instead
+of just ".earth", as there were only just over
+10,000 earth words collaborating initially
+back in 2021.
+i.e.) http://fred.earth.love
+because http://fred.earth is not part of the
+collective (yet).
+
+
+--------------------------------------------------
+Future Syntax Support for Certain Applications
+--------------------------------------------------
+
+For shorthand and simplicity purposes, there are
+some additional ECO syntax formats being proposed
+for certain applications or application needs.
+
+Maybe Future Syntax:
+
+e:/Vision
+eco:/Vision
+ECO:/Vision
+e://vision
+e//vision
+e/vision
+e:Vision
+#Vision
+#e:Vision
+e-vision
+e;vision
+e\vision
+e_vision
+e=vision
+E+vision
+e%vision
+e@vision
+E!vision
+circle the word and it looks like the earth
+
+
+--------------------------------------------------
+            earth.love Browser
+--------------------------------------------------
+
+IN DEVELOPMENT
+
+You can also download the "exclusive" and
+"elite" ...
+
+            earth.love Browser
+
+all earth,
+all LOVE,
+all the time!
+
+
+eco://browser   <--- e/GetSome e:Support Here
+
+E/Browsers shows all the supported browsers
+and a beautiful "History of Browsers" video.
+
+http://browser.earth
+http://browsers.earth
+
+--------------------------------------------------
+
+oK

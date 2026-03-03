@@ -1,0 +1,17 @@
+#INCLUDE[EL_TOKENS]#
+<html>
+<meta charset="utf-8">
+<head>
+<!-- License: AGPLv3+: GNU Affero General Public License Version 3 or later -->
+<!-- earth.love Planetary Directory - Every One owns the words -->
+<title>Proof of Life</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+#INC![_STYLES/#STYLE#]#
+</head>
+#ROOT=[COMMS]#
+#OBJECT=[COMMS]#
+#MENU=[ACTION]#
+#TMP=INCLUDE[#ROOT.upper#/EL_SHOW_#OBJECT#]#
+#TMP=INCLUDE[COMMS/EL_NAV_#MENU#]#
+<body style="margin:0;padding:1" class="#MOBILE#w3-container w3-responsive w3-green">&nbsp;#mytime=TIMER[]##REPLACE[#mytime#][ms]#</body>
+</html>

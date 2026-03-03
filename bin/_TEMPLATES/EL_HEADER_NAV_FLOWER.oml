@@ -1,0 +1,4 @@
+#LOADTOKEN[
+FlowerDIV =[<div><h2 class="#_FLOWER_HEAD_COLOR_# #CLASS_FLOWER_HEAD#">#FlowerHead#</h2></div><div>#_Flower#</div>]
+_NAVLINK  =[<a class="w3-link-plain" href="#ELSHOW##_NAVWORD.tr#&pmenu=#pmenu#">#_NAVTEXT#</a>]
+]#

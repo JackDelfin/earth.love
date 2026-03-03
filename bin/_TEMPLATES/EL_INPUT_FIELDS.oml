@@ -1,0 +1,4 @@
+<!---Form Fields to read--->
+<input type="hidden" name="formfields" value="#_FORMFIELDS_.html#">
+<!--- Save hidden STEP / STEPS params - load after formfields --->
+#ifOML[#STEPS#][EL_INPUT_STEPS_HIDDEN]#

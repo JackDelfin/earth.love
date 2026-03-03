@@ -1,0 +1,13 @@
+<div class="w3-dropdown-hover w3-center w3-round-xlarge">
+  <button class="w3-button w3-round-xlarge w3-card-4 w3-hover w3-blue">#MSG[- &nbsp; Actions &nbsp; -]#</button>
+  <div class="w3-dropdown-content w3-center w3-bar-block w3-card-4 w3-hover w3-border w3-round-xlarge">
+#OML[EL_ADD_CAT_BUT]#
+#OML[EL_ADD_DIR_BUT]#
+#OML[EL_ADD_DEF_BUT]#
+#OML[EL_ADD_LINK_BUT]#
+#OML[EL_ADD_IMAGE_BUT]#
+#OML[EL_ADD_TEXT_BUT]#
+#OML[EL_ADD_DATE_BUT]#
+#OML[EL_ADD_EVENT_BUT]#
+  </div>
+</div>

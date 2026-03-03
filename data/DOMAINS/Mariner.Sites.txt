@@ -1,0 +1,16 @@
+Boating.earth
+Cruise.earth
+Cruiser.earth
+Cruises.earth
+Cruising.earth
+Gondola.earth
+Hovercraft.earth
+Marinas.earth
+Marinas101.earth
+Ports.earth
+Ports101.earth
+Rafts.earth
+Tanker.earth
+Tankers.earth
+Tugboat.earth
+Tugboats.earth

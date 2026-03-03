@@ -1,0 +1,10 @@
+<!--- Search and Show Domains this item is on --->
+#_DATA_MSG_=MSG[Domains]#
+#LOADTOKEN[
+ROOT        =[DOMS]
+BOX_COLOR   =[w3-blue]
+_DATA_HREF_ =[#SHOWPAGE##1.tr#]
+]#
+#OMLIF[#_STATIC_#][doms/EL_SEARCH_DOMS_STATIC]#
+#FUNCTION[EL_GET_DATA][PATHS]#
+#RESTORE[ROOT BOX_COLOR _DATA_HREF_]#

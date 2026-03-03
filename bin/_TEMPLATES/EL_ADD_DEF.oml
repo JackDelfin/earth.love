@@ -1,0 +1,15 @@
+<div class="w3-container">
+#INC[EL_HEADER_WORD]#
+<h2>#MSG[Add Definition]#</h2>
+#OML[EL_FORM_DATA_ADD][DEF]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!---CONTENT--->
+#OML[EL_INPUT_SELECT][DEFTYPE_REQ][Type][][noun|verb|adjective|adverb|pronoun|name|other]#
+#OML[EL_INPUT_TEXTAREA][DEF][Definition][3]#
+#OML[EL_INPUT_TEXT][PRONUNCIATION][Pronunciation]#
+#OML[EL_INPUT_TEXT][DEFREF][Reference]#
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

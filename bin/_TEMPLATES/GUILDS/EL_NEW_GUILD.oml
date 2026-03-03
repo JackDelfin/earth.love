@@ -1,0 +1,32 @@
+#ROOT=[GUILDS]#
+<div class="w3-container">
+<h2>#MSG[Create Guild]#</h2>
+#OML[EL_FORM_DATA][elnew]#
+#INC[EL_INPUT_STANDARD_HIDDEN]#
+<!--- NEXT STEP HEADER --->
+#OML[EL_INPUT_STEPS][7]#
+<!---CONTENT--->
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [NAME_REQ][Guild Name]#
+#ifOML[#STEP1.0.NOT#][EL_INPUT_VIEW][]    [NAME_REQ][]#
+#ifOML[#STEP1#][EL_INPUT_SELECT][#H#]     [SCOPE_REQ][Scope][]
+  [Planetary|Continent|Nation|Region|City|Town|Village|Federation|Community|Family|Other]#
+#ifOML[#STEP1#][EL_INPUT_TEXT][#H#]       [SHORT][Short Name]#
+#ifOML[#STEP1#][EL_INPUT_SELECT][#H#]     [TYPE_REQ][Guild Type][]
+  [Guild|Hobby|Interest|Group|Club|Other]#
+
+#ifOML[#STEP2#][EL_INPUT_DATA_COLOR][#H#] [COLOR]#
+#ifOML[#STEP2#][EL_INPUT_TEXT][#H#]       [PATH][Web Site]#
+#ifOML[#SETP2#][EL_INPUT_TEXTAREA][#H#]   [DESC][Description][2]#
+
+#ifOML[#STEP3#][EL_INPUT_TEXT][#H#]       [PARENT][Parent Guild]#
+
+#ifOML[#STEP4#][EL_INPUT_TEXT][#H#]       [LOCS][Locations]#
+#ifOML[#STEP5#][EL_INPUT_TEXT][#H#]       [COMMS][Communities]#
+#ifOML[#STEP6#][EL_INPUT_TEXT][#H#]       [ORGS][Organizations]#
+#ifOML[#STEP7#][EL_INPUT_TEXT][#H#]       [JOBS][Projects]#
+
+<!---BUTTONS--->
+#INC[EL_INPUT_FIELDS]#
+#INC[EL_INPUT_BUTTONS]#
+</form>
+</div>

@@ -1,0 +1,16 @@
+Boarding.earth
+Claim.earth
+Customs.earth
+Effects.earth
+Immigration.earth
+Lounge.earth
+Officer.earth
+Personal.earth
+Tour.earth
+Touring.earth
+Tourism.earth
+Tourist.earth
+Tourists.earth
+Tours.earth
+Travel101.earth
+Zones.earth

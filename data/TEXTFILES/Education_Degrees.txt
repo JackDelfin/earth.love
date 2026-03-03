@@ -1,0 +1,13 @@
+associates
+BA
+bachelors
+BSc
+certificate
+degree
+diploma
+doctor
+docturate
+MA
+masters
+Msc Degree
+PhD

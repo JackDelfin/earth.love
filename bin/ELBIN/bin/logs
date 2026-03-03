@@ -1,0 +1,36 @@
+#!/bin/perl
+#
+# logs - check the apache2 logs for earth.love
+#
+
+my $LOGdir="/LOVE/earth.love/_LOGS";
+chdir($LOGdir);
+
+print "\n--------------------------------------------------------\n";
+print "LOGS: $LOGdir\n";
+print "--------------------------------------------------------\n";
+
+print `ls -l *.log;`;
+
+print "\n----------------------------\n";
+print "COUNTS:\n";
+print "----------------------------\n";
+print `wc -l *.log;`;
+
+print "\n";
+
+print "SITES with access.log     : ".`ls /LOVE*/*/*/_WEB/DOWN/LOGS/CURRENT/access.log 2>/dev/null|wc -l`;
+print "SITES with accessBOT.log  : ".`ls /LOVE*/*/*/_WEB/DOWN/LOGS/CURRENT/accessBOT.log 2>/dev/null|wc -l`;
+print "SITES with accessHACK.log : ".`ls /LOVE*/*/*/_WEB/DOWN/LOGS/CURRENT/accessHACK.log 2>/dev/null|wc -l`;
+
+print "\n";
+
+my $TODAY=`date +%Y%m%d`;
+chomp($TODAY);
+
+print "DENY IPs TODAY            : ".`grep -c DENY /home/el/PLAYS/blocker/HACKBOTblocker_$TODAY.out`;
+print "UFW DENYs TOTAL           : ".`sudo ufw status|wc -l`;
+print "\n";
+
+exit 1;
+

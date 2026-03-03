@@ -1,0 +1,42 @@
+<!--- #OML[EL_NAV_HOME]# Define subroots as different roots - could be a subroot as well --->
+#LOADTOKEN[
+PMENU     =[ACTION]
+<!--- Get the Flower Navigation Petals --->
+Petal_1   =OML[EL_NAV_CIRCLE_ROOT][PERSONS][el-chakra1]
+Petal_2   =OML[EL_NAV_CIRCLE_ROOT][LOCS][el-chakra2]
+Petal_3   =OML[EL_NAV_CIRCLE_ROOT][JOBS][el-chakra3]
+Petal_4   =OML[EL_NAV_CIRCLE_ROOT][COMMS][el-chakra4]
+Petal_5   =OML[EL_NAV_CIRCLE_ROOT][GUILDS][el-chakra5]
+Petal_6   =OML[EL_NAV_CIRCLE_ROOT][BOOKS][el-chakra6]
+Petal_7   =OML[EL_NAV_CIRCLE_ROOT][SPIRITS][el-chakra7]
+]#
+
+<div class="w3-container">
+<h2 class="#CLASS_FLOWER_HEAD# w3-yellow">#MSG[Action Navigator]#</h2>
+<div class="w3-container">
+
+<div class="w3-container w3-center">
+<table border="0" cellpadding="0" align="center"><tr>
+<td valign="middle" align="center">
+<div>
+#Petal_5#
+#Petal_6#
+</div>
+</td><td valign="middle" align="center">
+<div>
+#Petal_4#
+#Petal_7#
+#Petal_1#
+</div>
+</td><td valign="middle" align="center">
+<div>
+#Petal_3#
+#Petal_2#
+</div>
+</td>
+</tr></table>
+</div>
+
+</div>
+</div>
+#RESTORE[ROOT]#

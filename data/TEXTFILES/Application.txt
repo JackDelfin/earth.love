@@ -1,0 +1,66 @@
+address
+age
+apply
+area code
+birthday
+certification
+children
+citizenship
+city
+college
+country
+criminal record
+date
+date of birth
+dependents
+diploma
+divorced
+education
+educational background
+elementary school
+employee
+employer
+experience
+family name
+felony record
+female
+fired
+first name
+gender
+graduate school
+handicap
+hearing
+height
+high school
+husband's name
+junior college
+junior high school
+last name
+male
+marital status
+married
+middle name
+name
+next of kin
+notify
+occupation
+phone number
+physical examination
+position
+present address
+previous experience
+quit
+reason for leaving
+relatives
+salary
+separated
+single
+skills
+social security number
+state
+street
+telephone number
+vision
+weight
+wife's name
+zip code

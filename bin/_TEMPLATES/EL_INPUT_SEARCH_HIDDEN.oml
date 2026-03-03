@@ -1,0 +1,6 @@
+<input type="hidden" name="root" value="#ROOT#">
+<input type="hidden" name="lang" value="#LANG#">
+<input type="hidden" name="page" value="el_show">
+<input type="hidden" name="object" value="#NVL[#OBJECT#][search]#">
+<input type="hidden" name="menu" value="">
+<input type="hidden" name="action" value="#ACTION#">

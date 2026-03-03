@@ -1,0 +1,11 @@
+Aluminum.earth
+Brass.earth
+Bronze.earth
+Gold.earth
+Lead.earth
+Mercury.earth
+Nickel.earth
+Platinum.earth
+Silver.earth
+Stainless.earth
+Tin.earth

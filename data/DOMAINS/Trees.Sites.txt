@@ -1,0 +1,15 @@
+Apricot.earth
+Bark.earth
+Cherry.earth
+Cone.earth
+Date.earth
+Flame.earth
+Gum.earth
+Jack.earth
+Japanese.earth
+Nectarine.earth
+Orange.earth
+Palm.earth
+Rings.earth
+Sugar.earth
+Tree.earth

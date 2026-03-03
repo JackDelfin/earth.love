@@ -1,0 +1,15 @@
+arsonist
+blackmailer
+burglar
+hijacker
+kidnapper
+mugger
+murderer
+pickpocket
+robber
+shoplifter
+smuggler
+spy
+terrorist
+thief
+vandal

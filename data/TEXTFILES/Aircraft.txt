@@ -1,0 +1,10 @@
+airbus
+airship
+biplane
+bomber
+fighter
+glider
+helicopter
+jet
+jumbo
+tanker

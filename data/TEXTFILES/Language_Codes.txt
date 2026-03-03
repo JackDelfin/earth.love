@@ -1,0 +1,66 @@
+AFR Afrikaans
+ALB Albanian
+ARA Arabic
+ARM Armenian
+BOS Bosnian
+BPO Brazilian Portuguese
+BRE Breton
+BUL Bulgarian
+CAN Cantonese
+CAT Catalan
+CHI Simplified Chinese
+CRE Creole
+CRO Croatian
+CZE Czech
+DAN Danish
+DUT Dutch
+EGY Egyptian
+ENG English
+ESA Latin American Spanish
+ESP Esperanto
+EST Estonian
+FAR Farsi
+FIN Finnish
+FRC Canadian French
+FRE French
+FRS Frisian
+GAL Galician
+GBE British English
+GER German
+GRE Greek
+HEB Hebrew
+HIN Hindi
+HUN Hungarian
+ICE Icelandic
+IDO Ido
+INN Indonesian
+ITA Italian
+JPN Japanese
+KOR Korean
+LAN Latin
+LAT Latvian
+LIT Lithuanian
+MAL Malaysian
+MAN Mandarin
+MAR Marshallese
+NOR Norwegian
+OCC Occitan
+POL Polish
+POR Portuguese
+ROM Romanian
+RUS Russian
+SER Serbian
+SIG Sign
+SLK Slovak
+SLV Slovenian
+SPA Spanish
+SWE Swedish
+SWH Swahili
+THA Thai
+TUR Turkish
+UKR Ukrainian
+VIT Vietnamese
+WEL Welsh
+YID Yiddish
+ZHT Traditional Chinese
+ZUL Zulu

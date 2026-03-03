@@ -1,0 +1,5 @@
+<!--- #OML[EL_VIEW_FIELD_COLOR]#  - Quick show of the Color widget for the word --->
+#CLASS_FIELD_VIEW_COLOR=[w3-#NVL[#_field_#][light-gray]#]#
+#_mycolor_=NVL[#_1_#][Color]#
+#OML[EL_VIEW_FIELD][COLOR][#_mycolor_#]#
+#RESTORE[CLASS_FIELD_VIEW_COLOR]#

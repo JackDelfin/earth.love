@@ -1,0 +1,12 @@
+<!--- #OML[EL_TOKENS_NAV_OML]# - Define Colors and Circles OML Modifier functions --->
+#LOADTOKEN[
+omlRED       =[#COLOR=[el-chakra1]##OML#]
+omlORANGE    =[#COLOR=[el-chakra2]##OML#]
+omlYELLOW    =[#COLOR=[el-chakra3]##OML#]
+omlGREEN     =[#COLOR=[el-chakra4]##OML#]
+omlBLUE      =[#COLOR=[el-chakra5]##OML#]
+omlINDIGO    =[#COLOR=[el-chakra6]##OML#]
+omlVIOLET    =[#COLOR=[el-chakra7]##OML#]
+<!--- Navigation Style --->
+omlCIRCLENAV =[<div class="w3-container w3-circle w3-card-4 w3-hover w3-border-circle w3-padding-16 w3-center #COLOR#"><h4><b>#OML#</b></h4></div>]
+]#

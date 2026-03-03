@@ -1,0 +1,34 @@
+<!--- Make sure search didn't get here by mistake - redirect back to Root Search --->
+#ifOML[#_WORDFOUND_.0.NOT#][EL_SHOW_#ROOT#]#
+#STOP[#_WORDFOUND_.0.NOT#]#
+<!--- Show the Header Record - Person Name --->
+#OML[EL_HEADER_OBJECT]#
+
+<!--- Fields START --->
+#OML[EL_VIEW_FIELD]   [NAME][Full Name]#
+#OML[EL_VIEW_FIELD_COLOR] [My Color]#
+
+#OML[EL_VIEW_FIELD]   [NICKNAME][Nick Name]#
+#OML[EL_VIEW_FIELD]   [FIRSTNAME][First Name]#
+#OML[EL_VIEW_FIELD]   [MIDDLENAME][Middle Name]#
+#OML[EL_VIEW_FIELD]   [LASTNAME][Last Name]#
+
+#OML[EL_VIEW_FIELD]   [BIRTHYEAR][Birth Year on Earth]#
+#OML[EL_VIEW_FIELD]   [BIRTHMONTH][Birth Month on Earth]#
+#OML[EL_VIEW_FIELD]   [BIRTHDAY][Birth Day on Earth]#
+<!--- Fields END --->
+
+<!--- Locations and Communities for this person --->
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_LOCS]
+  [EL_SEARCH_COMMS]#
+
+<!--- Organizations and Projects this person is associated with --->
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_ORGS]
+  [EL_SEARCH_JOBS]#
+
+<!--- Links and Paths for this person --->
+#FUNCTION[EL_FN_DIVSPAN_INC]
+  [EL_SEARCH_LINKS]
+  [EL_SEARCH_PATHS]#
