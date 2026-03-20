@@ -1,6 +1,6 @@
 #!/bin/perl
 ################################################
-# elSETUP_DOMv2.pl <domainname> [domgroup] [1/0-certbot_install] [Alt-LOVE-root] [source-domain-dir]
+# elSETUP_DOM.pl <domainname> [domgroup] [1/0-certbot_install] [Alt-LOVE-root] [source-domain-dir]
 #
 #   - Setup WEB domain under /LOVE root
 #
@@ -14,7 +14,7 @@
 #   Optional params can be provided in any order.
 #
 # 12.10.24 oK - created
-# 03.20.26 AI - v2: optional source domain directory import support
+# 03.20.26 oK - optional source domain directory import support
 use strict;
 use warnings;
 use File::Spec;
@@ -129,7 +129,7 @@ if (!defined($dom) || $dom eq "") {
   ShowUsage();
 }
 if ($dom =~ /[?\*]/) {
-  print "\nERROR: Wildcards now allowed for Domain in elSETUP_DOMv2.pl\n";
+  print "\nERROR: Wildcards now allowed for Domain in elSETUP_DOM.pl\n";
   ShowUsage();
 }
 
@@ -512,7 +512,7 @@ exit 0;
 # ShowUsage
 #
 sub ShowUsage {
-  print "\nelSETUP_DOMv2.pl <domainname>  [domgroup]  [1/0-certbot_install] [Alt-LOVE-root] [source-domain-dir]\n\n";
+  print "\nelSETUP_DOM.pl <domainname>  [domgroup]  [1/0-certbot_install] [Alt-LOVE-root] [source-domain-dir]\n\n";
 
   print "  - Setup WEB domain under /LOVE root\n\n";
   
