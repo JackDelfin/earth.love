@@ -1,6 +1,6 @@
 #!/bin/perl
 ################################################
-# elSETUP_DOM.pl <domainname> [domgroup] [1/0-certbot_install] [Alt-LOVE-root]
+# elSETUP_DOMv2.pl <domainname> [domgroup] [1/0-certbot_install] [Alt-LOVE-root] [source-domain-dir]
 #
 #   - Setup WEB domain under /LOVE root
 #
@@ -10,16 +10,20 @@
 #                  domgroup will be set by default based on domain name if not specified
 #   [1/0-certbot_install] - Default: 1 - install certbot; if 0, don't run certbot
 #   [Alt-LOVE-root]       - Default /LOVE - Alternate root for all Domain Directories
+#   [source-domain-dir]   - Optional source domain directory that includes _WEB data to import
+#   Optional params can be provided in any order.
 #
 # 12.10.24 oK - created
+# 03.20.26 AI - v2: optional source domain directory import support
 use strict;
 use warnings;
 use File::Spec;
 
-my $dom=shift;
-my $domgroup=shift;
-my $certbotinstall=shift;
-my $LOVEdir=shift;
+my $dom = shift @ARGV;
+my $domgroup;
+my $certbotinstall;
+my $LOVEdir;
+my $sourceDomainDir;
 my $domroot="";
 my $webroot;
 my $apacheRELOAD=0;
@@ -28,6 +32,57 @@ my $DomainConfig;
 my $DomainROOTConfig;
 my $DomainDir = "";
 my $removeAliasWWW="";
+my $sourceIsWebRoot=0;
+
+#
+# Parse optional params in any order:
+# [domgroup] [1/0-certbot_install] [Alt-LOVE-root] [source-domain-dir]
+#
+# Rules:
+# - 0/1 => certbot flag
+# - Absolute existing path with _WEB (or containing _WEB) => source domain dir
+# - Otherwise first absolute existing path => LOVE root dir
+# - First unmatched non-path token => domgroup
+#
+my @unknownArgs=();
+foreach my $arg (@ARGV) {
+  next if (!defined($arg) || $arg eq "");
+
+  if (!defined($certbotinstall) && $arg =~ /^(0|1)$/) {
+    $certbotinstall = $arg;
+    next;
+  }
+
+  if ($arg =~ m{^/} && -d $arg) {
+    if (!defined($sourceDomainDir)
+       && ($arg =~ m{/_WEB/?$} || -d "$arg/_WEB")) {
+      $sourceDomainDir = $arg;
+      next;
+    }
+
+    if (!defined($LOVEdir)) {
+      $LOVEdir = $arg;
+      next;
+    }
+
+    if (!defined($sourceDomainDir)) {
+      $sourceDomainDir = $arg;
+      next;
+    }
+  }
+
+  if (!defined($domgroup)) {
+    $domgroup = $arg;
+    next;
+  }
+
+  push(@unknownArgs, $arg);
+}
+
+if (@unknownArgs) {
+  print "\nERROR: Unrecognized extra parameters: @unknownArgs\n";
+  ShowUsage();
+}
 
 # Default LOVE root (/LOVE) for all Domain Directories
 $LOVEdir="/LOVE" if (!defined($LOVEdir) || $LOVEdir eq "");
@@ -40,8 +95,30 @@ if (!-d $LOVEdir) {
 
 # Make sure LOVE root starts with / - absolute path
 if (!($LOVEdir =~ /^\//)) {
-  print "\nERROR: Not an absolute LOVE root directory - must start with "/": $LOVEdir\n";
+  print "\nERROR: Not an absolute LOVE root directory - must start with \"/\": $LOVEdir\n";
   ShowUsage();
+}
+
+#
+# Check for valid source domain directory (optional)
+# Must be either:
+# 1) a domain root that contains _WEB, or
+# 2) an _WEB directory directly
+#
+if (defined($sourceDomainDir) && $sourceDomainDir ne "") {
+  if (!-d $sourceDomainDir) {
+    print "\nERROR: Source domain directory does not exist: $sourceDomainDir\n";
+    ShowUsage();
+  }
+
+  if ($sourceDomainDir =~ m{/_WEB/?$}) {
+    $sourceIsWebRoot = 1;
+  } elsif (!-d "$sourceDomainDir/_WEB") {
+    print "\nERROR: Source directory is not a valid web domain directory.\n";
+    print "It must be a directory that has _WEB in it (as _WEB itself or as a child dir).\n";
+    print "Provided: $sourceDomainDir\n";
+    ShowUsage();
+  }
 }
 
 #
@@ -52,7 +129,7 @@ if (!defined($dom) || $dom eq "") {
   ShowUsage();
 }
 if ($dom =~ /[?\*]/) {
-  print "\nERROR: Wildcards now allowed for Domain in elSETUP_DOM.pl\n";
+  print "\nERROR: Wildcards now allowed for Domain in elSETUP_DOMv2.pl\n";
   ShowUsage();
 }
 
@@ -268,6 +345,21 @@ foreach my $dir (@DIRS) {
 }
 
 #
+# If source domain data was provided, copy it into the new domain directory.
+# If source is an _WEB directory, merge into target _WEB.
+# Otherwise, merge source domain root into target domain root.
+#
+if (defined($sourceDomainDir) && $sourceDomainDir ne "") {
+  if ($sourceIsWebRoot) {
+    print "\nImport _WEB data: $sourceDomainDir -> $DomainDir/_WEB\n";
+    print `sudo cp -pruv $sourceDomainDir/* $DomainDir/_WEB/;`;
+  } else {
+    print "\nImport domain data: $sourceDomainDir -> $DomainDir\n";
+    print `sudo cp -pruv $sourceDomainDir/* $DomainDir/;`;
+  }
+}
+
+#
 # Create default index.html in Apache DocumentRoot
 #
 if (!-e "$DomainDir/_WEB/index.html") {
@@ -420,7 +512,7 @@ exit 0;
 # ShowUsage
 #
 sub ShowUsage {
-  print "\nelSETUP_DOM.pl <domainname>  [domgroup]  [1/0-certbot_install] [Alt-LOVE-root]\n\n";
+  print "\nelSETUP_DOMv2.pl <domainname>  [domgroup]  [1/0-certbot_install] [Alt-LOVE-root] [source-domain-dir]\n\n";
 
   print "  - Setup WEB domain under /LOVE root\n\n";
   
@@ -429,7 +521,9 @@ sub ShowUsage {
   print "                 (ex: /LOVE/EARTH/<domain>\n";
   print "                 domgroup will be set by default based on domain name if not specified\n";
   print "  [1/0-certbot_install] - Default: 1 - install certbot; if 0, don't run certbot\n";
-  print "  [Alt-LOVE-root]       - Default /LOVE - Alternate root for all Domain Directories\n\n";
+  print "  [Alt-LOVE-root]       - Default /LOVE - Alternate root for all Domain Directories\n";
+  print "  [source-domain-dir]   - Optional directory with _WEB in it; contents copied into <domainname> directory\n";
+  print "  Optional parameters may be passed in any order after <domainname>.\n\n";
 
   exit 1;
 }
