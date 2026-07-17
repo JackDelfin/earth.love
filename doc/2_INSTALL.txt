@@ -22,6 +22,11 @@
 0. Choose your Environment and Operating System.
 --------------------------------------------------
 
+Linux QUICK INSTALLS (run the full setup for you):
+  Linux_Install/el_setup_ubuntu.sh    - Ubuntu / Debian
+  Linux_Install/el_setup_fedora.sh    - Fedora / RHEL family
+                                        (details: 2_INSTALL_Fedora.txt)
+
 http://SYS.earth
 
 http://LINUX.earth

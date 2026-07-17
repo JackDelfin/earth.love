@@ -1,0 +1,244 @@
+##########################################
+#
+# 2_INSTALL_Fedora.txt
+#
+# INSTRUCTIONS for a "Full Install" of
+# the earth.love framework on
+# Fedora Linux (and the RHEL family)
+#
+# If you have not read 1_SETUP.txt and
+# 2_INSTALL.txt, those are good places
+# to start.
+#
+# History:
+#   XXVI.07.16 oK Created
+################################################################################
+
+--------------------------------------------------
+0. Overview
+--------------------------------------------------
+
+The earth.love toolkit was built on Ubuntu/Debian, where
+Apache is "apache2" with sites-available / sites-enabled,
+the web user is www-data, and a2ensite manages sites.
+
+Fedora uses Apache "httpd" with /etc/httpd, the "apache"
+user, dnf packages, firewalld, and SELinux.
+
+The Fedora installer sets up a small COMPATIBILITY LAYER
+so every earth.love tool works unchanged on Fedora:
+
+  Debian expectation             What the installer provides on Fedora
+  ----------------------------   ---------------------------------------------
+  /etc/apache2/...               symlink  /etc/apache2 -> /etc/httpd
+  sites-available/sites-enabled  real directories under /etc/httpd,
+                                 loaded by /etc/httpd/conf.d/earthlove.conf
+  conf-available/conf-enabled    real directories under /etc/httpd
+  a2ensite / a2dissite           shims in /usr/local/sbin (symlink-based,
+  a2enconf / a2disconf           same behavior as Debian; a2ensite also
+  a2enmod  / a2dismod            fixes SELinux labels on the site .conf)
+  systemctl reload apache2       systemd alias: apache2.service -> httpd
+  www-data:www-data ownership    www-data user+group created; the Fedora
+                                 "apache" user joins the www-data group
+  /usr/lib/cgi-bin               /var/www/cgi-bin (standard on Fedora,
+                                 auto-detected by PROPOGATE_earthlove.pl)
+  ScriptAlias /o/                /etc/httpd/conf.d/earthlove-cgi.conf
+  ufw firewall                   firewalld (ssh, http, https services)
+  apt / snap packages            dnf packages (certbot from dnf, no snap)
+
+SELinux (Enforcing by default on Fedora) is configured with:
+
+  /LOVE(/.*)?    httpd_sys_rw_content_t   Apache serves the sites and the
+                                          Orbit CGI writes the Akashic
+                                          WordBase data
+  /ELBIN(/.*)?   bin_t                    Apache runs the piped logger
+                                          /ELBIN/vhostpipeLOGSsplit.pl
+
+New files created under /LOVE inherit the context automatically.
+
+
+--------------------------------------------------
+1. Install the Operating System
+--------------------------------------------------
+
+Fedora Workstation or Fedora Server:
+  https://fedoraproject.org
+
+Tested with Fedora 44.  The RHEL family (Rocky, Alma, CentOS
+Stream) uses the same layout and should work the same way.
+
+
+--------------------------------------------------
+2. Run the Fedora Install
+--------------------------------------------------
+
+From the earth.love-root directory:
+
+  cd Linux_Install
+  ./el_setup_fedora.sh 2>&1 | tee el_setup_fedora_`date +%Y%m%d_%H%M%S`.out
+
+Build options (same as the Ubuntu installer):
+
+  ./el_setup_fedora.sh build   # Build the Data structures ONLY
+  ./el_setup_fedora.sh all     # Build and Load All data (default)
+  ./el_setup_fedora.sh lite    # Build and Load a lite amount of data
+  ./el_setup_fedora.sh none    # Skip the WordBase build
+
+The installer runs three phases:
+
+  1. el_setup_BASE_fedora.sh      - dnf packages, Apache+SSL, firewalld,
+                                    SELinux contexts, certbot, the Debian
+                                    compatibility layer (see Overview)
+  2. el_setup_EARTHLOVE_fedora.sh - /LOVE/earth.love directories, code
+                                    propogation to Perl lib + cgi-bin,
+                                    virtual hosts, /ELBIN + /ELDOMS,
+                                    SETUP_DOM in your home directory
+  3. el_setup_AKASHIC.sh          - the shared WordBase build (the build
+                                    itself is distro-neutral)
+
+NOTE: log out and back in after the install - your user was
+      added to the www-data group, which takes effect at login.
+
+
+--------------------------------------------------
+3. Verify the install
+--------------------------------------------------
+
+  systemctl status httpd            # or: systemctl status apache2
+  sudo apachectl configtest
+
+  curl localhost                    # static start page
+  curl localhost/o/page             # Orbit dynamic page
+
+  sites                             # /ELBIN site stats (new login needed
+                                    #  for /ELBIN alias in ~/.bashrc)
+
+
+--------------------------------------------------
+4. Adding Domains on Fedora
+--------------------------------------------------
+
+The standard domain tools work unchanged:
+
+  cd ~/SETUP_DOM
+  ./elSETUP_DOM.pl <domainname> [domgroup] [1/0-certbot] [Alt-LOVE-root]
+
+Also unchanged:
+  RMSITE.pl, qsite, sites, ROTATE_LOGS.pl, installACTIVATION.pl,
+  elBUILD_root.pl, getMissingSites.pl, fixcertbotconf.pl
+
+They read/write /etc/apache2/sites-available (the symlink),
+call a2ensite/a2dissite (the shims), chown to www-data, and
+reload the "apache2" service (the alias) - all provided by
+the compatibility layer.
+
+
+--------------------------------------------------
+5. SELinux Notes
+--------------------------------------------------
+
+Check mode:               getenforce
+Check the contexts:       sudo semanage fcontext -l | grep -e LOVE -e ELBIN
+Re-apply labels:          sudo restorecon -RF /LOVE /ELBIN
+
+If you copy or move files into /LOVE from /tmp or your home
+directory, run restorecon on them - files keep their original
+label when MOVED (mv), and Apache is not allowed to read
+tmp/home labels:
+
+  sudo restorecon -RF /LOVE
+
+Watch for denials while testing:
+
+  sudo ausearch -m avc -ts recent
+
+
+--------------------------------------------------
+6. Firewall Notes
+--------------------------------------------------
+
+firewalld replaces UFW on Fedora:
+
+  sudo firewall-cmd --list-all
+  sudo firewall-cmd --permanent --add-service=<svc> ; sudo firewall-cmd --reload
+
+NOT converted (Ubuntu/UFW specific, optional ops tooling):
+  /ELBIN/HACKBOTblocker and the getUFWBOT.pl / getUFWHACK.pl /
+  getDENYips.sh blocker scripts, and the crontab.root entry that
+  drives them.  Equivalent blocking on Fedora can be done with
+  firewalld rich rules or ipsets if desired.
+
+  NOTE: that blocker tooling also assumes an ops user named "el"
+  (/home/el/PLAYS/blocker, /home/el/.bashrc).  The Fedora BASE
+  installer does NOT hardcode "el" - it adds the installing user
+  (SUDO_USER) to the www-data group instead.
+
+
+--------------------------------------------------
+7. Desktop Tools (optional)
+--------------------------------------------------
+
+  cd Linux_Install
+  ./el_setup_desktop_fedora.sh
+
+Installs the same tool set as the Ubuntu desktop script
+(firefox, gparted, transmission, gvim, meld, gimp, inkscape,
+autokey-gtk, obs-studio, ocrmypdf) using dnf.
+
+NOTE: the optional LXDE kiosk file (bin/setup/autostart) launches
+/usr/bin/firefox-esr.  Fedora packages plain "firefox" - change
+that line to /usr/bin/firefox if you use the kiosk autostart.
+
+
+--------------------------------------------------
+8. Troubleshooting
+--------------------------------------------------
+
+Apache will not start:
+  sudo apachectl configtest
+  sudo journalctl -xeu httpd | tail -50
+
+"SSLCertificateFile: file '/etc/pki/tls/certs/localhost.crt'
+does not exist or is empty" (from configtest):
+  mod_ssl's default ssl.conf expects the self-signed placeholder
+  cert that Fedora normally generates on the first httpd start.
+  The BASE setup creates it automatically; to do it by hand:
+  sudo systemctl start httpd-init.service
+
+Pages return 403 / CGI errors:
+  getenforce                          # Enforcing?
+  sudo ausearch -m avc -ts recent     # SELinux denials
+  sudo restorecon -RF /LOVE /ELBIN /var/www/cgi-bin
+  ls -lZ /LOVE                        # check contexts
+
+Certbot:
+  certbot comes from dnf (not snap).  elSETUP_DOM.pl uses
+  webroot authentication (certonly --webroot), which needs the
+  domain reachable from the internet on port 80.
+
+Group write errors under /LOVE:
+  id                                  # is your user in www-data?
+  Log out and back in after the BASE install.
+
+
+--------------------------------------------------
+
+oK That should do it!
+
+Thank you for supporting earth.love!
+CREATE!
+
+oK
+Unity COnsciousness
+COllective Knowledge
+Open(Source)
+
+  O
+O   O
+  O
+O   O
+  O
+
+__O__
+ / \
+/ . \

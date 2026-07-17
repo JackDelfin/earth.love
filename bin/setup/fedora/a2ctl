@@ -1,0 +1,129 @@
+#!/bin/bash
+##########################################
+# a2ctl - Debian a2* compatibility shims for Fedora / RHEL Apache (httpd)
+#
+# Installed by el_setup_BASE_fedora.sh to /usr/local/sbin as:
+#   a2ensite / a2dissite / a2enconf / a2disconf / a2enmod / a2dismod
+# (symlinks to this script - dispatch is on the invoked name)
+#
+# Enable/Disable is done with symlinks, the same way Debian does it:
+#   /etc/httpd/sites-available/NAME.conf -> /etc/httpd/sites-enabled/NAME.conf
+#   /etc/httpd/conf-available/NAME.conf  -> /etc/httpd/conf-enabled/NAME.conf
+#
+# The earth.love drop-in /etc/httpd/conf.d/earthlove.conf contains:
+#   IncludeOptional /etc/httpd/sites-enabled/*.conf
+#   IncludeOptional /etc/httpd/conf-enabled/*.conf
+#
+# Modules are managed by /etc/httpd/conf.modules.d on Fedora, so
+# a2enmod only VERIFIES a module is loaded (cgid, ssl, rewrite are
+# all loaded by the standard httpd + mod_ssl packages).
+#
+# 2026.07.16 oK Created for Fedora support
+##########################################
+
+HTTPDROOT="/etc/httpd";
+SITESAVAIL="$HTTPDROOT/sites-available";
+SITESENABLED="$HTTPDROOT/sites-enabled";
+CONFAVAIL="$HTTPDROOT/conf-available";
+CONFENABLED="$HTTPDROOT/conf-enabled";
+
+CMD=`basename "$0"`;
+NAME="$1";
+
+if [ "$NAME" == "" ] && [ "$CMD" != "a2ctl" ]; then
+  echo "Usage: $CMD <name>";
+  exit 1;
+fi
+
+# Strip a trailing .conf if provided (a2ensite earth.love.conf / a2dissite earth.love)
+NAME="${NAME%.conf}";
+
+#
+# Restore the SELinux label on a config file.
+# Files built in /tmp and moved into place keep the /tmp label,
+# which Apache (httpd_t) is not allowed to read when SELinux is Enforcing.
+#
+FixLabel () {
+  if [ -x /usr/sbin/restorecon ]; then
+    /usr/sbin/restorecon -F "$1" >/dev/null 2>&1;
+  fi
+}
+
+case "$CMD" in
+
+  a2ensite)
+    if [ ! -e "$SITESAVAIL/$NAME.conf" ]; then
+      echo "ERROR: Site $NAME not found ($SITESAVAIL/$NAME.conf)";
+      exit 1;
+    fi
+    FixLabel "$SITESAVAIL/$NAME.conf";
+    ln -sf "$SITESAVAIL/$NAME.conf" "$SITESENABLED/$NAME.conf";
+    echo "Enabling site $NAME.";
+    echo "To activate the new configuration, you need to run:";
+    echo "  systemctl reload apache2";
+    ;;
+
+  a2dissite)
+    if [ ! -e "$SITESENABLED/$NAME.conf" ]; then
+      echo "Site $NAME already disabled";
+      exit 0;
+    fi
+    rm -f "$SITESENABLED/$NAME.conf";
+    echo "Site $NAME disabled.";
+    echo "To activate the new configuration, you need to run:";
+    echo "  systemctl reload apache2";
+    ;;
+
+  a2enconf)
+    if [ ! -e "$CONFAVAIL/$NAME.conf" ]; then
+      echo "ERROR: Conf $NAME not found ($CONFAVAIL/$NAME.conf)";
+      exit 1;
+    fi
+    FixLabel "$CONFAVAIL/$NAME.conf";
+    ln -sf "$CONFAVAIL/$NAME.conf" "$CONFENABLED/$NAME.conf";
+    echo "Enabling conf $NAME.";
+    echo "To activate the new configuration, you need to run:";
+    echo "  systemctl reload apache2";
+    ;;
+
+  a2disconf)
+    if [ ! -e "$CONFENABLED/$NAME.conf" ]; then
+      echo "Conf $NAME already disabled";
+      exit 0;
+    fi
+    rm -f "$CONFENABLED/$NAME.conf";
+    echo "Conf $NAME disabled.";
+    echo "To activate the new configuration, you need to run:";
+    echo "  systemctl reload apache2";
+    ;;
+
+  a2enmod)
+    # Fedora loads modules from /etc/httpd/conf.modules.d - verify only
+    if httpd -M 2>/dev/null | grep -q -e "^ *${NAME}_module"; then
+      echo "Module $NAME already enabled (loaded from $HTTPDROOT/conf.modules.d)";
+      exit 0;
+    fi
+    echo "ERROR: Module $NAME is NOT loaded.";
+    echo "On Fedora, modules are enabled in $HTTPDROOT/conf.modules.d/";
+    echo "  cgid/cgi : httpd package - 01-cgi.conf";
+    echo "  rewrite  : httpd package - 00-base.conf";
+    echo "  ssl      : dnf install mod_ssl";
+    exit 1;
+    ;;
+
+  a2dismod)
+    echo "On Fedora, modules are managed in $HTTPDROOT/conf.modules.d/";
+    echo "Edit the module .conf file there to disable $NAME.";
+    exit 1;
+    ;;
+
+  *)
+    echo "a2ctl - Debian a2* compatibility shims for Fedora";
+    echo "Install as symlinks named:";
+    echo "  a2ensite a2dissite a2enconf a2disconf a2enmod a2dismod";
+    exit 1;
+    ;;
+
+esac
+
+exit 0;

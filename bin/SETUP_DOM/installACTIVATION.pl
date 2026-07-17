@@ -178,6 +178,9 @@ foreach my $domconf (@DOMCONFS) {
     print "$out\n";
     `sudo chown www-data:www-data $LOGShtaccess;`;
     `sudo chmod g+w $LOGShtaccess;`;
+    # SELinux (Fedora/RHEL): file was built in /tmp - restore the label
+    # so Apache is allowed to read it (no-op on Debian/Ubuntu)
+    `sudo /usr/sbin/restorecon -F $LOGShtaccess;` if (-x "/usr/sbin/restorecon");
   }
 
   #
