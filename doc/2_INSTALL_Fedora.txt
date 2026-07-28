@@ -205,6 +205,14 @@ does not exist or is empty" (from configtest):
   The BASE setup creates it automatically; to do it by hand:
   sudo systemctl start httpd-init.service
 
+Local HTTPS (self-signed):
+  EARTHLOVE enables earth.love-ssl.conf + 000-default-ssl.conf using
+  the Fedora localhost.crt.  Browsers will warn until you replace it
+  with Let's Encrypt via elSETUP_DOM.pl for a public domain.
+  If https:// still returns 403: ensure welcome.conf is disabled
+  (welcome.conf.disabled) and ssl.conf DocumentRoot points at
+  /LOVE/earth.love/_WEB.
+
 Pages return 403 / CGI errors:
   getenforce                          # Enforcing?
   sudo ausearch -m avc -ts recent     # SELinux denials

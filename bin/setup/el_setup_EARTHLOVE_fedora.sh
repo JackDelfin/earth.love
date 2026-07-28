@@ -159,21 +159,43 @@ sudo cp -puv config/elRewrite.conf /etc/httpd/
 echo '-- Setup Virtual Hosts logs when not defined within vhost config: /LOVE/earth.love/_LOGS';
 echo '-- (Fedora version defines the vhost_combined LogFormat - enable with a2enconf)';
 sudo cp -puv setup/fedora/other-vhosts-access-log.conf /etc/httpd/conf-available
+sudo a2enconf other-vhosts-access-log
 
 echo
 echo '--'
-echo '-- SETUP earth.love Virtual Host'
+echo '-- SETUP earth.love Virtual Host (HTTP + local HTTPS)'
 echo '--'
 sudo cp -puv config/000-default.conf /etc/httpd/sites-available
+sudo cp -puv config/000-default-ssl.conf /etc/httpd/sites-available
 sudo cp -puv config/earth.love.conf /etc/httpd/sites-available
+sudo cp -puv config/earth.love-ssl.conf /etc/httpd/sites-available
 
 echo
 echo '--'
-echo '-- Enable the earth.love Virtual Host'
+echo '-- Enable the earth.love Virtual Hosts'
 echo '-- (000-default.conf ships enabled on Debian - enable it here too)'
+echo '-- Local SSL uses the Fedora self-signed localhost cert until'
+echo '-- elSETUP_DOM.pl / certbot issues a real certificate.'
 echo '--'
 sudo a2ensite 000-default.conf
+sudo a2ensite 000-default-ssl.conf
 sudo a2ensite earth.love.conf
+sudo a2ensite earth.love-ssl.conf
+
+# Disable stock welcome page (403 on bare HTTPS / empty docroot)
+if [ -e /etc/httpd/conf.d/welcome.conf ]; then
+  echo '-- Disable stock httpd welcome.conf (conflicts with local HTTPS)';
+  sudo mv -v /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/welcome.conf.disabled;
+fi
+
+# Point Fedora's stock _default_:443 DocumentRoot at earth.love so
+# https://127.0.0.1/ works without a Host: earth.love header.
+if [ -f /etc/httpd/conf.d/ssl.conf ] \
+   && grep -q '^#DocumentRoot "/var/www/html"' /etc/httpd/conf.d/ssl.conf; then
+  echo '-- Set ssl.conf _default_:443 DocumentRoot to /LOVE/earth.love/_WEB';
+  sudo sed -i 's|^#DocumentRoot "/var/www/html"|DocumentRoot "/LOVE/earth.love/_WEB"|' \
+    /etc/httpd/conf.d/ssl.conf;
+fi
 
 echo
 echo '--'
