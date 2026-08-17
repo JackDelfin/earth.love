@@ -99,6 +99,9 @@ use strict;
 use warnings;
 use utf8;
 use feature ':5.16';
+use Carp qw(croak);
+use Cwd qw(abs_path);
+use File::Spec;
 
 # Use the CoreUtils package for Text/Number/Date utility functions
 use Akashic::Core;
@@ -314,29 +317,36 @@ sub Akashic::InitAkashic
   }
 
   #
-  # Set the Domain directory
-  # 1) Override  Environment Variable: EARTH_LOVE
-  # 2) Apache    Environment Variable: DOCUMENT_ROOT
+  # Set the Domain directory.  Web requests are always bound to the canonical
+  # parent of their server-controlled DOCUMENT_ROOT (<domain>/_WEB).  A global
+  # EARTH_LOVE override is intentionally ignored in CGI mode so one inherited
+  # process setting cannot collapse separate virtual hosts onto one auth/data
+  # store.  EARTH_LOVE remains available to command-line and batch tools.
   #
-
-  # Override Domain Directory from Environment Variable "EARTH_LOVE"
-  $var = $ENV{'EARTH_LOVE'};
-  if (defined($var) && $var ne "" && -d $var) {
-    #$self->SetVar('DomainDir', $var);
-    $self->{_DomainDir}    = $var;
-  }
-
-  # Set Domain Directory from DOCUMENT_ROOT defined from Apache
-  if (!-d $self->GetVar('DomainDir')) {
-    # Not set in Environment
-    # Set the DomainDir based on DOCUMENT_ROOT set by Apache
-    # Only if it follows convention of _WEB on the end of path
-    $var = $ENV{'DOCUMENT_ROOT'};
-    if (defined($var) && $var ne "" && $var =~ /_WEB$/) {
-      # Strip off _WEB from end of DocumentRoot to get DomainDir
-      $var =~ s/_WEB$//g;
-      #$self->SetVar('DomainDir', $var);  # Logic below provides same functionality as SetVar
-      $self->{_DomainDir}    = $var;
+  my $web_request = (defined($ENV{'GATEWAY_INTERFACE'}) && $ENV{'GATEWAY_INTERFACE'} ne '')
+    || (defined($ENV{'REQUEST_METHOD'}) && defined($ENV{'DOCUMENT_ROOT'}));
+  if ($web_request) {
+    my $document_root = $ENV{'DOCUMENT_ROOT'} // '';
+    $document_root =~ s{[\\/]+\z}{};
+    croak 'CGI DOCUMENT_ROOT must be an existing <domain>/_WEB directory'
+      if ($document_root eq ''
+        || !File::Spec->file_name_is_absolute($document_root)
+        || $document_root !~ m{(?:\A|[\\/])_WEB\z}
+        || !-d $document_root);
+    my $domain_candidate = $document_root;
+    $domain_candidate =~ s{[\\/]_WEB\z}{};
+    my $resolved_domain = abs_path($domain_candidate);
+    my $resolved_web = abs_path($document_root);
+    croak 'could not resolve the CGI domain directory'
+      if (!defined($resolved_domain) || !-d $resolved_domain
+        || !defined($resolved_web)
+        || $resolved_web ne File::Spec->catdir($resolved_domain, '_WEB'));
+    $self->{_DomainDir} = $resolved_domain;
+  } else {
+    $var = $ENV{'EARTH_LOVE'};
+    if (defined($var) && $var ne "" && -d $var) {
+      my $resolved_domain = abs_path($var);
+      $self->{_DomainDir} = $resolved_domain if (defined($resolved_domain));
     }
   }
   

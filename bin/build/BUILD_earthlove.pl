@@ -130,7 +130,6 @@ BuildUsage() if (!$A->getInitialized());
 #*****************************************
 $A->CreateWordBase('_ORBIT.USERS','USER',         'Users of this Domain',        'Users',       '', 'Users Root  (Heart/green)', 'green');
 $A->CreateWordBase('_ORBIT.USERS.PERSONS','USER', 'People Users of this Domain', 'Person',      '', 'Persons Users Root  (Heart/green)', 'green');
-$A->CreateWordBase('_ORBIT.PASSPHRASE','PASS',    'Pass Phrases for Users',      'PassPhrase',  '', 'PassPhrases Root  (Sacral/orange)', 'orange');
 $A->CreateWordBase('_ORBIT.MSG.CODE','MSG',       'Orbit Base Code Messages',    'Messages',    '', 'Orbit Base Code Messages Root  (Knowledge/indigo)', 'indigo');
 $A->CreateWordBase('_ORBIT.MSG.ENG','MSG',        'Orbit English Translated Messages',   'Messages',       '', 'Orbit English Translated Messages Root  (Knowledge/indigo)', 'indigo');
 $A->CreateWordBase('_ORBIT.MSG.LKT','MSG',        'Orbit Lakota Translated Messages',    'Messages',       '', 'Orbit Lakota Translated Messages Root  (Knowledge/indigo)', 'indigo');

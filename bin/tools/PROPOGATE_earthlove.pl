@@ -66,6 +66,7 @@ my @DIRS = qw {
     Core/Math
     Core/Local
     Orbit
+    Orbit/Auth
     Orbit/Akashic
     Orbit/Utils
     Orbit/OML
@@ -121,6 +122,7 @@ my @REL = qw {
     Orbit/Token.pm
     Orbit/Tokens.pm
     Orbit/User.pm
+    Orbit/Auth.pm
     Orbit/Utils.pm
     Orbit/Utils/Message.pm
     Orbit/Utils/Wrap.pm
@@ -181,29 +183,39 @@ my @REL = qw {
 #
 my @CGISOURCE = qw {
     showpage.pl
-    showpage6.pl
     showpage7.pl
     page.pl
-    page6.pl
     page7.pl
     o.pl
-    o6.pl
     o7.pl
     elshow.pl
     eladd.pl
     elnew.pl
     eledit.pl
     eldel.pl
-    elshow6.pl
-    eladd6.pl
-    elnew6.pl
-    eledit6.pl
-    eldel6.pl
     elshow7.pl
     eladd7.pl
     elnew7.pl
     eledit7.pl
     eldel7.pl
+    ellogon.pl
+    ellogoff.pl
+    elpasswd.pl
+};
+#
+# Retired CGI programs - remove both the .pl file and the extensionless alias
+# from existing deployments. Orbit 6 has no authentication/authorization or
+# untrusted-token boundary, so all of its public routes are retired.
+#
+my @CGIRETIRED = qw {
+    showpage6.pl
+    page6.pl
+    o6.pl
+    elshow6.pl
+    eladd6.pl
+    elnew6.pl
+    eledit6.pl
+    eldel6.pl
 };
 #*****************************************
 # END USER CONFIGURATION
@@ -339,6 +351,12 @@ sub CopyRelease
     exit 1;
   }
 
+  # Remove retired CGI programs from previous deployments before publishing
+  # the current release. AddHeaderAlias creates the extensionless variants.
+  RemoveRetiredCGIs($DestPath);
+  RemoveRetiredCGIs($USERlibPath.'/OrbitCGI')
+    if ($USERlibPath ne "" && -d $USERlibPath.'/OrbitCGI');
+
   #
   # See if we're copying the library files or keeping them in place
   #
@@ -453,7 +471,57 @@ sub CopyRelease
       AddHeaderAlias($USERlibPath.'/OrbitCGI/'.$file, $perl, $libPath) if (-d $USERlibPath.'/OrbitCGI' && $COPYLIB);
     } #@CGISOURCE
   } #if $perl
+
+  InstallAdminTool() if ($COPYLIB);
 } #CopyRelease
+
+
+##########################################
+# RemoveRetiredCGIs <directory>
+# - Remove exact, explicitly retired CGI filenames and generated aliases
+##########################################
+sub RemoveRetiredCGIs
+{
+  my ( $directory ) = @_;
+
+  return if (!defined($directory) || $directory eq '' || !-d $directory);
+
+  foreach my $file (@CGIRETIRED) {
+    my $alias = $file;
+    $alias =~ s/\.pl$//;
+
+    foreach my $name ($file, $alias) {
+      my $path = $directory.'/'.$name;
+      next if (!-e $path && !-l $path);
+      print "  RETIRE: $path\n";
+      unlink($path) or die("Unable to retire CGI: $path\n");
+    }
+  }
+} #RemoveRetiredCGIs
+
+
+##########################################
+# InstallAdminTool
+# - Install the account CLI outside web/group-writable paths
+##########################################
+sub InstallAdminTool
+{
+  my $source = 'tools/eluser.pl';
+  my $directory = '/usr/local/sbin';
+  my $destination = $directory.'/eluser';
+
+  die "Authentication admin tool source not found: $source\n" if (!-f $source || -l $source);
+  die "Authentication admin tool destination not found: $directory\n" if (!-d $directory);
+  die "Authentication admin tool installation requires root\n" if ($> != 0);
+
+  print "  INSTALL: $destination\n";
+  copy($source, $destination)
+    or die "Unable to install authentication admin tool: $!\n";
+  chmod(0755, $destination)
+    or die "Unable to set authentication admin tool permissions: $!\n";
+  chown(0, 0, $destination)
+    or die "Unable to set authentication admin tool ownership: $!\n";
+} #InstallAdminTool
 
 
 ##########################################

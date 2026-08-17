@@ -24,7 +24,7 @@ PROMPT_ODDS        =[Never tell me the odds!]
 ]#
 <!--- TOKEN BULK LOAD --->
 #LOADTOKEN[
-_ORBIT             =PARSE[#ENV_HOST##ENV_CONTEXT_PREFIX#]
+_ORBIT             =NVL[#ENV_CONTEXT_PREFIX#][/o/]
 
 MAX_DEF            =NVL[#MAX_DEF_USER#][7]
 LIST               =NVL[#LIST#][button]<!--- Default List Style to Bubble --->

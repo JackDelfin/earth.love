@@ -68,6 +68,16 @@ sub Orbit::ProcessAddData
   my $action = $O->Get_Token('ACTION');
   my $word   = '';   # $name is used in this function for the main "WORD/PHRASE/PATH"
 
+  my ($route_allowed, $process_mutation) = $self->AuthorizeMutationRequest($root, 'add');
+  if (!$route_allowed) {
+    $O->Set_Token('PAGE', 'DEFAULT');
+    return $O->Get_Token('PAGE');
+  }
+  if (!$process_mutation) {
+    $O->Set_Token('PAGE', 'el_add');
+    return 'el_add';
+  }
+
   #***************************************
   #
   # Step variables and processing
@@ -112,6 +122,8 @@ sub Orbit::ProcessAddData
     # Unset action since we're performing it
     $O->Delete_Token('ACTION');
     $O->Set_Token('_PREV_', $name);
+    $step-- if ($step > 1);
+    $O->Set_Token('STEP', $step);
 
     # ::::::: Previous Page Directive :::::::
 
@@ -151,15 +163,6 @@ sub Orbit::ProcessAddData
     $page = 'el_show';
     $O->Set_Token('PAGE', $page);
     return $page;
-  }
-
-  #***************************************
-  #
-  # Check for access to this directory (done in Orbit::Akashic::Add
-  #
-  if (!$self->HasAccess($root, $object, $page, $action, $name)) {
-    $self->RegisterError("UGH   NO    ACCESS       [$root, $object, $page, $action, $word]!\n\n");
-    #return 1;
   }
 
   #***************************************
@@ -211,6 +214,11 @@ sub Orbit::ProcessAddData
        .'|'.$O->Get_Token('ENV_HTTP_USER_AGENT');
   my $DataType = $O->Get_Token('_DataType');
   $DataType =~ tr/[a-z]/[A-Z]/;   #uppercase
+  if ($DataType !~ /^[A-Z][A-Z0-9_]{0,63}$/) {
+    $O->RegisterError('#MSG[Invalid data type]#');
+    $bProcessData = 0;
+    $page = 'el_add';
+  }
   my $Data     = $O->Get_Token('_Data');
   my $Tags     = $O->Get_Token('_Tags');
   
@@ -262,20 +270,14 @@ $self->AppendError("name:$name  Filename:$Filename Tags:$Tags\n");   #TESTING
   # ADD IMAGE
   #
   } elsif ($DataType eq 'IMAGE') {
-
-    # Special for Add - image support
-    my $Url      = $O->SetParamTokens('url', '', '', '');
-    my $Tags     = $O->SetParamTokens('tags', '', '', '');
-
-    # Add the Url Image to the word directory
-    if ( $word ne ""
-      && $DataType =~ /^.*IMAGE.*$/i
-      && $Url ne ""
-      ) {
-      # Save the image
-      my $msg = $O->{_Akashic}->SaveWordImageUrl($root, $word, $Url, $Tags);
-      $O->RegisterError($msg) if ($msg ne "");
-    }
+    # The legacy image branch fetched an arbitrary request URL from the CGI
+    # host.  Once editor accounts can reach content mutations, that becomes an
+    # SSRF primitive (including access to loopback and private-network services).
+    # Remote import and a validated local-image upload flow are both deferred;
+    # fail closed without making any outbound request or writing a placeholder.
+    $O->RegisterError('#MSG[Image import is not available]#');
+    $bProcessData = 0;
+    $page = 'el_add';
 
   #######
   # ADD LINK
@@ -325,6 +327,13 @@ $self->AppendError("name:$name  Filename:$Filename Tags:$Tags\n");   #TESTING
     # Loop through each Form field
     foreach my $ff (@FIELDARR) {
       next if ($ff eq "");   # no blank fields
+
+      if ($ff !~ /^_[A-Za-z][A-Za-z0-9_]{0,63}(?:_req)?$/) {
+        $O->RegisterError('#MSG[Invalid form field]#');
+        $bProcessData = 0;
+        $page = 'el_add';
+        last;
+      }
 
       # Fix the datafile name
       $datafile = $ff;

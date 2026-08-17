@@ -29,8 +29,7 @@
 ,light-grey
 ,white
 ][,][<option class="w3-#_OPTION_VALUE_# #_OPTION_CLASS_#" value="#_OPTION_VALUE_#">#_OPTION_DISPLAY_#</option>]#
-<select name="#NVL[#_data_#][_color]#" #CLASS_SELECT#
-  onselected="print 'go'; document.forms.data.submit(); return 0;"><!--- elements._color.class='w3-blue';--->
+<select name="#NVL[#_data_#][_color]#" #CLASS_SELECT#>
 #SELECTED[#_options_#][#_value_#][][][#_req_#]#
 </select>
 #OML[EL_INPUT_FOOTER]#

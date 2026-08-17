@@ -69,6 +69,19 @@ sub Orbit::ProcessNewRecords
   my $action = $O->Get_Token('ACTION');
   my $word   = "";
 
+  # A GET may display the editor-only form, but it must never reach storage.  POST
+  # additionally requires the session-bound CSRF token.
+  my $operation = ($object eq 'ROOT' || $object eq 'DOMAIN') ? 'system.create' : 'create';
+  my ($route_allowed, $process_mutation) = $self->AuthorizeMutationRequest($root, $operation);
+  if (!$route_allowed) {
+    $O->Set_Token('PAGE', 'DEFAULT');
+    return $O->Get_Token('PAGE');
+  }
+  if (!$process_mutation) {
+    $O->Set_Token('PAGE', 'el_new');
+    return 'el_new';
+  }
+
   #***************************************
   #
   # Step variables and processing
@@ -114,6 +127,8 @@ sub Orbit::ProcessNewRecords
     # Unset action since we're performing it
     $O->Delete_Token('ACTION');
     $O->Set_Token('_PREV_', $name);
+    $step-- if ($step > 1);
+    $O->Set_Token('STEP', $step);
 
     # ::::::: New Directive :::::::
 
@@ -360,8 +375,18 @@ sub Orbit::ProcessNewRecords
       || $bProcessData)
       ) {
     # Loop through each Form field
-    foreach my $ff (@FIELDARR) {
+  foreach my $ff (@FIELDARR) {
       next if ($ff eq "");   # no blank fields
+
+      # Client-selected field names become filenames later in this routine.  Keep
+      # them to a small identifier grammar so '/', '..', control characters, and
+      # other path syntax can never reach Akashic::Write.
+      if ($ff !~ /^_[A-Za-z][A-Za-z0-9_]{0,63}(?:_req)?$/) {
+        $O->RegisterError('#MSG[Invalid form field]#');
+        $bProcessData = 0;
+        $page = 'el_new';
+        last;
+      }
 
       # Fix the datafile name
       $datafile = $ff;

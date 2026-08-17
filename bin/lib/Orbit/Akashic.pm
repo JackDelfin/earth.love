@@ -155,6 +155,83 @@ sub Orbit::SetInputParams
 
 #*******************************************************************************
 #
+# _InvalidRequestParameter / _ValidateRequestParameter
+#
+# - CGI parameters which select templates, roots, or control flow are structure,
+#   not free-form content.  Validate them before setters can use them in paths,
+#   dynamic includes, or internal state.
+#
+#*******************************************************************************
+sub Orbit::_InvalidRequestParameter
+{
+  my ( $O ) = @_;
+  $O->{_InvalidRequestInput} = 1;
+  $O->RegisterError('The request contains an invalid parameter.');
+  return 0;
+} #_InvalidRequestParameter
+
+
+sub Orbit::_ValidateRequestParameter
+{
+  my ( $O, $CGIparam, $value ) = @_;
+  return '' if (!defined($value));
+  return $value if (!defined($CGIparam) || $CGIparam eq '' || $value eq '');
+
+  my $valid = 1;
+  my $fallback = '';
+
+  if ($CGIparam eq 'lang') {
+    $valid = ($value =~ /\A[A-Za-z]{2,8}\z/) ? 1 : 0;
+    $fallback = 'ENG';
+  } elsif ($CGIparam eq 'page' || $CGIparam eq 'npage') {
+    $valid = ($value =~ /\A[A-Za-z][A-Za-z0-9_]{0,127}\z/) ? 1 : 0;
+    $fallback = ($CGIparam eq 'page') ? 'DEFAULT' : '';
+  } elsif ($CGIparam =~ /\A(?:object|menu|nav|pmenu|nmenu|datatype|action|list)\z/) {
+    $valid = ($value =~ /\A[A-Za-z][A-Za-z0-9_-]{0,63}\z/) ? 1 : 0;
+  } elsif ($CGIparam eq 'tree' || $CGIparam eq 'branch') {
+    $valid = (length($value) <= 160
+      && $value =~ /\A[A-Za-z][A-Za-z0-9_-]{0,62}(?:\.[A-Za-z][A-Za-z0-9_-]{0,62})*\z/) ? 1 : 0;
+  } elsif ($CGIparam eq 'word' || $CGIparam eq 'nword') {
+    my $candidate = $value;
+    $candidate =~ s/_/ /g;
+    my $A = $O->{_Akashic};
+    $valid = (length($candidate) <= 80
+      && $candidate !~ /[\x00-\x1f\x7f]/
+      && defined($A) && ref($A)
+      && (($A->can('isWord') && $A->isWord($candidate))
+        || ($A->can('isPhrase') && $A->isPhrase($candidate))
+        || ($A->can('isPath') && $A->isPath($candidate)))) ? 1 : 0;
+    $value = $candidate if ($valid);
+  } elsif ($CGIparam =~ /\A(?:root|proot|nroot)\z/) {
+    my $canonical = uc($value);
+    $canonical =~ s/\./\//g;
+    $valid = (length($canonical) <= 160
+      && $canonical =~ m{\A[A-Z0-9-]+(?:/[A-Z0-9-]+)*\z}
+      && $canonical !~ m{(?:^|/)_}
+      && $canonical !~ /\.\.|[\\\x00-\x1f\x7f]/) ? 1 : 0;
+    $fallback = ($CGIparam eq 'root') ? 'LANGS' : '';
+  } elsif ($CGIparam eq 'step' || $CGIparam eq 'steps') {
+    $valid = ($value =~ /\A(?:0|[1-9][0-9]{0,3})\z/) ? 1 : 0;
+    $fallback = '0';
+  } elsif ($CGIparam eq 'domain') {
+    $valid = (length($value) <= 253
+      && $value =~ /\A[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\z/
+      && $value !~ /\.\./) ? 1 : 0;
+    my $A = $O->{_Akashic};
+    $fallback = (defined($A) && ref($A)) ? ($A->GetVar('Domain') // '') : '';
+  }
+
+  if (!$valid) {
+    $O->_InvalidRequestParameter();
+    $O->{_InvalidRootInput} = 1 if ($CGIparam =~ /\A(?:root|proot|nroot)\z/);
+    return $fallback;
+  }
+  return $value;
+} #_ValidateRequestParameter
+
+
+#*******************************************************************************
+#
 # SetFormFields($CGIabbrev, $CGIparam)
 #
 # - Set and get the form fields from the "formfields" parameter
@@ -168,23 +245,76 @@ sub Orbit::SetFormFields
   my $Fields = $O->SetParamTokens($CGIabbrev, $CGIparam, $CGIparam, '');
 
   return 0 if (!defined($Fields) || $Fields eq '');
+  if (ref($Fields) || length($Fields) > 4096) {
+    $O->{_InvalidFormFieldsInput} = 1;
+    $O->_InvalidRequestParameter();
+    $O->SetUntrustedToken($CGIparam, '');
+    return 0;
+  }
 
   # Create an array of the form fields
   my @FIELDARR = split(',', $Fields);
+  if (@FIELDARR > 64) {
+    $O->{_InvalidFormFieldsInput} = 1;
+    $O->_InvalidRequestParameter();
+    $O->SetUntrustedToken($CGIparam, '');
+    return 0;
+  }
   my $ffToken = "";
+  my @valid_fields;
+  my %seen;
+  my $method = uc($ENV{'REQUEST_METHOD'} // 'GET');
+  my $script = $ENV{'SCRIPT_NAME'} // '';
+  $script =~ s{.*/}{};
+  my $mutation_post = ($method eq 'POST'
+    && $script =~ /\Ael(?:new|add|edit|del)(?:7)?(?:\.pl)?\z/i) ? 1 : 0;
 
   # Loop through the Form Fields array and set Tokens from the parameters
   foreach my $ff (@FIELDARR) {
     if ($ff ne "") {
+      # Mutation data fields are underscored identifiers.  Read-only pagination
+      # fields are generated as DATAFILE + Q/S/M.  Nothing else may manufacture
+      # a token name from request data.
+      my $is_data_field = ($ff =~ /\A_[A-Za-z](?:[A-Za-z0-9_]{0,62}[A-Za-z0-9])?(?:_req)?\z/i) ? 1 : 0;
+      my $is_page_field = ($ff =~ /\A[A-Za-z][A-Za-z0-9_]{0,61}[QSM]\z/) ? 1 : 0;
+      my $upper = uc($ff);
+      $upper =~ s/_REQ\z//;
+      my $reserved = ($upper =~ /\A(?:ENV_.*|AUTH.*|CSRF.*|RETURN_TO|ROOT|PROOT|NROOT|DOMAIN|OBJECT|LANG|TREE|BRANCH|WORD|NWORD|DATATYPE|PAGE|NPAGE|LIST|MENU|NAV|PMENU|NMENU|STEP|STEPS|ACTION|FORMFIELDS|ERROR_TEXT|SUCCESS_TEXT|MESSAGE_TEXT)\z/
+        || $upper =~ /\A_(?:ORBIT|DEBUG|STATIC)\z/
+        || $upper =~ /\A_(?:DEBUG|STATIC|WORD|PHRASE|PATH|BADWORD|WORDTYPE|WORDFOUND|WORDDIR|PARTIALWORD|FORMFIELDS|DOMAINDIR|ROOT(?:_[A-Z0-9]+)*)_\z/) ? 1 : 0;
+      # Underscored data fields belong only to POSTs handled by the dedicated
+      # mutation CGIs.  Read-only Q/S/M pagination values are accepted by the
+      # generic page route, but are constrained before becoming dynamic tokens:
+      # offsets/maxima are numeric (or All), and searches cannot contain OML or
+      # markup delimiters that a helper could promote through GETTOKEN.
+      my $field_value = scalar $O->{_cgi}->param($ff);
+      $field_value = '' if (!defined($field_value));
+      my $page_value_valid = 1;
+      if ($is_page_field) {
+        my $suffix = substr($upper, -1, 1);
+        $page_value_valid = ($suffix eq 'Q')
+          ? (length($field_value) <= 256
+            && $field_value !~ /[\x00-\x1f\x7f#<>"`]/)
+          : ($field_value =~ /\A(?:[0-9]{1,9}|All)\z/i);
+      }
+      if ((!$is_data_field && !$is_page_field)
+          || ($is_data_field && !$mutation_post)
+          || !$page_value_valid || $reserved || $seen{$upper}++) {
+        $O->{_InvalidFormFieldsInput} = 1;
+        $O->_InvalidRequestParameter();
+        next;
+      }
       $ffToken = $ff;
       # Don't use Required indicator (_req) for storing value
       $ffToken =~ s/_req$//i;
       $O->SetParamTokens('', $ff, $ffToken, '');
+      push @valid_fields, $ff;
     }
   }
+  $O->SetUntrustedToken($CGIparam, join(',', @valid_fields));
   undef @FIELDARR;
 
-  return 1;
+  return @valid_fields ? 1 : 0;
 } #SetFormFields
 
 
@@ -212,8 +342,16 @@ sub Orbit::SetParamTokens
     $value = "" if (!defined($value));
   }
 
+  if (ref($value)) {
+    $O->_InvalidRequestParameter();
+    $value = '';
+  }
+
   # Trim the spaces
   $value = $U->trim($value);
+
+  # Structural request selectors are validated before any state/path setter sees them.
+  $value = $O->_ValidateRequestParameter($CGIparam, $value);
 
   ##########################################
   # DEFAULTS
@@ -224,7 +362,10 @@ sub Orbit::SetParamTokens
     # Change underscores (_) to spaces if this word is a phrase
     $value =~ s/_/ /g;
     # Set the other word type tokens if this param is 'word'
-    $O->SetWordTokens($value);
+    if ($value ne '' && !$O->SetWordTokens($value)) {
+      $O->_InvalidRequestParameter();
+      $value = '';
+    }
   }
 
   #
@@ -237,6 +378,7 @@ sub Orbit::SetParamTokens
     $value = 'ENG' if ($value eq "");
     # Set the _Lang for the user in Orbit - also sets the Lang variable in Akashic
     $O->SetLanguage($value);
+    $O->SetUntrustedToken('LANG', $O->Get_Token('LANG'));
     my $Root = $O->Get_Token('Root');
     # Reset Langs root to the specific language
     if ($Root eq '' || $Root =~ /^LANGS$/i) {
@@ -250,12 +392,28 @@ sub Orbit::SetParamTokens
   if ($CGIparam eq 'root') {
     # Set ROOT if not specified to LANGS/ENG
     $value = 'LANGS' if ($value eq '');   # Default root to LANGS
+
+    # Root is a directory selector.  Public requests may address content roots only;
+    # internal namespaces (_ORBIT, _ROOT, and any underscored segment), traversal,
+    # backslashes, and control characters are never valid CGI input.
+    my $safe_root = uc($value);
+    $safe_root =~ s/\./\//g;
+    if (length($safe_root) > 160
+      || $safe_root !~ m{\A[A-Z0-9-]+(?:/[A-Z0-9-]+)*\z}
+      || $safe_root =~ m{(?:^|/)_}
+      || $safe_root =~ /\.\.|[\\\x00-\x1f\x7f]/
+      ) {
+      $O->RegisterError('#MSG[Invalid root]#');
+      $O->{_InvalidRootInput} = 1;
+      $value = 'LANGS';
+    }
     if ($value =~ /^LANGS$/i) {
       my $Lang = $O->Get_Token('LANG');
       $value .= '.'.$Lang if ($Lang ne '');
     }
     # Set the Root variable to LANGS.<lang>
     $O->SetRoot($value);
+    $O->SetUntrustedToken('ROOT', $O->Get_Token('ROOT'));
   }
 
   #
@@ -272,7 +430,7 @@ sub Orbit::SetParamTokens
   # Set the Token in Orbit if specified
   #
   if ($OToken ne "") {
-    $O->Set_Token($OToken, $value);
+    $O->SetUntrustedToken($OToken, $value);
   }
 
   ##########################################
@@ -295,7 +453,7 @@ sub Orbit::SetWordTokens
 {
   my ( $O, $pWord, $bNoPartial ) = @_;
 
-  return if (!defined($pWord) || $pWord eq "");
+  return if (!defined($pWord) || ref($pWord) || $pWord eq "");
   $bNoPartial = '0' if (!defined($bNoPartial) || $bNoPartial ne '1');
 
   my $A = $O->{_Akashic};
@@ -308,18 +466,25 @@ sub Orbit::SetWordTokens
   # WORD
   if ($A->isWord($pWord)) {
     $WordType = "Word";
-    $O->Set_Token('_WORD_', $pWord);
+    $O->SetUntrustedToken('_WORD_', $pWord);
   # PHRASE
   } elsif ($A->isPhrase($pWord)) {
     $WordType = "Phrase";
-    $O->Set_Token('_PHRASE_', $pWord);
+    $O->SetUntrustedToken('_PHRASE_', $pWord);
   # PATH
   } elsif ($A->isPath($pWord)) {
     $WordType = "Path";
-    $O->Set_Token('_PATH_', $pWord);
+    $O->SetUntrustedToken('_PATH_', $pWord);
   } else {
     $WordType = "Bad Word";
-    $O->Set_Token('_BADWORD_', $pWord);
+    my $safe_word = $pWord;
+    $safe_word =~ s/&/&amp;/g;
+    $safe_word =~ s/</&lt;/g;
+    $safe_word =~ s/>/&gt;/g;
+    $safe_word =~ s/"/&quot;/g;
+    $safe_word =~ s/'/&apos;/g;
+    $safe_word =~ s/#/&num;/g;
+    $O->SetUntrustedToken('_BADWORD_', $safe_word, 1);
     $O->RegisterMessage("#MSG_BADWORD#");
     $O->Set_Token('_WORDTYPE_', $WordType);
     return 0;
@@ -363,7 +528,7 @@ sub Orbit::SetWordTokens
 
     # Check for partial word directory to show suggestions
     if ($WordDir ne "") {
-      $O->Set_Token('_PARTIALWORD_', $A->GetPartialWord( $WordDir ));
+      $O->SetUntrustedToken('_PARTIALWORD_', $A->GetPartialWord( $WordDir ));
     }
     $O->Set_Token('_WORDDIR_', $WordDir);
   }

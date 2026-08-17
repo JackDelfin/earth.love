@@ -8,6 +8,7 @@
 #
 use strict;
 use warnings;
+use File::Compare qw(compare);
 use File::Spec;
 
 my $mydomain = shift;
@@ -19,6 +20,10 @@ $mydomain = "" if (!defined($mydomain));
 ShowUsage() if ($mydomain eq "");
 
 my $SITESdir = "/etc/apache2/sites-available";
+my $AuthRuntimeUser = -f '/etc/fedora-release' ? 'apache' : 'www-data';
+$AuthRuntimeUser = 'www-data' if (!defined(getpwnam($AuthRuntimeUser)));
+defined(getpwnam($AuthRuntimeUser))
+  or die "Authentication runtime account does not exist: $AuthRuntimeUser\n";
 
 #
 # Get list of domains
@@ -38,6 +43,15 @@ if ($mydomain ne "" && !-e "$SITESdir/$mydomain.conf" && @DOMCONFS == 0) {
 #
 my ($volume, $appdir, $file) = File::Spec->splitpath(__FILE__);
 $appdir =~ s/.$// if ($appdir =~ /.*\/$/);  # Remove Trailing / if present
+my $template_source = "$appdir/_TEMPLATES";
+my $repository_templates = File::Spec->catdir($appdir, '..', '_TEMPLATES');
+# A packaged ~/SETUP_DOM contains the full set locally.  In a repository
+# checkout, SETUP_DOM/_TEMPLATES is only the small bootstrap set, so prefer the
+# adjacent full source whenever the local copy lacks the auth templates.
+$template_source = $repository_templates
+  if (!-e "$template_source/EL_LOGON.oml" && -e "$repository_templates/EL_LOGON.oml");
+die "Complete Orbit template source not found: $template_source\n"
+  if (!-e "$template_source/EL_HEADER.oml" || !-e "$template_source/EL_LOGON.oml");
 
 #
 # Loop through each domain and copy the OML
@@ -83,10 +97,23 @@ foreach my $domconf (@DOMCONFS) {
   print "==> Processing: $servername   ->   $domconf\n";
 
   #
-  # Copy / Sync just the ACTIVATION templates
+  # A newly-created domain needs the complete template set used by Orbit.  Existing
+  # domains retain their custom templates except for the security-sensitive files
+  # synchronized explicitly below.
   #
   $templates = "$domdir/_ROOT/_TEMPLATES/";
-  $out=`sudo cp -pruv $appdir/_TEMPLATES/ACTIVATION $templates;`;
+  system('sudo', 'mkdir', '-p', $templates) == 0
+    or die "Unable to create template directory: $templates\n";
+  if (!-e "$templates/EL_HEADER.oml") {
+    system('sudo', 'cp', '-pr', "$template_source/.", $templates) == 0
+      or die "Unable to install the initial template set from $template_source\n";
+    $processed = 1;
+  }
+
+  #
+  # Copy / Sync just the ACTIVATION templates
+  #
+  $out=`sudo cp -pruv $template_source/ACTIVATION $templates;`;
   chomp($out);
   if ($out ne "") {
     $processed = 1;
@@ -97,7 +124,7 @@ foreach my $domconf (@DOMCONFS) {
   #
   # Now copy other _TEMPLATES boilerplate oml (only if it doesn't exist)
   if (!-e "$templates/DEFAULT.oml") {
-    $out = `sudo cp -puv $appdir/_TEMPLATES/DEFAULT.oml $templates;`;
+    $out = `sudo cp -puv $template_source/DEFAULT.oml $templates;`;
     chomp($out);
     $processed = 1;
     print "$out\n";
@@ -105,7 +132,7 @@ foreach my $domconf (@DOMCONFS) {
   #
   # EL_FN_SET_ROOT.oml
   if (!-e "$templates/EL_FN_SET_ROOT.oml") {
-    $out = `sudo cp -puv $appdir/_TEMPLATES/EL_FN_SET_ROOT.oml $templates 2>&1;`;
+    $out = `sudo cp -puv $template_source/EL_FN_SET_ROOT.oml $templates 2>&1;`;
     chomp($out);
     $processed = 1;
     print "$out\n";
@@ -113,7 +140,7 @@ foreach my $domconf (@DOMCONFS) {
   #
   # EL_TOKENS.oml
   if (!-e "$templates/EL_TOKENS.oml") {
-    $out = `sudo cp -puv $appdir/_TEMPLATES/EL_TOKENS.oml $templates 2>&1;`;
+    $out = `sudo cp -puv $template_source/EL_TOKENS.oml $templates 2>&1;`;
     chomp($out);
     $processed = 1;
     print "$out\n";
@@ -121,7 +148,7 @@ foreach my $domconf (@DOMCONFS) {
   #
   # POL.oml - Proof of Life
   if (!-e "$templates/POL.oml") {
-    $out = `sudo cp -puv $appdir/_TEMPLATES/POL.oml $templates 2>&1;`;
+    $out = `sudo cp -puv $template_source/POL.oml $templates 2>&1;`;
     chomp($out);
     $processed = 1;
     print "$out\n";
@@ -129,17 +156,47 @@ foreach my $domconf (@DOMCONFS) {
   #
   # _STYLES
   if (!-d "$templates/_STYLES") {
-    $out = `sudo cp -pruv $appdir/_TEMPLATES/_STYLES $templates 2>&1;`;
+    $out = `sudo cp -pruv $template_source/_STYLES $templates 2>&1;`;
     chomp($out);
     $processed = 1;
     print "$out\n";
   }
 
+  # Authentication and mutation-control templates must never remain at an older
+  # security policy merely because their mtimes or local copies differ.  Preserve
+  # a numbered backup when an installed file is replaced.
+  foreach my $auth_template (qw(
+      EL_LOGON.oml EL_CHANGE_PASSPHRASE.oml EL_HEADER.oml
+      EL_FORM_DATA.oml EL_FORM_DATA_ADD.oml EL_TOKENS.oml
+      EL_INPUT_BUTTONS.oml EL_FN_GET_BUTTON_PREV.oml
+      EL_INPUT_STANDARD_HIDDEN.oml EL_INPUT_DATA_COLOR.oml
+      LANGS/ENG/EL_SHOW_WORD.oml
+  )) {
+    my $source = "$template_source/$auth_template";
+    my $target = "$templates/$auth_template";
+    die "Required authentication template is missing: $source\n" if (!-f $source);
+    next if (-f $target && compare($source, $target) == 0);
+    my (undef, $target_dir, undef) = File::Spec->splitpath($target);
+    system('sudo', 'mkdir', '-p', $target_dir) == 0
+      or die "Unable to create authentication template directory: $target_dir\n";
+    system('sudo', 'cp', '-p', '--backup=numbered', $source, $target) == 0
+      or die "Unable to synchronize authentication template: $auth_template\n";
+    $processed = 1;
+    print "..Synchronized authentication template: $auth_template\n";
+  }
+
   # Set ownership to www-data and group write permissions
   if ($processed eq "1") {
-    `sudo chown -R www-data:www-data $templates;`;
-    `sudo chmod -R g+w $templates;`;
+    system('sudo', 'chown', '-R', 'www-data:www-data', $templates) == 0
+      or die "Unable to set template ownership: $templates\n";
+    system('sudo', 'chmod', '-R', 'g+w', $templates) == 0
+      or die "Unable to set template permissions: $templates\n";
   }
+
+  # Activation is also used to finish freshly-created domains.  Establish the
+  # private authentication root after template installation and any broad
+  # legacy permission changes, under the actual CGI runtime account.
+  EnsureAuthRoot($domdir, $AuthRuntimeUser);
 
   #
   # Put the LOGS files under _WEB/DOWN/LOGS with password control
@@ -220,7 +277,34 @@ foreach my $domconf (@DOMCONFS) {
 
 print "\nProcessed: $procnt\n\n";
 
-exit 1;
+exit 0;
+
+sub EnsureAuthRoot {
+  my ( $domain_dir, $runtime_user ) = @_;
+
+  my $orbit_dir = "$domain_dir/_ORBIT";
+  my $auth_dir = "$orbit_dir/_AUTH";
+  die "Refusing symbolic-link Orbit directory: $orbit_dir\n" if (-l $orbit_dir);
+  die "Refusing symbolic-link authentication directory: $auth_dir\n" if (-l $auth_dir);
+
+  if (!-d $orbit_dir) {
+    system('sudo', 'install', '-d', '-o', 'www-data', '-g', 'www-data',
+           '-m', '0775', '--', $orbit_dir) == 0
+      or die "Unable to create Orbit directory: $orbit_dir\n";
+  }
+  system('sudo', 'chmod', '0775', $orbit_dir) == 0
+    or die "Unable to make the Orbit parent searchable: $orbit_dir\n";
+  system('sudo', 'install', '-d', '-o', $runtime_user, '-g', $runtime_user,
+         '-m', '0700', '--', $auth_dir) == 0
+    or die "Unable to create authentication root: $auth_dir\n";
+  system('sudo', 'chown', '-R', "$runtime_user:$runtime_user", $auth_dir) == 0
+    or die "Unable to restore authentication ownership: $auth_dir\n";
+  system('sudo', 'find', $auth_dir, '-type', 'd', '-exec', 'chmod', '0700', '{}', '+') == 0
+    or die "Unable to restore authentication directory permissions: $auth_dir\n";
+  system('sudo', 'find', $auth_dir, '-type', 'f', '-exec', 'chmod', '0600', '{}', '+') == 0
+    or die "Unable to restore authentication file permissions: $auth_dir\n";
+  return 1;
+}
 
 # Show Usage
 sub ShowUsage {
@@ -228,4 +312,3 @@ sub ShowUsage {
   print "  <domain> - specific domain name virtual host, or wildcard (\"*\")\n\n";
   exit 0;
 }
-

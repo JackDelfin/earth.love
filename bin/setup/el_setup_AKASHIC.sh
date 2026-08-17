@@ -24,6 +24,18 @@
 ##########################################
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+AUTH_DIR=/LOVE/earth.love/_ORBIT/_AUTH
+AUTH_RUNTIME_USER=www-data
+if [ -f /etc/fedora-release ]; then
+  AUTH_RUNTIME_USER=apache
+fi
+if ! getent passwd "$AUTH_RUNTIME_USER" >/dev/null; then
+  AUTH_RUNTIME_USER=www-data
+fi
+if ! getent passwd "$AUTH_RUNTIME_USER" >/dev/null; then
+  echo "Authentication runtime account does not exist: $AUTH_RUNTIME_USER" >&2
+  exit 1
+fi
 # Change to bin directory
 cd $SCRIPTPATH/..
 
@@ -85,8 +97,22 @@ echo;
 echo '--';
 echo '-- Set Attributes on /LOVE/earth.love';
 echo '--';
-sudo chown -R www-data:www-data /LOVE/earth.love;
-sudo chmod -R g+w /LOVE/earth.love;
+# Preserve the private authentication store during rebuilds.  The surrounding
+# domain keeps its historical web-writable ownership; _AUTH is owned solely by
+# the actual CGI runtime user and restored to 0700/0600 below.  Create the
+# private root unconditionally after the builder so a fresh installation is
+# ready for Orbit::Auth without granting it to the installer account.
+sudo find /LOVE/earth.love -path "$AUTH_DIR" -prune -o -exec chown www-data:www-data {} +
+sudo find /LOVE/earth.love -path "$AUTH_DIR" -prune -o -exec chmod g+w {} +
+if [ -L /LOVE/earth.love/_ORBIT ] || [ -L "$AUTH_DIR" ]; then
+  echo "Refusing symbolic-link authentication path: $AUTH_DIR" >&2
+  exit 1
+fi
+sudo chmod 0775 /LOVE/earth.love/_ORBIT
+sudo install -d -o "$AUTH_RUNTIME_USER" -g "$AUTH_RUNTIME_USER" -m 0700 "$AUTH_DIR"
+sudo chown -R "$AUTH_RUNTIME_USER:$AUTH_RUNTIME_USER" "$AUTH_DIR"
+sudo find "$AUTH_DIR" -type d -exec chmod 0700 {} +
+sudo find "$AUTH_DIR" -type f -exec chmod 0600 {} +
 
 # Batch create pages for English
 #utils/REFRESH_pages.pl /LOVE/earth.love LANGS/ENG

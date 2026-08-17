@@ -380,6 +380,8 @@ sub Orbit::Parse
       if ($TokenValue =~ /.*#.*#.*/
         # Don't recurse for token assignment if Function returned OML tags
         && $Function eq ""
+        # Values originating at request/environment boundaries are data, not OML.
+        && $self->GetTokenRecursiveFlag($TokenName)
         ) {
         #
         # RECURSIVE PARSE CALL

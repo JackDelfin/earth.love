@@ -13,7 +13,26 @@
   <div class="w3-row w3-container w3-round-xlarge">
     <div class="w3-third"><h2>#HEADER#</h2></div>
     <div class="w3-third w3-center"><h3>#HEADER_CENTER#</h3>#OML[EL_NAV_BUTTONS]#</div>
-    <div class="w3-third w3-right-align">#INCLUDE[EL_FORM_SEARCH_HEADER]##ifINC[#_WORDFOUND_.0#][EL_ADD_BUTTONS]#</div>
+    <div class="w3-third w3-right-align">
+      #INCLUDE[EL_FORM_SEARCH_HEADER]#
+      <div class="w3-bar w3-right-align">
+        #EQUAL[#AUTHENTICATED#][1][
+          <span class="w3-bar-item">#AUTH_USER.html#</span>
+          <a class="w3-bar-item w3-button w3-round-large" href="#_ORBIT#elpasswd">#MSG[Change passphrase]#</a>
+          <form name="logoff" action="#_ORBIT#ellogoff" method="post" class="w3-bar-item w3-margin-bottom-0">
+            <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+            <input type="hidden" name="return_to" value="#RETURN_TO.html#">
+            <button type="submit" class="w3-button w3-round-large">#MSG[Log off]#</button>
+          </form>
+        ][
+          <form name="logon_link" action="#_ORBIT#ellogon" method="get" class="w3-bar-item w3-margin-bottom-0">
+            <input type="hidden" name="return_to" value="#RETURN_TO.html#">
+            <button type="submit" class="w3-button w3-round-large">#MSG[Log on]#</button>
+          </form>
+        ]#
+      </div>
+      #EQUAL[#AUTH_CAN_WRITE#][1][#ifINC[#_WORDFOUND_.0#][EL_ADD_BUTTONS]#]#
+    </div>
   </div>
 </header>
 #IFOML![#DEBUG.0#][EL_DEBUG_HEADER]#

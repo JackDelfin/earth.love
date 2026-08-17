@@ -5,6 +5,6 @@
 #BUTTON_PREV=INC[EL_FN_GET_BUTTON_PREV]#
 #BUTTON_SAVE=PARSE[<input type="submit" class="w3-button w3-green w3-round-large" value="#BUTTON_NAME#">]#
 #BUTTON_NAME=MSG[Cancel]#
-#BUTTON_CANCEL=PARSE[<input type="button" class="w3-button w3-red w3-round-large" onclick="document.forms.data.action.value='CANCEL'; document.forms.data.submit(); return 0;" value="#BUTTON_NAME#">]#
+#BUTTON_CANCEL=PARSE[<button type="submit" name="action" value="CANCEL" class="w3-button w3-red w3-round-large">#BUTTON_NAME#</button>]#
 <div class="w3-container w3-padding-24 w3-center">#BUTTON_PREV##BUTTON_SAVE# &nbsp;&nbsp; #BUTTON_RESET# &nbsp;&nbsp; #BUTTON_CANCEL#</div>
 #OML[EL_INPUT_STEPS_PROGRESS]#

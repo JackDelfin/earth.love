@@ -8,7 +8,7 @@
 #SHOWCOMMENTS[#DEBUG#]#--->
 <!--- Message Translation Options --->
 #MSGTranslate[1]#<!--- Translate if available --->
-#MSGInsert   [1]#<!--- Insert New Messages if Translate is turned on--->
+#MSGInsert   [0]#<!--- Render requests never mutate the message catalog --->
 <!---#TESTING STATIC FILE EXTRACTION with DOTDOT and DATAPATH --->
 <!---
 #DOTDOT=DOTDOT[#root#][cat]#<!--- #TESTING --->
@@ -24,7 +24,7 @@ PROMPT_ODDS        =[Never tell me the odds!]
 ]#
 <!--- TOKEN BULK LOAD --->
 #LOADTOKEN[
-_ORBIT             =PARSE[#ENV_HOST##ENV_CONTEXT_PREFIX#]
+_ORBIT             =NVL[#ENV_CONTEXT_PREFIX#][/o/]
 
 MAX_DEF            =NVL[#MAX_DEF_USER#][7]
 LIST               =NVL[#LIST#][button]<!--- Default List Style to Bubble --->
@@ -52,7 +52,7 @@ CLASS_LABEL        =[ class="w3-large#CLASS_LABEL_COLOR# w3-margin-top w3-paddin
 CLASS_LABEL_COLOR  =[]
 MOBILE             =[w3-mobile ]
 
-ELNEWWORD          =[#_ORBIT#elnew?r=LANGS/#LANG#&l=#LANG#&o=word&w=#WORD#&p=el_show&formfields=_name_req&_name_req=#WORD#]
+ELNEWWORD          =[#_ORBIT#elnew?r=LANGS/#LANG#&l=#LANG#&o=word&p=el_new&w=#WORD#]
 ELEDIT             =[#_ORBIT#eledit?r=#ROOT#&l=#LANG#&o=#OBJECT#&p=el_edit&w=#WORD.TR#&data=]
 ELSHOW             =[#_ORBIT#elshow?r=#ROOT#&l=#LANG#&p=el_show&w=]<!--- Must set object after &o=cat --->
 ELSHOWNAV          =[#_ORBIT#elshow?pr=#root#&l=#LANG#&]

@@ -53,10 +53,11 @@ sub Orbit::Token::new
   my $class = shift;   # class is the name of this package: Orbit::Token
   # Define the token structure (class variables)
   my $self = {
-     _Name   => shift,   #token_name        VARCHAR2(8000)
-     _Value  => shift,   #token_value       LONG
-     _bRaw   => shift,   #raw_flag          BINARY_INTEGER
-     _bCache => shift,   #cache_flag        BINARY_INTEGER
+     _Name      => shift,   #token_name        VARCHAR2(8000)
+     _Value     => shift,   #token_value       LONG
+     _bRaw      => shift,   #raw_flag          BINARY_INTEGER
+     _bCache    => shift,   #cache_flag        BINARY_INTEGER
+     _bRecursive => shift,  #recursive parse   BINARY_INTEGER
   };
 
   # Bless makes these variables available externally
@@ -65,8 +66,9 @@ sub Orbit::Token::new
   # Standardize the token parts
   $self->setName($self->{_Name});
   $self->setValue($self->{_Value});
-  $self->setRaw($self->{_Raw});
-  $self->setCache($self->{_Cache});
+  $self->setRaw($self->{_bRaw});
+  $self->setCache($self->{_bCache});
+  $self->setRecursive($self->{_bRecursive});
 
   return $self;
 } #new
@@ -193,6 +195,28 @@ sub Orbit::Token::getCache {
   my( $self ) = @_;
   return $self->{_bCache};
 } #getCache
+
+
+#******************************************************************************************
+# setRecursive
+# - Controls whether OML syntax found in this token's value may be parsed recursively.
+#   Internal/template tokens retain the historical default (1).  Request-derived tokens
+#   are explicitly created with 0 and remain inert data when rendered.
+#******************************************************************************************
+sub Orbit::Token::setRecursive {
+  my ( $self, $bRecursive ) = @_;
+  $self->{_bRecursive} = $bRecursive if defined($bRecursive);
+  $self->{_bRecursive} = 1
+    if (!defined($self->{_bRecursive}) || !($self->{_bRecursive} =~ /^[01]$/));
+  return $self->{_bRecursive};
+} #setRecursive
+#******************************************************************************************
+# getRecursive
+#******************************************************************************************
+sub Orbit::Token::getRecursive {
+  my( $self ) = @_;
+  return $self->{_bRecursive};
+} #getRecursive
 
 
 #******************************************************************************************

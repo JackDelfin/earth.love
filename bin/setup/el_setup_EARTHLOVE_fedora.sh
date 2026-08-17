@@ -224,6 +224,8 @@ echo '-- Install the SETUP_DOM directories'
 echo '--'
 cd $SCRIPTPATH/..
 cp -pruv SETUP_DOM ~
+mkdir -p ~/SETUP_DOM/_TEMPLATES
+cp -pruv _TEMPLATES/. ~/SETUP_DOM/_TEMPLATES/
 
 echo
 echo '--'

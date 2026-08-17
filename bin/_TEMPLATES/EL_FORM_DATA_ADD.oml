@@ -2,5 +2,6 @@
 #_name=NVL[#_name#][#word#]#
 #_datatype=NVL[#_datatype#][#_1_#]#
 <form name="data" action="#_ORBIT#eladd" method="post" class="w3-container w3-margin-bottom-0">
+<input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
 #OML[EL_INPUT_HIDDEN][name]#-
 #OML[EL_INPUT_HIDDEN][datatype]#-

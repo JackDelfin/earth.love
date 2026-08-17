@@ -230,6 +230,14 @@ sudo dnf install perl-JSON perl-JSON-MaybeXS -y
 
 echo
 echo '--'
+echo '-- Perl authentication crypto (dnf)'
+echo '-- Crypt::Argon2 hashes passphrases; Crypt::URandom provides secure random bytes'
+echo '-- Term::ReadKey safely reads passphrases in the local eluser tool'
+echo '--'
+sudo dnf install perl-Crypt-Argon2 perl-Crypt-URandom perl-TermReadKey -y
+
+echo
+echo '--'
 echo '-- Perl NET::CURL'
 echo '-- (Net::Curl is not packaged for Fedora - use cpanm)'
 echo '-- Only needed by the GoDaddy DNS tools in /ELBIN -'
@@ -342,9 +350,9 @@ echo "-- SELinux mode: $SELMODE";
 sudo dnf install policycoreutils-python-utils -y
 if [ "$SELMODE" != "Disabled" ]; then
   sudo semanage fcontext -a -t httpd_sys_rw_content_t '/LOVE(/.*)?' 2>/dev/null \
-    || echo '-- /LOVE fcontext already defined';
+    || sudo semanage fcontext -m -t httpd_sys_rw_content_t '/LOVE(/.*)?';
   sudo semanage fcontext -a -t bin_t '/ELBIN(/.*)?' 2>/dev/null \
-    || echo '-- /ELBIN fcontext already defined';
+    || sudo semanage fcontext -m -t bin_t '/ELBIN(/.*)?';
 else
   echo '-- SELinux Disabled - skipping fcontext setup';
 fi

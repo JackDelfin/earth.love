@@ -1,7 +1,7 @@
 <h2 class="#CLASS_HEAD# el-chakra5">#word.initcap#</h2>
 
 #_data=DATAFILE[#root#][#WORD#][TEXT]#
-#EXISTS[#_data#][<div>#_data#</div>]#
+#EQUAL[#_data.exists#][1][<div>#_data.html.br#</div>]#
 
 #INC[EL_TOKENS_SEARCH]#
 

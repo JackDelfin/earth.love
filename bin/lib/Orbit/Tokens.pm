@@ -46,6 +46,8 @@
 #   - Returns the Raw Token output with HTML characters escaped
 # GetTokenCacheFlag
 #   - Returns the cache flag for the token indicating whether the token can be cached
+# GetTokenRecursiveFlag
+#   - Returns whether OML in the token value may be parsed recursively
 # GetTokenRec
 #   - Returns all the columns in the token record
 #
@@ -56,6 +58,8 @@
 #   - This prevents it from being changed to RAW again with a .RAW modifier
 # SetTokenRaw
 #   - Sets the token, storing the value in RAW format
+# SetUntrustedToken
+#   - Sets a request/environment-derived token that must remain non-recursive
 #
 # AppendToken / Append_Token
 #   - Appends a string to the specified token, using Separator to separate
@@ -198,22 +202,42 @@ sub Orbit::GetTokenCacheFlag
 
 
 #******************************************************************************************
+#*  Procedure Name  :   GetTokenRecursiveFlag
+#*
+#*  Description     :   Returns 1 only when a token may be parsed recursively.  Missing
+#*                      tokens fail closed and return 0.
+#******************************************************************************************
+sub Orbit::GetTokenRecursiveFlag
+{
+  my ( $self, $Token ) = @_;
+
+  $Token = '' if (!defined($Token));
+  $Token =~ tr/[a-z]/[A-Z]/;
+
+  if ($self->{_TOKENS}->{$Token}) {
+    return $self->{_TOKENS}->{$Token}->getRecursive ? 1 : 0;
+  }
+  return 0;
+} #GetTokenRecursiveFlag
+
+
+#******************************************************************************************
 #*  Procedure Name  :   GetTokenRec
 #*
 #*  Description     :   Returns all the columns in the token record
 #******************************************************************************************
 sub Orbit::GetTokenRec
 {
-  my ( $self, $Token, $Value, $Raw, $Cache ) = @_;
+  my ( $self, $Token, $Value, $Raw, $Cache, $Recursive ) = @_;
 
   # convert to uppercase before checking
   $Token =~ tr/[a-z]/[A-Z]/;
 
   if ($self->{_TOKENS}->{$Token}) {
-    return ($self->{_TOKENS}->{$Token}->getValue, $self->{_TOKENS}->{$Token}->getRaw, $self->{_TOKENS}->{$Token}->getCache);
+    return ($self->{_TOKENS}->{$Token}->getValue, $self->{_TOKENS}->{$Token}->getRaw, $self->{_TOKENS}->{$Token}->getCache, $self->{_TOKENS}->{$Token}->getRecursive);
   }
   # Not a valid token
-  return ("", "", "");
+  return ("", "", "", "");
 
 } #GetTokenRec
 
@@ -228,7 +252,7 @@ sub Orbit::GetTokenRec
 #******************************************************************************************
 sub Orbit::SetToken
 {
-  my ( $self, $Token, $Value, $bRaw, $bCache ) = @_;
+  my ( $self, $Token, $Value, $bRaw, $bCache, $bRecursive ) = @_;
   my $U = $self->{_Utils};
 
   # convert to uppercase before checking
@@ -239,6 +263,9 @@ sub Orbit::SetToken
     $self->{_TOKENS}->{$Token}->setValue($Value);
     $self->{_TOKENS}->{$Token}->setRaw($bRaw);
     $self->{_TOKENS}->{$Token}->setCache($bCache);
+    # An ordinary update must not accidentally promote request-derived data back
+    # to recursive OML.  Promotion requires an explicit recursive flag.
+    $self->{_TOKENS}->{$Token}->setRecursive($bRecursive) if defined($bRecursive);
     # Leave since we found token and updated it
     return $Value;
   }
@@ -247,11 +274,39 @@ sub Orbit::SetToken
   $self->AddStat("_Tokens: Set_Token") if ($self->GetLogStat());
 
   # Create the NEW Orbit::Token in the _TOKENS array
-  $self->{_TOKENS}->{$Token} = Orbit::Token->new($Token, $Value, $bRaw, $bCache);
+  $self->{_TOKENS}->{$Token} = Orbit::Token->new($Token, $Value, $bRaw, $bCache, $bRecursive);
 
   return $Value;
 } #Set_Token
 *Set_Token = \&SetToken;
+
+
+#******************************************************************************************
+#*  Procedure Name  :   SetUntrustedToken / Set_Untrusted_Token
+#*
+#*  Description     :   Stores request/environment-derived text without permitting its
+#*                      contents to become executable OML during recursive token parsing.
+#******************************************************************************************
+sub Orbit::SetUntrustedToken
+{
+  my ( $self, $Token, $Value, $bRaw, $bCache ) = @_;
+  return $self->SetToken($Token, $Value, $bRaw, $bCache, 0);
+} #SetUntrustedToken
+*Set_Untrusted_Token = \&SetUntrustedToken;
+
+
+#******************************************************************************************
+#*  Procedure Name  :   SetTrustedToken / Set_Trusted_Token
+#*
+#*  Description     :   Explicitly promotes an internally generated token value when a
+#*                      caller intentionally needs historical recursive OML expansion.
+#******************************************************************************************
+sub Orbit::SetTrustedToken
+{
+  my ( $self, $Token, $Value, $bRaw, $bCache ) = @_;
+  return $self->SetToken($Token, $Value, $bRaw, $bCache, 1);
+} #SetTrustedToken
+*Set_Trusted_Token = \&SetTrustedToken;
 
 
 #******************************************************************************************

@@ -57,6 +57,13 @@ sub Orbit::ProcessEdit
   my $page = $O->Get_Token('PAGE');
   $page = 'el_edit' if ($page eq "");
 
+  my ($route_allowed, $process_mutation) = $self->AuthorizeMutationRequest($O->Get_Token('ROOT'), 'edit');
+  if (!$route_allowed) {
+    $O->Set_Token('PAGE', 'DEFAULT');
+    return $O->Get_Token('PAGE');
+  }
+  $page = 'el_edit' if (!$process_mutation);
+
   # Buffer the print output for Akashic package
   $self->BufUprint(1);
 

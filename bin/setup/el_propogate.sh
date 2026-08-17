@@ -21,10 +21,13 @@ echo '--'
 echo '--   sudo tools/PROPOGATE_earthlove.pl    /usr/local/share/perl/5.38.2'
 echo '--'
 sudo $SCRIPTPATH/../tools/PROPOGATE_earthlove.pl    /usr/local/share/perl/5.38.2
+# Every initialized Orbit domain configured as an Apache vhost receives the
+# current security-sensitive templates.  The sync command deduplicates HTTP /
+# HTTPS configs and fails this propagation if an attempted update fails.
+sudo $SCRIPTPATH/el_sync_auth_templates.sh --all
 
 echo
 echo '--'
 echo '-- Set execute on files in cgi-bin'
 echo '--'
 sudo chmod +x /usr/lib/cgi-bin/*
-

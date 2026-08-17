@@ -112,6 +112,14 @@ use utf8;
 use feature ':5.16';
 use CGI qw( -utf8 );
 
+# Apply a general request limit in the shared Orbit 7 runtime, before any entry
+# point can construct its CGI object.  Existing content routes support file and
+# image uploads, so uploads remain enabled here.  Credential-only entry points
+# lower this to 64 KiB and disable uploads before they call Orbit->new().
+BEGIN {
+  $CGI::POST_MAX = 10 * 1024 * 1024;
+}
+
 our $VERSION = '7.0.0.0';
 
 # Export certain functions - allow ShowPage without prefixing package   #TESTING
@@ -161,6 +169,10 @@ sub Orbit::new
     ,_UserDir         => ''               # User Directory for './_ORBIT/USERS/#user#/'
     ,_UserRoot        => '_ORBIT/USERS'   # User Directory for Authenticating a User
     ,_UserRootDir     => '.'              # User Directory for Authenticating a User
+    ,_Role            => 'anonymous'      # Restored v1 role: anonymous/viewer/editor/admin
+    ,_Auth            => undef            # Per-domain Orbit::Auth service
+    ,_Session         => undef            # Restored server-side session record
+    ,_SessionToken    => ''               # Request-local bearer token; never exposed as OML
     ,_Lang            => ''               # User Language for MSG Translation
     ,_Access          => ''               # Access pattern in multi RegEx format (RegEx1, RegEx2, ...)
      #
@@ -211,6 +223,9 @@ sub Orbit::new
     ,_DomainDir      => '/LOVE/earth.love/'  # Domain Directory ('/LOVE/earth.love')
     ,_Root           => 'LANGS'         # ROOT under Domain (i.e. LANGS COMMS LOCS GUILDS SELF PATHS JOB etc)
     ,_RootDir        => '.'             # ROOT Directory ('.')  i.e. /LOVE/earth.love/COMMS/   for Communities
+    ,_InvalidRootInput => 0             # Invalid/protected CGI root was replaced; writes must deny
+    ,_InvalidRequestInput => 0          # Invalid structural CGI selector was replaced safely
+    ,_InvalidFormFieldsInput => 0       # Request attempted to manufacture an invalid token name
     ,_Object         => ''              # Object under the Root - could be _Tree _Branch _Page _Word _Data (set Externally)
     ,_Action         => ''              # Action being performed - buffered here for HasAccess (set Externally)
     ,_Tree           => 'TREE'          # TREE off of the ROOT (could also be in PATH format: carpenter.classes.earth)
@@ -233,6 +248,11 @@ sub Orbit::new
     ,_bBatchMode     => 0               # Set Batch mode for Refresh_Page processing; Disables showing statistics in individual pages
     ,_bMSGInsert     => 0               # Insert messages requiring translation automatically (1), or not (0), into _MessageCode directory
     ,_bMSGTranslate  => 0               # Translate messages displayed using the #MSG[]# function (1); or quick return from MSG without lookup (0)
+    ,_ResponseStatus => '200 OK'        # HTTP response status used by initOrbit
+    ,_ResponseNoStore => 0              # Add no-store headers for authentication pages
+    ,_ResponseCookies => []             # Cookies queued for the normal ShowPage header
+    ,_HeadersSent    => 0               # Prevent duplicate CGI headers
+    ,_MutationTemplateAllowed => ''     # Dedicated mutation handler's entry template
      #
      #
      #
@@ -294,6 +314,10 @@ sub Orbit::new
   # Run the Orbit user configurations
   $self->UserConfigurations();
 
+  # Restore authentication only after Akashic has resolved the trusted DomainDir, but
+  # before the constructor returns to any CGI that can mutate domain content.
+  $self->InitializeAuth();
+
   $self->{_iStartTime} = time();   # number of seconds since Jan 1, 1970
   return $self;
 } #new
@@ -319,6 +343,25 @@ sub Orbit::ShowPage
   #
   $Template = "" if (!defined($Template));
   $Template = $self->Get_Token('PAGE') if ($Template eq "");
+
+  # PAGE is a template identifier, not a path.  Includes have their own resolver,
+  # so a page request never needs slashes, dot segments, or other path syntax.
+  if ($Template !~ /\A[A-Za-z][A-Za-z0-9_]{0,127}\z/) {
+    $self->{_ResponseStatus} = '400 Bad Request';
+    $self->RegisterError('The requested page name is invalid.');
+    $Template = $self->{_Template} || 'DEFAULT';
+  }
+
+  # A top-level template is executable application structure, not content.  Web
+  # callers may select only the small public entry-point set.  Credential and
+  # mutation templates require their dedicated handlers to opt in after their
+  # transport/authorization checks.  Includes below an entry point retain the
+  # normal template resolver and command-line/batch rendering stays unrestricted.
+  if (!$self->_WebTemplateAllowed($Template)) {
+    $self->{_ResponseStatus} = '404 Not Found';
+    $self->RegisterError('The requested page is not available.');
+    $Template = 'DEFAULT';
+  }
 
   #
   # Initialize Orbit (CGI)
@@ -403,6 +446,14 @@ sub Orbit::SearchTemplateDirs
   my ( $self, $Template ) = @_;
 
   return "" if (!defined($Template) || $Template eq "");
+
+  # Template names may contain project-relative subdirectories, but they are
+  # never filesystem paths supplied by a request.  Reject absolute paths, dot
+  # segments, backslashes, controls, and punctuation before appending `.oml`.
+  # Every shipped template matches this identifier grammar.
+  return "" if (ref($Template)
+    || length($Template) > 256
+    || $Template !~ m{\A[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*\z});
 
   # Uppercase Template per standard
   $Template =~ tr/[a-z]/[A-Z]/;
@@ -674,12 +725,27 @@ sub Orbit::initOrbit
   #
   # Print the HTML content header, only if not running in command line or script
   #
-  if ($self->{_bCommandLine} == 0) {
-    $self->print(
-        $self->{_cgi}->header(
-            -type    => 'text/html',
-            -charset => 'utf-8',
-            ));
+  if ($self->{_bCommandLine} == 0 && !$self->{_HeadersSent}) {
+    my @header = (
+      -type    => 'text/html',
+      -charset => 'utf-8',
+      -status  => ($self->{_ResponseStatus} || '200 OK'),
+      -X_Content_Type_Options => 'nosniff',
+      -Referrer_Policy => 'same-origin',
+      -X_Frame_Options => 'SAMEORIGIN',
+      -Content_Security_Policy => "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'",
+      -Permissions_Policy => 'camera=(), microphone=(), geolocation=()',
+    );
+    my $hsts = $self->_HSTSHeaderValue();
+    push @header, (-Strict_Transport_Security => $hsts) if ($hsts ne '');
+    if ($self->{_ResponseNoStore}) {
+      push @header, (-Cache_Control => 'no-store', -Pragma => 'no-cache');
+    }
+    if (ref($self->{_ResponseCookies}) eq 'ARRAY' && @{$self->{_ResponseCookies}}) {
+      push @header, (-cookie => $self->{_ResponseCookies});
+    }
+    $self->print($self->{_cgi}->header(@header));
+    $self->{_HeadersSent} = 1;
   }
 
   # Make sure TemplateDir has a trailing /
@@ -694,6 +760,66 @@ sub Orbit::initOrbit
   #$self->LoadFunctionGroups('ALL');   #TESTING
 
 } #initOrbit
+
+
+#******************************************************************************************
+#* _SanitizeEnvTokenValue
+#*
+#* - Environment/header values can be rendered by OML templates.  Bound their size,
+#*   remove control characters, and HTML-escape markup/OML delimiters before they enter
+#*   the token table.  The tokens are also marked non-recursive by LoadEnvTokens.
+#******************************************************************************************
+sub Orbit::_SanitizeEnvTokenValue
+{
+  my ( $self, $value, $max_length ) = @_;
+  return '' if (!defined($value) || ref($value));
+
+  $max_length = 8192
+    if (!defined($max_length) || $max_length !~ /^\d+$/ || $max_length < 1 || $max_length > 65536);
+  $value =~ s/\r\n?|\n/ /g;
+  $value =~ s/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/ /g;
+  $value = substr($value, 0, $max_length) if (length($value) > $max_length);
+
+  # Named entities avoid introducing a second '#' delimiter into the parser.
+  $value =~ s/&/&amp;/g;
+  $value =~ s/</&lt;/g;
+  $value =~ s/>/&gt;/g;
+  $value =~ s/"/&quot;/g;
+  $value =~ s/'/&apos;/g;
+  $value =~ s/#/&num;/g;
+  return $value;
+} #_SanitizeEnvTokenValue
+
+
+#******************************************************************************************
+#* _ValidatedHTTPHost
+#*
+#* - Restrict Host syntax before it is composed into ENV_HOST.  This is a syntax and
+#*   delimiter boundary; deployments should still configure a canonical virtual host.
+#******************************************************************************************
+sub Orbit::_ValidatedHTTPHost
+{
+  my ( $self, $value ) = @_;
+  return '' if (!defined($value) || ref($value) || length($value) > 255);
+  return '' if ($value =~ /[\x00-\x20\x7f]/);
+
+  my ($host, $port);
+  if ($value =~ /\A(\[[0-9A-Fa-f:.]+\])(?::([0-9]{1,5}))?\z/) {
+    ($host, $port) = ($1, $2);
+    return '' if ($host !~ /:/);
+  } elsif ($value =~ /\A([A-Za-z0-9.-]+)(?::([0-9]{1,5}))?\z/) {
+    ($host, $port) = ($1, $2);
+    return '' if ($host =~ /\.\.|\A\.|\.\z/);
+    foreach my $label (split(/\./, $host)) {
+      return '' if (length($label) < 1 || length($label) > 63
+        || $label !~ /\A[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\z/);
+    }
+  } else {
+    return '';
+  }
+  return '' if (defined($port) && ($port < 1 || $port > 65535));
+  return $host.(defined($port) ? ':'.$port : '');
+} #_ValidatedHTTPHost
 
 
 #******************************************************************************************
@@ -717,7 +843,8 @@ sub Orbit::LoadEnvTokens
   foreach my $var (sort(keys(%ENV))) {
     if ($var eq 'HTTP_HOST'
       ||$var eq 'HTTP_USER_AGENT'
-      ||$var eq 'HTTP_COOKIE'
+      # HTTP_COOKIE deliberately stays out of the OML/debug token table.  The auth
+      # layer reads its named opaque cookie directly from the CGI object.
       #||$var eq 'HTTP_ACCEPT'
       ||$var eq 'CONTEXT_PREFIX'
       ||$var eq 'CONTEXT_DOCUMENT_ROOT'
@@ -741,31 +868,36 @@ sub Orbit::LoadEnvTokens
       ||$var eq 'BOT'  # ENV_BOT is set in /etc/apache2/elRewrite.conf indicating a robot request
       #||1   # Hack: Uncomment to show all if needed
       ) {
-      $value = $ENV{$var};
-      $value =~ s/\n/\\n/g;
-      $value =~ s/"/\\"/g;
-      $self->Set_Token('ENV_'.$var, $value);
+      my $max_length = ($var eq 'HTTP_USER_AGENT') ? 1024 : 8192;
+      $value = $self->_SanitizeEnvTokenValue($ENV{$var}, $max_length);
+      $self->SetUntrustedToken('ENV_'.$var, $value);
     }
   }
 
-  # Set the DomainDir based on ENV_DOCUMENT_ROOT
-  $value = $ENV{'DOCUMENT_ROOT'};
-  if (defined($value) && $value =~ /_WEB$/) {
-    $value =~ s/_WEB$//g;
-    $self->Set_Token('ENV_DOMAINDIR', $value);
-    $self->{_DomainDir} = $value;
-  }
+  # DomainDir was canonically bound by Akashic before authentication was
+  # initialized.  Environment token loading may expose that value safely, but
+  # must never retarget the filesystem/auth domain later in the request.
+  $value = $self->{_DomainDir} // '';
+  $self->SetUntrustedToken('ENV_DOMAINDIR', $self->_SanitizeEnvTokenValue($value, 4096));
 
   # Set the special ENV_HOST token based on pieces
-  if ($self->Get_Token('ENV_REQUEST_SCHEME') ne "") {
-    if ($self->Get_Token('ENV_SERVER_PORT') eq '80'
+  my $scheme = lc($ENV{'REQUEST_SCHEME'} // '');
+  $scheme = (($ENV{'HTTPS'} // '') =~ /^(?:on|1)$/i) ? 'https' : ''
+    if ($scheme !~ /\A(?:http|https)\z/);
+  my $http_host = $self->_ValidatedHTTPHost($ENV{'HTTP_HOST'});
+  my $server_port = $ENV{'SERVER_PORT'} // '';
+  $server_port = '' if ($server_port !~ /^\d{1,5}$/ || $server_port < 1 || $server_port > 65535);
+  if ($scheme ne '' && $http_host ne '') {
+    if ($server_port eq '80' || $server_port eq '443'
       #-- only include port if not already on host
-      || index($self->Get_Token('ENV_HTTP_HOST'), ':'.$self->Get_Token('ENV_SERVER_PORT')) != -1
+      || ($server_port ne '' && index($http_host, ':'.$server_port) != -1)
       ) {
-      $self->Set_Token('ENV_HOST', $self->Get_Token('ENV_REQUEST_SCHEME').'://'.$self->Get_Token('ENV_HTTP_HOST'));
+      $self->SetUntrustedToken('ENV_HOST', $scheme.'://'.$http_host);
     } else {
-      $self->Set_Token('ENV_HOST', $self->Get_Token('ENV_REQUEST_SCHEME').'://'.$self->Get_Token('ENV_HTTP_HOST').':'.$self->Get_Token('ENV_SERVER_PORT'));
+      $self->SetUntrustedToken('ENV_HOST', $scheme.'://'.$http_host.($server_port ne '' ? ':'.$server_port : ''));
     }
+  } else {
+    $self->SetUntrustedToken('ENV_HOST', '');
   }
   return 0;
 } #LoadEnvTokens

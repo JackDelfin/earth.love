@@ -39,6 +39,10 @@ echo '--'
 sudo mkdir -p $PERLSITELIB
 sudo mkdir -p /var/www/cgi-bin
 sudo $SCRIPTPATH/../tools/PROPOGATE_earthlove.pl    $PERLSITELIB
+# Every initialized Orbit domain configured as an Apache vhost receives the
+# current security-sensitive templates.  The sync command deduplicates HTTP /
+# HTTPS configs and fails this propagation if an attempted update fails.
+sudo $SCRIPTPATH/el_sync_auth_templates.sh --all
 
 echo
 echo '--'

@@ -4,6 +4,5 @@
 <input type="hidden" name="page" value="#PAGE#">
 <input type="hidden" name="object" value="#OBJECT#">
 <input type="hidden" name="menu" value="#MENU#">
-<input type="hidden" name="action" value="#ACTION#">
 <input type="hidden" name="word" value="#WORD.html#">
 <input type="hidden" name="tid" value="#TRANSACTIONID[]#">

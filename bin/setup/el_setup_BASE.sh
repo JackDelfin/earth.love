@@ -226,6 +226,14 @@ sudo cpan JSON
 sudo cpan JSON::MaybeXS
 
 echo
+echo '--'
+echo '-- Perl authentication crypto (apt)'
+echo '-- Crypt::Argon2 hashes passphrases; Crypt::URandom provides secure random bytes'
+echo '-- Term::ReadKey safely reads passphrases in the local eluser tool'
+echo '--'
+sudo apt install libcrypt-argon2-perl libcrypt-urandom-perl libterm-readkey-perl -y
+
+echo
 echo '# -------------------------'
 echo '# Install ImageMagick'
 echo '#   Command-Line Image Conversion Tools'
@@ -300,4 +308,3 @@ sudo systemctl restart apache2
 echo '#########################################'
 echo '# BASE Setup Complete'
 echo '#########################################'
-

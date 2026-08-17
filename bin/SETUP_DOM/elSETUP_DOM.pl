@@ -379,15 +379,40 @@ if (!-e "$DomainDir/_WEB/robots.txt") {
 print `sudo cp -pruv $appdir/_TEMPLATES/_STYLES/* $DomainDir/_WEB/_STYLES/;`;
 
 #
-# Set permissions on the domain root
+# Set permissions on the domain root.  Never recursively change the private
+# authentication subtree: on Fedora it belongs to apache rather than www-data,
+# and every authentication directory/file must remain 0700/0600.
 #
-print `sudo chown -R www-data:www-data $DomainDir;`;
-print `sudo chmod -R g+w               $DomainDir;`;
+my $AuthDir = "$DomainDir/_ORBIT/_AUTH";
+my $AuthRuntimeUser = -f '/etc/fedora-release' ? 'apache' : 'www-data';
+$AuthRuntimeUser = 'www-data' if (!defined(getpwnam($AuthRuntimeUser)));
+
+system('sudo', 'find', $DomainDir, '-path', $AuthDir, '-prune', '-o',
+       '-exec', 'chown', 'www-data:www-data', '{}', '+') == 0
+  or die "Unable to set domain ownership\n";
+system('sudo', 'find', $DomainDir, '-path', $AuthDir, '-prune', '-o',
+       '-exec', 'chmod', 'g+w', '{}', '+') == 0
+  or die "Unable to set domain permissions\n";
+
+if (-d $AuthDir) {
+  system('sudo', 'chown', '-R', "$AuthRuntimeUser:$AuthRuntimeUser", $AuthDir) == 0
+    or die "Unable to restore authentication ownership\n";
+  system('sudo', 'find', $AuthDir, '-type', 'd', '-exec', 'chmod', '0700', '{}', '+') == 0
+    or die "Unable to restore authentication directory permissions\n";
+  system('sudo', 'find', $AuthDir, '-type', 'f', '-exec', 'chmod', '0600', '{}', '+') == 0
+    or die "Unable to restore authentication file permissions\n";
+}
 
 #
 # Build the Orbit-Akashic _ROOT data structures
 #
-print `$appdir/elBUILD_root.pl $dom LANGS;`;
+system("$appdir/elBUILD_root.pl", $dom, 'LANGS') == 0
+  or die "Unable to build Orbit-Akashic roots for $dom\n";
+
+# The builder creates _ORBIT.  Create/re-harden the private authentication root
+# afterwards so a fresh domain never leaves it owned by the installer account
+# or writable through the legacy domain group permissions.
+EnsureAuthRoot($AuthDir, $AuthRuntimeUser);
 
 #
 # Enable virtual host site (a2ensite) and reload Apache
@@ -492,7 +517,8 @@ if (-e "$DomainConfig") {
 #
 # Install the ACTIVATION ROOTWORD _TEMPLATES
 #
-print `$appdir/installACTIVATION.pl $dom;`;
+system("$appdir/installACTIVATION.pl", $dom) == 0
+  or die "Unable to install activation/authentication templates for $dom\n";
 
 #
 # Reload Apache if needed
@@ -507,6 +533,31 @@ if ($apacheRELOAD) {
 }
 
 exit 0;
+
+sub EnsureAuthRoot {
+  my ( $auth_dir, $runtime_user ) = @_;
+
+  my $orbit_dir = $auth_dir;
+  $orbit_dir =~ s{/_AUTH\z}{};
+  die "Refusing symbolic-link Orbit directory: $orbit_dir\n" if (-l $orbit_dir);
+  die "Refusing symbolic-link authentication directory: $auth_dir\n" if (-l $auth_dir);
+  die "Orbit directory was not created by the root builder: $orbit_dir\n" if (!-d $orbit_dir);
+  defined(getpwnam($runtime_user))
+    or die "Authentication runtime account does not exist: $runtime_user\n";
+
+  system('sudo', 'chmod', '0775', $orbit_dir) == 0
+    or die "Unable to make the Orbit parent searchable: $orbit_dir\n";
+  system('sudo', 'install', '-d', '-o', $runtime_user, '-g', $runtime_user,
+         '-m', '0700', '--', $auth_dir) == 0
+    or die "Unable to create authentication root: $auth_dir\n";
+  system('sudo', 'chown', '-R', "$runtime_user:$runtime_user", $auth_dir) == 0
+    or die "Unable to restore authentication ownership\n";
+  system('sudo', 'find', $auth_dir, '-type', 'd', '-exec', 'chmod', '0700', '{}', '+') == 0
+    or die "Unable to restore authentication directory permissions\n";
+  system('sudo', 'find', $auth_dir, '-type', 'f', '-exec', 'chmod', '0600', '{}', '+') == 0
+    or die "Unable to restore authentication file permissions\n";
+  return 1;
+}
 
 #
 # ShowUsage
@@ -527,4 +578,3 @@ sub ShowUsage {
 
   exit 1;
 }
-

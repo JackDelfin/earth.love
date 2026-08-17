@@ -1,2 +1,2 @@
 <!--- #OML[EL_BUTTON_ADD][object][Button Name]# --->
-<a class="#BUTTON_CLASS# #BUTTON_ADD_COLOR#" href="#SHOWPAGE_BUTTON#&r=#ROOT#&w=#WORD.TR#&o=word&dt=#_1_#&p=el_add">#MSG[#_2_#]#</a>
+<a class="#BUTTON_CLASS# #BUTTON_ADD_COLOR#" href="#_ORBIT#eladd?r=#ROOT#&w=#WORD.TR#&o=word&dt=#_1_#&p=el_add">#MSG[#_2_#]#</a>

@@ -73,11 +73,19 @@ use strict;
 use warnings;
 use utf8;
 use feature ':5.16';
+use Cwd qw(abs_path);
+use Fcntl qw(S_ISREG S_ISLNK);
+use File::Spec;
 
 #
 # Load Akashic core
 #
 use Akashic::Utils;
+
+# OML data functions read files into memory.  Keep a conservative upper bound
+# here so a valid-looking request cannot turn an unexpectedly large file into
+# a CGI memory-exhaustion primitive.
+use constant MAX_DATA_FILE_BYTES => 8 * 1024 * 1024;
 
 
 ################################################################################
@@ -195,6 +203,13 @@ sub Akashic::GetWordDataFileDir
   # Standardize Root
   $Root = $self->StandardizeRoot($Root);
 
+  # A ROOT is either one of the two explicit virtual roots or a public root
+  # made of conventional ROOT segments.  In particular, do not permit access
+  # to private underscore roots such as _ORBIT through a data-file function.
+  return "" if ($Root ne '_DOM'
+             && $Root ne '_ROOT'
+             && $Root !~ /\A[A-Z][A-Z0-9_]*(?:\/[A-Z][A-Z0-9_]*)*\z/);
+
   # Default Relative Path OFF - return Fully Qualified path  
   $bRelPath = 0 if (!defined($bRelPath) || $bRelPath ne '1');
 
@@ -206,11 +221,15 @@ sub Akashic::GetWordDataFileDir
   # Simple check for all parameters present
   return "" if (!defined($DataFile) || $DataFile eq "" || $Word eq "");
 
+  # DataFile is a basename, never a path.  Keep the historical set of data
+  # extensions while rejecting traversal, control characters, extra suffixes,
+  # and platform-specific path separators before any filesystem lookup.
+  return "" if ($DataFile !~ /\A[A-Za-z0-9_][A-Za-z0-9_-]{0,127}(?:\.([A-Za-z0-9]+))?\z/);
+
   # Get any data extension if specified
   my $DataExt = "";
-  if (index($DataFile, '.') != -1) {
-    $DataExt =~ s/^.*\./\./g;
-    $DataExt =~ tr/[A-Z]/[a-z]/;   # Lowercase data extension by convention
+  if (defined($1) && $1 ne '') {
+    $DataExt = '.'.lc($1);
   }
 
   # Leave if we don't have a valid Data Extension if present (not in _DataExtAlt)
@@ -235,82 +254,103 @@ sub Akashic::GetWordDataFileDir
   #
   # Get the datafile fully qualified name
   #
-  # Get the cached directory if available so we don't need to look it up every time
-  if ( $Word eq $self->{_gWordCache}   # input word is cached (match on case exactly
-    && $Root eq $self->{_Root}         # ROOT has to be the same as well
-    && defined($self->{_gWordDirCache})
-    && $self->{_gWordDirCache} ne ""
-    && !$bRelPath
-    ) {
-    # Use the cached directory and add the datafile to the end
-    $lDataFile = $self->{_gWordDirCache}.$DataFile;
+  # Always derive the directory from the validated request.  The historical
+  # cache is still populated below, but is not trusted as a filesystem path.
+  # Get the appropriate home directory for the WORD/PHRASE/PATH relative to ROOT
+  if      ($Root eq '_DOM') {
+    # Special case: _DOM is the Domain home directory
+    $WordDir = $self->{_DomainDir};
+    $RelDir  = '';
+  } elsif ($Word eq '_ROOT') {
+    # Set the ROOT off the Domain
+    $self->SetVar('Root', $Root);  # Other logic fires when we change the ROOT
+    # Special case: _ROOT is the Root home directory
+    $WordDir = $self->{_RootDir};
+    $RelDir  = $self->{_Root}.'/';
   } else {
-    # Get the appropriate home directory for the WORD/PHRASE/PATH relative to ROOT
-    if      ($Root eq '_DOM') {
-      # Special case: _DOM is the Domain home directory
-      $WordDir = $self->{_DomainDir};
-      $RelDir  = '';
-    } elsif ($Word eq '_ROOT') {
-      # Set the ROOT off the Domain
-      $self->SetVar('Root', $Root);  # Other logic fires when we change the ROOT
-      # Special case: _ROOT is the Root home directory
-      $WordDir = $self->{_RootDir};
-      $RelDir  = $self->{_Root}.'/';
-    } else {
-      $RelDir  = $self->GetTextDir($Root, $Word, 1);   # Get Relative Directory
-      $WordDir = $self->{_RootDir}.$RelDir;
-    }
-
-    #
-    # Special case for DOWN and INDEX when searching for undefined word directory
-    # Search up the tree to find the file
-    #
-    if (!-d $WordDir) {
-      my $bPartialDir = 0;
-      if ($DataFile eq $self->{_Data}->{'_DOWN'}
-        ||$DataFile eq $self->{_Data}->{'_INDEX'}
-          ) {
-        #
-        # Get partial directory
-        #
-        $WordDir = $self->GetPartialDir($WordDir);
-        # If not found or above root, set to null
-        if ($WordDir eq "" || index($WordDir, $self->{_DomainDir}) != 0) {
-          $WordDir = "";
-        }
-      }
-
-      # Don't use cachedir for partial directories
-      $self->{_gWordCache}    = "";
-      $self->{_gWordDirCache} = "";
-    } elsif (!$bRelPath && -e $WordDir.$DataFile) {
-      # Reset the cache directory name
-      # Don't reset for Relative Directories
-      # Essentially, this procedure maintains the cache variables
-      $self->{_gWordCache}    = $Word;
-      $self->{_gWordDirCache} = $WordDir;
-    }
-
-    # Make sure WordDir exists
-    if ($WordDir ne "" && -d $WordDir) {
-      # Set the filename to check below
-      $lDataFile = $WordDir.$DataFile;
-    } else {
-      # Not under domain directory - leave
-      return "";
-    }
+    # Reject path syntax before the legacy word/phrase/path normalization code.
+    return "" if ($Word =~ m{[\\/]}
+               || $Word =~ /[\x00-\x1f\x7f]/
+               || length($Word) > 80);
+    $RelDir  = $self->GetTextDir($Root, $Word, 1);   # Get Relative Directory
+    return "" if ($RelDir eq '');
+    $WordDir = $self->{_DomainDir}.$Root.'/'.$RelDir;
   }
 
-  # See if the datafile exists
-  if ($lDataFile ne "" && -e $lDataFile) {
-    # See if we're returning the relative path
-    if (!$bRelPath) {
-      # Return Full path
-      return $lDataFile;
-    } else {
-      # Return Relative path
-      return $RelDir.$DataFile;
+  #
+  # Special case for DOWN and INDEX when searching for undefined word directory
+  # Search up the tree to find the file
+  #
+  if (!-d $WordDir) {
+    if ($DataFile eq $self->{_Data}->{'_DOWN'}
+      ||$DataFile eq $self->{_Data}->{'_INDEX'}
+        ) {
+      #
+      # Get partial directory
+      #
+      $WordDir = $self->GetPartialDir($WordDir);
+      # If not found or above root, set to null.  A canonical containment check
+      # below is authoritative; this lexical check avoids needless lookups.
+      if ($WordDir eq "" || index($WordDir, $self->{_DomainDir}) != 0) {
+        $WordDir = "";
+      }
     }
+
+    # Don't use cachedir for partial directories
+    $self->{_gWordCache}    = "";
+    $self->{_gWordDirCache} = "";
+  } elsif (!$bRelPath && -e $WordDir.$DataFile) {
+    # Reset the cache directory name
+    # Don't reset for Relative Directories
+    # Essentially, this procedure maintains the cache variables
+    $self->{_gWordCache}    = $Word;
+    $self->{_gWordDirCache} = $WordDir;
+  }
+
+  # Make sure WordDir exists
+  if ($WordDir ne "" && -d $WordDir) {
+    # Set the filename to check below
+    $lDataFile = $WordDir.$DataFile;
+  } else {
+    # Not under domain directory - leave
+    return "";
+  }
+
+  # Only return an existing, bounded regular file.  Compare both the lexical
+  # and canonical domain-relative paths: any symlink component that redirects
+  # into a private subtree or out of the domain changes that relative path and
+  # is rejected.  This also fixes sibling-prefix containment mistakes.
+  my $DomainDir = $self->{_DomainDir};
+  return "" if (!defined($DomainDir) || !-d $DomainDir);
+
+  my @FileStat = lstat($lDataFile);
+  return "" if (!@FileStat
+             || S_ISLNK($FileStat[2])
+             || !S_ISREG($FileStat[2])
+             || $FileStat[7] > MAX_DATA_FILE_BYTES);
+
+  my $DomainLex = File::Spec->rel2abs($DomainDir);
+  my $FileLex   = File::Spec->rel2abs($lDataFile);
+  my $LexRel    = File::Spec->canonpath(File::Spec->abs2rel($FileLex, $DomainLex));
+  return "" if (File::Spec->file_name_is_absolute($LexRel)
+             || $LexRel eq '..'
+             || $LexRel =~ m{\A\.\.(?:[\\/]|\z)});
+
+  my $DomainReal = abs_path($DomainDir);
+  my $FileReal   = abs_path($lDataFile);
+  return "" if (!defined($DomainReal) || !defined($FileReal));
+  my $RealRel = File::Spec->canonpath(File::Spec->abs2rel($FileReal, $DomainReal));
+  return "" if ($RealRel ne $LexRel
+             || File::Spec->file_name_is_absolute($RealRel)
+             || $RealRel eq '..'
+             || $RealRel =~ m{\A\.\.(?:[\\/]|\z)});
+
+  # See if we're returning the relative path.  Keep the established relative
+  # API (relative to ROOT for word paths), since DATAPATH prepends ROOT itself.
+  if (!$bRelPath) {
+    return $FileReal;
+  } else {
+    return $RelDir.$DataFile;
   }
 
   # Data file not found

@@ -62,6 +62,8 @@ my $DomainDir = "";
 $Domain = "" if (!defined($Domain));
 $Root = "_ROOT" if (!defined($Root) || $Root eq "");
 $Root =~ tr/[a-z]/[A-Z]/;   # Uppercase per convention
+$Root =~ /\A_?[A-Z][A-Z0-9_]*(?:\.[A-Z][A-Z0-9_]*)*\z/
+  or die "ERROR: Invalid ROOTWORD [$Root]\n";
 $RootDesc = "$Root" if (!defined($RootDesc) || $RootDesc eq "");
 
 #
@@ -133,7 +135,6 @@ BuildUsage() if (!$A->getInitialized());
 if ($Root eq "" || $Root eq "_ROOT" || $Root eq "LANGS") {
   $A->CreateWordBase('_ORBIT.USERS','USER',         'Users of this Domain',        'Users',       '', 'Users Root  (Heart/green)', 'green');
   $A->CreateWordBase('_ORBIT.USERS.PERSONS','USER', 'People Users of this Domain', 'Person',      '', 'Persons Users Root  (Heart/green)', 'green');
-  $A->CreateWordBase('_ORBIT.PASSPHRASE','PASS',    'Pass Phrases for Users',      'PassPhrase',  '', 'PassPhrases Root  (Sacral/orange)', 'orange');
   $A->CreateWordBase('_ORBIT.MSG.CODE','MSG',       'Orbit Base Code Messages',    'Messages',    '', 'Orbit Base Code Messages Root  (Knowledge/indigo)', 'indigo');
   $A->CreateWordBase('_ORBIT.MSG.ENG','MSG',        'Orbit English Translated Messages',   'Messages',       '', 'Orbit English Translated Messages Root  (Knowledge/indigo)', 'indigo');
 }
@@ -192,21 +193,15 @@ if ($Root eq "LANGS") {
 # Create the specified root if provided
 if ($Root ne "" && $Root ne "_ROOT") {
   $A->CreateWordBase($Root,'', $RootDesc, '','','');
-  #
-  # Set permissions on the domain root
-  #
-  print `sudo chown -R www-data:www-data $DomainDir/$Root;`;
-  print `sudo chmod -R g+w               $DomainDir/$Root;`;
 }
 
-# Set permissions for main domain root
-if ($Root eq "" || $Root eq "_ROOT" || $Root eq "LANGS") {
-  #
-  # Set permissions on the domain root
-  #
-  print `sudo chown -R www-data:www-data $DomainDir/$Root;`;
-  print `sudo chmod -R g+w               $DomainDir/$Root;`;
-}
+# Set permissions without ever broadening the private authentication subtree.
+SetRootPermissions("$DomainDir/$Root", "$DomainDir/_ORBIT/_AUTH");
+
+# Create the private store after all word-base builders and broad legacy
+# permission changes have completed.  Orbit::Auth will create its internal
+# layout lazily, but the CGI runtime must own the 0700 root from the outset.
+EnsureAuthRoot($DomainDir);
 
 #*****************************************
 # END DomainDir CONFIGURATION
@@ -227,6 +222,66 @@ if ($Root eq "" || $Root eq "_ROOT" || $Root eq "LANGS") {
 #print "############################################################\n";
 
 exit 0;
+
+################################################################################
+# SetRootPermissions - Maintain legacy domain permissions while pruning _AUTH
+################################################################################
+sub SetRootPermissions
+{
+  my ( $target, $auth_dir ) = @_;
+
+  die "Unable to set permissions on a missing root: $target\n" if (!-d $target);
+  system('sudo', 'find', $target, '-path', $auth_dir, '-prune', '-o',
+         '-exec', 'chown', 'www-data:www-data', '{}', '+') == 0
+    or die "Unable to set ownership on $target\n";
+  system('sudo', 'find', $target, '-path', $auth_dir, '-prune', '-o',
+         '-exec', 'chmod', 'g+w', '{}', '+') == 0
+    or die "Unable to set permissions on $target\n";
+
+  return 1 if (!-d $auth_dir);
+
+  my $runtime_user = -f '/etc/fedora-release' ? 'apache' : 'www-data';
+  $runtime_user = 'www-data' if (!defined(getpwnam($runtime_user)));
+  system('sudo', 'chown', '-R', "$runtime_user:$runtime_user", $auth_dir) == 0
+    or die "Unable to restore authentication ownership\n";
+  system('sudo', 'find', $auth_dir, '-type', 'd', '-exec', 'chmod', '0700', '{}', '+') == 0
+    or die "Unable to restore authentication directory permissions\n";
+  system('sudo', 'find', $auth_dir, '-type', 'f', '-exec', 'chmod', '0600', '{}', '+') == 0
+    or die "Unable to restore authentication file permissions\n";
+  return 1;
+} #SetRootPermissions
+
+################################################################################
+# EnsureAuthRoot - Create/re-harden the per-domain private authentication root
+################################################################################
+sub EnsureAuthRoot
+{
+  my ( $domain_dir ) = @_;
+
+  my $orbit_dir = "$domain_dir/_ORBIT";
+  my $auth_dir = "$orbit_dir/_AUTH";
+  die "Refusing symbolic-link Orbit directory: $orbit_dir\n" if (-l $orbit_dir);
+  die "Refusing symbolic-link authentication directory: $auth_dir\n" if (-l $auth_dir);
+  die "Orbit directory was not created by the root builder: $orbit_dir\n" if (!-d $orbit_dir);
+
+  my $runtime_user = -f '/etc/fedora-release' ? 'apache' : 'www-data';
+  $runtime_user = 'www-data' if (!defined(getpwnam($runtime_user)));
+  defined(getpwnam($runtime_user))
+    or die "Authentication runtime account does not exist: $runtime_user\n";
+
+  system('sudo', 'chmod', '0775', $orbit_dir) == 0
+    or die "Unable to make the Orbit parent searchable: $orbit_dir\n";
+  system('sudo', 'install', '-d', '-o', $runtime_user, '-g', $runtime_user,
+         '-m', '0700', '--', $auth_dir) == 0
+    or die "Unable to create authentication root: $auth_dir\n";
+  system('sudo', 'chown', '-R', "$runtime_user:$runtime_user", $auth_dir) == 0
+    or die "Unable to restore authentication ownership\n";
+  system('sudo', 'find', $auth_dir, '-type', 'd', '-exec', 'chmod', '0700', '{}', '+') == 0
+    or die "Unable to restore authentication directory permissions\n";
+  system('sudo', 'find', $auth_dir, '-type', 'f', '-exec', 'chmod', '0600', '{}', '+') == 0
+    or die "Unable to restore authentication file permissions\n";
+  return 1;
+} #EnsureAuthRoot
 
 ################################################################################
 # BuildUsage - Show usage information
