@@ -113,6 +113,9 @@ sudo install -d -o "$AUTH_RUNTIME_USER" -g "$AUTH_RUNTIME_USER" -m 0700 "$AUTH_D
 sudo chown -R "$AUTH_RUNTIME_USER:$AUTH_RUNTIME_USER" "$AUTH_DIR"
 sudo find "$AUTH_DIR" -type d -exec chmod 0700 {} +
 sudo find "$AUTH_DIR" -type f -exec chmod 0600 {} +
+if [ -x /usr/sbin/restorecon ]; then
+  sudo /usr/sbin/restorecon -RF "$AUTH_DIR"
+fi
 
 # Batch create pages for English
 #utils/REFRESH_pages.pl /LOVE/earth.love LANGS/ENG

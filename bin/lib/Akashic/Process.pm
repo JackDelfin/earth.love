@@ -130,8 +130,11 @@ use strict;
 use warnings;
 use utf8;
 use feature ':5.16';
+use Cwd qw(abs_path);
+use Fcntl qw(:mode);
 use File::Find;
 use File::Copy;   # Adds 'copy' and 'move' subs
+use File::Spec;
 
 #
 # Load Akashic core and Write routine
@@ -487,50 +490,148 @@ sub Akashic::ProcessWords
 # - Create the RootDir based on the Root name, checking for Root Subdirs (ie LANGS.ENG COMMS.JOBS etc)
 #
 #*******************************************************************************
+sub Akashic::_NormalizeRootForCreate
+{
+  my ( $self, $root ) = @_;
+
+  return if (!defined($root) || ref($root) || $root eq '' || length($root) > 255);
+  return if ($root =~ /[\x00-\x20\x7f\\]/);
+
+  my @segments = split(/[\.\/]/, $root, -1);
+  return if (!@segments);
+  for my $segment (@segments) {
+    # Private roots remain valid for the trusted domain-build tools.  The web
+    # ROOT flow applies the narrower public-only grammar before reaching here.
+    return if ($segment !~ /\A(?:[A-Za-z][A-Za-z0-9_-]*|_[A-Za-z][A-Za-z0-9_-]*)\z/
+      || length($segment) > 64);
+    $segment =~ tr/[a-z]/[A-Z]/;
+  }
+
+  return join('/', @segments);
+}
+
+
+sub Akashic::_PrepareRootWritePath
+{
+  my ( $self, $root ) = @_;
+
+  my $normalized = $self->_NormalizeRootForCreate($root);
+  return if (!defined($normalized));
+
+  my $domain_dir = $self->{_DomainDir};
+  return if (!defined($domain_dir) || $domain_dir eq '' || !-d $domain_dir);
+  my $domain_real = abs_path($domain_dir);
+  return if (!defined($domain_real) || !-d $domain_real);
+
+  my @segments = split('/', $normalized);
+  my $root_dir = File::Spec->catdir($domain_real, @segments);
+  my $relative = File::Spec->canonpath(File::Spec->abs2rel($root_dir, $domain_real));
+  return if (File::Spec->file_name_is_absolute($relative)
+          || $relative eq '..'
+          || $relative =~ m{\A\.\.(?:[\\/]|\z)});
+
+  # Every already-existing root component must be a real directory at its
+  # expected canonical location.  A symlink is rejected even when it happens
+  # to point back inside the domain.
+  my $path = $domain_real;
+  for my $segment (@segments) {
+    $path = File::Spec->catdir($path, $segment);
+    my @stat = lstat($path);
+    next if (!@stat);
+    return if (S_ISLNK($stat[2]) || !S_ISDIR($stat[2]));
+    my $path_real = abs_path($path);
+    return if (!defined($path_real) || $path_real ne $path);
+  }
+
+  # Pin all subsequent writes to the canonical domain rather than retaining a
+  # caller-supplied alias that could later be replaced with a symlink.
+  $self->SetVar('DomainDir', $domain_real);
+  $self->SetVar('Root', $normalized);
+  $self->{_RootDir} = $root_dir.'/';
+
+  return ($domain_real, $root_dir, \@segments);
+}
+
+
 sub Akashic::MakeRootDir
 {
   my ( $self ) = @_;
 
-  my $dir = $self->{_RootDir};
+  my ($domain_dir, $dir, $segments) = $self->_PrepareRootWritePath($self->{_Root});
+  if (!defined($domain_dir)) {
+    $self->Uprint("\nMakeRootDir: Invalid or unsafe Root path\n");
+    return 1;
+  }
+
   if (!-d $dir) {
-    my $root = $self->{_Root};
-
-    # Check for subdirectories in Root
-    if (index($self->{_Root}, '/') == -1) {
-      # No Subdirectories, just create RootDir
-
-      unless(mkdir $dir) {
-        $self->Uprint("\nMakeRootDir: Error creating [$dir]\n");
+    my $path = $domain_dir;
+    for my $segment (@{$segments}) {
+      $path = File::Spec->catdir($path, $segment);
+      my @stat = lstat($path);
+      if (@stat) {
+        if (S_ISLNK($stat[2]) || !S_ISDIR($stat[2])) {
+          $self->Uprint("\nMakeRootDir: Unsafe path [$path]\n");
+          return 1;
+        }
+        next;
+      }
+      unless (mkdir $path) {
+        $self->Uprint("\nMakeRootDir: Error creating [$path]\n");
         return 1;
       }
-    } else {
-      # Interatively create RootDir if Root contains subdirectories (/) (i.e. LANGS/ENG)
-
-      # Build an array of words in the phrase, separated by .
-      my @lWORDS = split('/', $self->{_Root});
-      #
-      # Build the RootDir directory
-      #
-      my $lWord = "";
-      my $lPath = $self->{_DomainDir};
-      foreach $lWord (@lWORDS) {
-        $lPath = $lPath.$lWord.'/';
-        if (!-d $lPath) {
-          unless (mkdir "$lPath") {
-            $self->Uprint("\nMakeRootDir: Error creating [$lPath]\n");
-            return 1;
-          }
-        }
-      } #end foreach
-      # Free up array
-      undef @lWORDS;
-
-    } #end if
+      @stat = lstat($path);
+      my $path_real = abs_path($path);
+      if (!@stat || S_ISLNK($stat[2]) || !S_ISDIR($stat[2])
+        || !defined($path_real) || $path_real ne $path) {
+        $self->Uprint("\nMakeRootDir: Unsafe created path [$path]\n");
+        return 1;
+      }
+    }
     $self->Uprint("Created Root: $dir\n");
     return 0;
   }
   return 0;
 } #END Akashic:MakeRootDir
+
+
+sub Akashic::_EnsureRootChildDirectory
+{
+  my ( $self, $dir ) = @_;
+
+  my @stat = lstat($dir);
+  if (@stat) {
+    return 1 if (S_ISLNK($stat[2]) || !S_ISDIR($stat[2]));
+    my $real = abs_path($dir);
+    return 1 if (!defined($real) || $real ne File::Spec->canonpath($dir));
+    return 0;
+  }
+
+  return 1 if (!mkdir($dir));
+  @stat = lstat($dir);
+  my $real = abs_path($dir);
+  return 1 if (!@stat || S_ISLNK($stat[2]) || !S_ISDIR($stat[2])
+    || !defined($real) || $real ne File::Spec->canonpath($dir));
+  return 0;
+}
+
+
+sub Akashic::_ConfiguredRootChildNames
+{
+  my ( $self ) = @_;
+
+  my @children;
+  for my $member (qw(_WORDS _PHRASES _PATHS _TREES _TEMPLATES _DATES)) {
+    my $child = $self->{$member};
+    # These settings are intentionally configurable, but each one still names
+    # one directory immediately below the root.  Never let an environment or
+    # SetVar override turn it into a path.
+    return if (!defined($child) || ref($child) || length($child) > 64
+      || $child !~ /\A(?:[A-Za-z][A-Za-z0-9_-]*|_[A-Za-z][A-Za-z0-9_-]*)\z/);
+    push @children, $child;
+  }
+
+  return \@children;
+}
 
 
 #*******************************************************************************
@@ -555,10 +656,16 @@ sub Akashic::CreateWordBase
   my ( $self, $Root, $pObject, $pName, $pShort, $pDesc, $pColor ) = @_;
   my $dir = "";
 
-  # Get the ROOT parameter if specified
-  if (defined($Root) && $Root ne "") {
-    # Set the Root, which sets the RootDir as well
-    $self->SetVar('Root', $Root);
+  my $effective_root = (defined($Root) && $Root ne '') ? $Root : $self->{_Root};
+  my ($domain_dir, $root_dir) = $self->_PrepareRootWritePath($effective_root);
+  if (!defined($domain_dir)) {
+    $self->Uprint("\nCreateWordBase: Invalid or unsafe Root path\n");
+    return 1;
+  }
+  my $root_children = $self->_ConfiguredRootChildNames();
+  if (!defined($root_children)) {
+    $self->Uprint("\nCreateWordBase: Invalid root child directory setting\n");
+    return 1;
   }
   # Define Object within Root
   $pObject = $Root if (!defined($pObject) || $pObject eq "");
@@ -567,7 +674,7 @@ sub Akashic::CreateWordBase
   $pDesc  = "" if (!defined($pDesc));
   $pColor = "" if (!defined($pColor));
 
-  $dir = $self->{_RootDir};
+  $dir = $root_dir;
 
   #
   # Create the Root directory if needed
@@ -613,71 +720,15 @@ sub Akashic::CreateWordBase
     $self->AddIndexLine($self->{_RootDir}, $self->{_Data}->{'_UPDATED'},  $self->Timestamp(), 'ONELINE');
   }
 
-  #
-  # Create the _WORDS directory
-  #
-  $dir = $self->{_RootDir}.$self->{_WORDS};
-  if (!-d $dir) {
-    unless(mkdir $dir) {
-      $self->Uprint("Unable to create $dir\n");
+  # Configured child namespaces are part of the trusted root path. Existing
+  # symlinks/non-directories are errors; never accept them merely because -d
+  # follows their target.
+  for my $child (@{$root_children}) {
+    $dir = File::Spec->catdir($self->{_RootDir}, $child);
+    if ($self->_EnsureRootChildDirectory($dir)) {
+      $self->Uprint("Unable to create safe directory $dir\n");
       return 1;
     }
-    #$self->Uprint("Created: $dir\n");
-  }
-  #
-  # Create the _PHRASES directory
-  #
-  $dir = $self->{_RootDir}.$self->{_PHRASES};
-  if (!-d $dir) {
-    unless(mkdir $dir) {
-      $self->Uprint("Unable to create $dir\n");
-      return 1;
-    }
-    #$self->Uprint("Created: $dir\n");
-  }
-  #
-  # Create the _PATHS directory
-  #
-  $dir = $self->{_RootDir}.$self->{_PATHS};
-  if (!-d $dir) {
-    unless(mkdir $dir) {
-      $self->Uprint("Unable to create $dir\n");
-      return 1;
-    }
-    #$self->Uprint("Created: $dir\n");
-  }
-  #
-  # Create the _TREES directory
-  #
-  $dir = $self->{_RootDir}.$self->{_TREES};
-  if (!-d $dir) {
-    unless(mkdir $dir) {
-      $self->Uprint("Unable to create $dir\n");
-      return 1;
-    }
-    #$self->Uprint("Created: $dir\n");
-  }
-  #
-  # Create the _TEMPLATES directory
-  #
-  $dir = $self->{_RootDir}.$self->{_TEMPLATES};
-  if (!-d $dir) {
-    unless(mkdir $dir) {
-      $self->Uprint("Unable to create $dir\n");
-      return 1;
-    }
-    #$self->Uprint("Created: $dir\n");
-  }
-  #
-  # Create the _DATES directory
-  #
-  $dir = $self->{_RootDir}.$self->{_DATES};
-  if (!-d $dir) {
-    unless(mkdir $dir) {
-      $self->Uprint("Unable to create $dir\n");
-      return 1;
-    }
-    #$self->Uprint("Created: $dir\n");
   }
 
   return 0;

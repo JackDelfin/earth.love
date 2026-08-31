@@ -556,6 +556,10 @@ sub EnsureAuthRoot {
     or die "Unable to restore authentication directory permissions\n";
   system('sudo', 'find', $auth_dir, '-type', 'f', '-exec', 'chmod', '0600', '{}', '+') == 0
     or die "Unable to restore authentication file permissions\n";
+  if (-x '/usr/sbin/restorecon') {
+    system('sudo', '/usr/sbin/restorecon', '-RF', $auth_dir) == 0
+      or die "Unable to restore authentication SELinux labels\n";
+  }
   return 1;
 }
 

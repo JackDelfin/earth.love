@@ -1,0 +1,106 @@
+#INCLUDE[EL_TOKENS]#
+#INCLUDE![EL_HEADER]#
+<main class="w3-container">
+  <section class="#BOX# w3-left-align">
+    <h2>#MSG[Administration]#</h2>
+    <p class="w3-small w3-text-grey">#MSG[This page manages accounts on this domain. Passphrases are never shown after they are saved.]#</p>
+
+    <h3>#MSG[Self-signup]#</h3>
+    <p>
+      #MSG[Current state]#:
+      #EQUAL[#AUTH_SELF_SIGNUP#][1][
+        <strong class="w3-text-green">#MSG[Enabled]#</strong>
+      ][
+        <strong class="w3-text-red">#MSG[Disabled]#</strong>
+      ]#
+    </p>
+    <p class="w3-small w3-text-grey">#MSG[When enabled, anyone may create a viewer account from the public signup page.]#</p>
+    <form name="admin_self_signup" action="#_ORBIT#eladmin" method="post" accept-charset="UTF-8" class="w3-container w3-margin-bottom">
+      <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+      <input type="hidden" name="admin_action" value="self_signup">
+      <button type="submit" name="enabled" value="1" class="w3-button w3-green w3-card-4 w3-round-large">#MSG[Enable self-signup]#</button>
+      <button type="submit" name="enabled" value="0" class="w3-button w3-red w3-card-4 w3-round-large">#MSG[Disable self-signup]#</button>
+    </form>
+
+    <h3>#MSG[Create account]#</h3>
+    <form name="admin_create" action="#_ORBIT#eladmin" method="post" accept-charset="UTF-8" class="w3-container w3-margin-bottom">
+      <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+      <input type="hidden" name="admin_action" value="create">
+
+      <div class="el-field el-field-checked">
+        <label for="admin-username">#MSG[User name]#</label>
+        <ul id="admin-username-help" class="el-field-rules">
+          <li>#MSG[3 to 32 characters]#</li>
+          <li>#MSG[Start with a letter]#</li>
+          <li>#MSG[Lowercase letters, digits, and hyphens]#</li>
+        </ul>
+        <p class="el-field-example">#MSG[Example: river-editor.]#</p>
+        <input id="admin-username" class="w3-input w3-round-large" type="text" name="username" minlength="3" maxlength="32" required autocapitalize="none" spellcheck="false" autocomplete="off" pattern="[A-Za-z][A-Za-z0-9]*(-[A-Za-z0-9]+)*" placeholder=" " aria-describedby="admin-username-help">
+      </div>
+
+      <label for="admin-role">#MSG[Role]#</label>
+      <select id="admin-role" class="w3-select w3-margin-bottom" name="role">
+        <option value="viewer">viewer</option>
+        <option value="editor" selected>editor</option>
+        <option value="admin">admin</option>
+      </select>
+
+      <div class="el-field el-field-checked">
+        <label for="admin-passphrase">#MSG[Passphrase]#</label>
+        <p id="admin-passphrase-help" class="el-field-hint">#MSG[15 to 128 characters. Spaces are welcome.]#</p>
+        <input id="admin-passphrase" class="w3-input w3-round-large" type="password" name="passphrase" minlength="15" maxlength="128" required autocomplete="new-password" spellcheck="false" placeholder=" " aria-describedby="admin-passphrase-help">
+      </div>
+
+      <div class="el-field">
+        <label for="admin-confirm">#MSG[Confirm passphrase]#</label>
+        <p id="admin-confirm-help" class="el-field-hint">#MSG[Type the same passphrase again to catch typos.]#</p>
+        <input id="admin-confirm" class="w3-input w3-round-large" type="password" name="confirm_passphrase" minlength="15" maxlength="128" required autocomplete="new-password" spellcheck="false" placeholder=" " aria-describedby="admin-confirm-help">
+      </div>
+
+      <label for="admin-person">#MSG[Linked person]#</label>
+      <select id="admin-person" class="w3-select w3-margin-bottom" name="person">
+        #ADMIN_PERSON_OPTIONS#
+      </select>
+      <p class="w3-small w3-margin-bottom">
+        <a class="w3-button w3-teal w3-round-large" href="#ADMIN_CREATE_PERSON_URL.html#">#MSG[Create a person]#</a>
+        #MSG[Create the person first if they are not listed, then return here to create and link the account.]#
+      </p>
+
+      <p><label><input type="checkbox" name="must_change" value="1" checked> #MSG[Require a passphrase change at next logon]#</label></p>
+      <button type="submit" class="w3-button w3-green w3-card-4 w3-round-large">#MSG[Create account]#</button>
+    </form>
+
+    <h3>#MSG[Accounts]#</h3>
+    #ADMIN_ACCOUNT_TABLE#
+
+    <h3>#MSG[Reset passphrase]#</h3>
+    <p class="w3-small w3-text-grey">#MSG[Issues a temporary passphrase, revokes that user's sessions, and requires a change at next logon.]#</p>
+    <form name="admin_reset" action="#_ORBIT#eladmin" method="post" accept-charset="UTF-8" class="w3-container">
+      <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+      <input type="hidden" name="admin_action" value="reset">
+
+      <div class="el-field el-field-checked">
+        <label for="reset-username">#MSG[User name]#</label>
+        <p id="reset-username-help" class="el-field-hint">#MSG[Lowercase letters, digits, and hyphens. Example: river-editor.]#</p>
+        <input id="reset-username" class="w3-input w3-round-large" type="text" name="username" minlength="3" maxlength="32" required autocapitalize="none" spellcheck="false" autocomplete="off" pattern="[A-Za-z][A-Za-z0-9]*(-[A-Za-z0-9]+)*" placeholder=" " aria-describedby="reset-username-help">
+      </div>
+
+      <div class="el-field el-field-checked">
+        <label for="reset-passphrase">#MSG[Temporary passphrase]#</label>
+        <p id="reset-passphrase-help" class="el-field-hint">#MSG[15 to 128 characters. Spaces are welcome.]#</p>
+        <input id="reset-passphrase" class="w3-input w3-round-large" type="password" name="passphrase" minlength="15" maxlength="128" required autocomplete="new-password" spellcheck="false" placeholder=" " aria-describedby="reset-passphrase-help">
+      </div>
+
+      <div class="el-field">
+        <label for="reset-confirm">#MSG[Confirm temporary passphrase]#</label>
+        <p id="reset-confirm-help" class="el-field-hint">#MSG[Type the same passphrase again to catch typos.]#</p>
+        <input id="reset-confirm" class="w3-input w3-round-large" type="password" name="confirm_passphrase" minlength="15" maxlength="128" required autocomplete="new-password" spellcheck="false" placeholder=" " aria-describedby="reset-confirm-help">
+      </div>
+
+      <button type="submit" class="w3-button w3-teal w3-card-4 w3-round-large">#MSG[Reset passphrase]#</button>
+    </form>
+
+    <p class="w3-small w3-text-grey w3-margin-top">#MSG[Store initialization and audit maintenance remain command-line operations via eluser.]#</p>
+  </section>
+</main>
+#INCLUDE![EL_FOOTER]#

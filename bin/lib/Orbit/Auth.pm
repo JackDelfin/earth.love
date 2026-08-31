@@ -52,6 +52,12 @@ my %COMMON_PASSPHRASE = map { $_ => 1 } qw(
 my $TEMP_SEQUENCE = 0;
 my $AUDIT_SEQUENCE = 0;
 my $NOFOLLOW = eval { Fcntl::O_NOFOLLOW() } || 0;
+my $DIRECTORY = eval { Fcntl::O_DIRECTORY() } || 0;
+# O_PATH is Linux UAPI value 010000000.  Older Perl Fcntl modules do not
+# expose it even when the running kernel supports it.
+my $PATH_ONLY = eval { Fcntl::O_PATH() };
+$PATH_ONLY = 010000000 if !defined($PATH_ONLY) && $^O eq 'linux';
+$PATH_ONLY ||= 0;
 
 sub new {
   my ($class, %args) = @_;
@@ -117,27 +123,122 @@ sub dependencies_available {
   return wantarray ? (!@missing, \@missing) : !@missing;
 }
 
+sub self_signup_enabled {
+  my ($self) = @_;
+  my $policy;
+  my $read = eval {
+    $self->_ensure_initialized;
+    $policy = $self->_read_json(File::Spec->catfile($self->{auth_root}, 'POLICY.json'));
+    1;
+  };
+  return 0 if !$read || ref($policy) ne 'HASH';
+  return 0 if !defined($policy->{schema}) || ref($policy->{schema})
+    || $policy->{schema} !~ /\A1\z/;
+  return 0 if !exists($policy->{self_signup})
+    || !JSON::PP::is_bool($policy->{self_signup});
+  return $policy->{self_signup} ? 1 : 0;
+}
+
+sub set_self_signup {
+  my ($self, $enabled) = @_;
+  croak 'self-signup setting must be boolean'
+    if !defined($enabled) || ref($enabled) || $enabled !~ /\A[01]\z/;
+  $self->_ensure_initialized;
+  return $self->_with_lock('policy:self-signup', sub {
+    $self->_write_json(
+      File::Spec->catfile($self->{auth_root}, 'POLICY.json'),
+      {
+        schema      => $SCHEMA_VERSION,
+        self_signup => $enabled ? JSON::PP::true : JSON::PP::false,
+      },
+    );
+    return $enabled ? 1 : 0;
+  });
+}
+
+sub provision_self_signup {
+  my ($self, $username, $passphrase) = @_;
+  croak 'unknown self-signup option' if @_ != 3;
+  $self->_ensure_initialized;
+  return $self->_with_lock('policy:self-signup', sub {
+    croak 'self-signup is disabled' if !$self->self_signup_enabled;
+    return $self->provision_account(
+      $username, $passphrase, role => 'viewer', must_change => 0,
+    );
+  });
+}
+
 sub initialize {
   my ($self) = @_;
   return $self if $self->{initialized};
 
-  _with_secure_umask(sub {
-    my $orbit_dir = File::Spec->catdir($self->{domain_dir}, '_ORBIT');
-    $self->_ensure_directory($orbit_dir, 0755, 0);
+  # 0022 yields the requested final modes at mkdir itself: _ORBIT is born
+  # 0755, while every private directory is born 0700.  No directory needs a
+  # pathname- or descriptor-based chmod after it can be renamed.
+  _with_directory_umask(sub {
+    croak 'directory-descriptor authentication hardening is unavailable'
+      if !$PATH_ONLY || !$DIRECTORY || !$NOFOLLOW || !-d '/proc/self/fd';
+    my $flags = $PATH_ONLY | $DIRECTORY | $NOFOLLOW;
+    my $domain_fh = $self->_open_pinned_directory(
+      'domain directory', $self->{domain_dir}, $self->{domain_dir}, $flags,
+    );
 
-    for my $dir (
-      $self->{auth_root},
-      $self->_dir('USERS'),
-      $self->_dir('PASSPHRASE'),
-      $self->_dir('SESSIONS'),
-      $self->_dir('RATELIMIT'),
-      $self->_dir('RATELIMIT', 'ACCOUNT'),
-      $self->_dir('RATELIMIT', 'IP'),
-      $self->_dir('LOCKS'),
-      $self->_dir('AUDIT'),
+    my $orbit_dir = File::Spec->catdir($self->{domain_dir}, '_ORBIT');
+    my $orbit_fh = $self->_ensure_directory(
+      $orbit_dir, 0755, 0, $domain_fh, $self->{domain_dir},
+      'authentication parent', $flags,
+    );
+    $self->_guard_auth_parent_path;
+
+    my $auth_fh = $self->_ensure_directory(
+      $self->{auth_root}, 0700, 1, $orbit_fh, $orbit_dir,
+      'authentication root', $flags,
+    );
+    my %pinned = ('' => $auth_fh);
+    for my $parts (
+      [qw(USERS)], [qw(PASSPHRASE)], [qw(SESSIONS)], [qw(LOCKS)],
+      [qw(AUDIT)], [qw(RATELIMIT)], [qw(RATELIMIT ACCOUNT)],
+      [qw(RATELIMIT IP)],
     ) {
-      $self->_ensure_directory($dir, 0700, 1);
+      my @parent_parts = @$parts;
+      my $name = pop @parent_parts;
+      my $parent_key = join('/', @parent_parts);
+      my $key = join('/', @$parts);
+      my $parent_fh = $pinned{$parent_key};
+      croak "missing pinned authentication parent for $key"
+        if !defined($parent_fh);
+      my $parent_path = File::Spec->catdir($self->{auth_root}, @parent_parts);
+      my $path = File::Spec->catdir($parent_path, $name);
+      $pinned{$key} = $self->_ensure_directory(
+        $path, 0700, 1, $parent_fh, $parent_path,
+        "authentication directory $key", $flags,
+      );
     }
+
+    # Keep the same descriptors that authorized initialization. Reopening the
+    # path after creation would reintroduce a window in which a renamed parent
+    # could redirect the pinned tree.
+    $self->_assert_pinned_directory_matches(
+      $domain_fh, $self->{domain_dir}, 'domain directory',
+    );
+    $self->_assert_pinned_directory_matches(
+      $orbit_fh, $orbit_dir, 'authentication parent',
+    );
+    for my $key (
+      '', qw(USERS PASSPHRASE SESSIONS LOCKS AUDIT RATELIMIT),
+      'RATELIMIT/ACCOUNT', 'RATELIMIT/IP',
+    ) {
+      my @parts = $key eq '' ? () : split(m{/}, $key);
+      my $path = @parts
+        ? File::Spec->catdir($self->{auth_root}, @parts)
+        : $self->{auth_root};
+      my $label = $key eq ''
+        ? 'authentication root'
+        : "authentication directory $key";
+      $self->_assert_pinned_directory_matches($pinned{$key}, $path, $label);
+    }
+    $self->{auth_root_fh} = $auth_fh;
+    $self->{auth_dir_fh} = \%pinned;
   });
 
   $self->{initialized} = 1;
@@ -146,7 +247,17 @@ sub initialize {
 
 sub _with_secure_umask {
   my ($code) = @_;
-  my $old_umask = umask(0077);
+  return _with_umask(0077, $code);
+}
+
+sub _with_directory_umask {
+  my ($code) = @_;
+  return _with_umask(0022, $code);
+}
+
+sub _with_umask {
+  my ($mask, $code) = @_;
+  my $old_umask = umask($mask);
   my ($result, $error);
   eval { $result = $code->(); 1 } or $error = $@ || 'secure filesystem operation failed';
   umask($old_umask);
@@ -166,22 +277,120 @@ sub _dir {
 }
 
 sub _ensure_directory {
-  my ($self, $path, $mode, $force_mode) = @_;
+  my ($self, $path, $mode, $force_mode, $parent_fh, $parent_path, $label, $flags) = @_;
   $self->_assert_contained($path, $self->{domain_dir});
+  croak "missing pinned parent for directory: $path"
+    if !defined($parent_fh) || !defined(fileno($parent_fh));
+  croak "missing expected parent for directory: $path"
+    if !defined($parent_path) || $parent_path eq '';
+  $label ||= "directory $path";
+  $flags = $PATH_ONLY | $DIRECTORY | $NOFOLLOW if !defined $flags;
 
-  if (lstat $path) {
+  my $relative = File::Spec->abs2rel($path, $parent_path);
+  my @parts = grep { $_ ne '' && $_ ne '.' } File::Spec->splitdir($relative);
+  croak "directory is not a direct child of its pinned parent: $path"
+    if @parts != 1 || $parts[0] eq '..'
+      || File::Spec->file_name_is_absolute($relative);
+
+  # Validate the public name before and after the descriptor-relative
+  # operation.  The parent descriptor prevents a substituted path or symlink
+  # from redirecting mkdir into an attacker tree.  If that pinned parent is
+  # itself renamed, post-validation rolls our newly created child back through
+  # the same descriptor.
+  $self->_assert_pinned_directory_matches($parent_fh, $parent_path, "parent of $label");
+  my $parent_ref = '/proc/self/fd/' . fileno($parent_fh);
+  my $open_path = File::Spec->catdir($parent_ref, $parts[0]);
+  my @before = lstat($open_path);
+  my $was_missing = !@before;
+  my $created = 0;
+  if (@before) {
     croak "refusing symbolic-link directory: $path" if -l _;
     croak "expected directory: $path" if !-d _;
   }
   else {
-    my $parent = dirname($path);
-    croak "parent directory does not exist: $parent" if !-d $parent;
-    mkdir($path, $mode) or do {
-      croak "could not create directory $path: $!" if !-d $path;
-    };
+    if (mkdir($open_path, $mode)) {
+      $created = 1;
+    }
+    else {
+      my $mkdir_error = "$!";
+      my @raced = lstat($open_path);
+      croak "could not create directory $path: $mkdir_error" if !@raced;
+      croak "refusing symbolic-link directory: $path" if -l _;
+      croak "expected directory: $path" if !-d _;
+    }
   }
 
-  chmod($mode, $path) or croak "could not set permissions on $path: $!" if $force_mode;
+  my ($directory_fh, @opened);
+  my $verified = eval {
+    my @candidate = lstat($open_path);
+    croak "missing newly established directory: $path" if !@candidate;
+    croak "refusing symbolic-link directory: $path" if -l _;
+    croak "expected directory: $path" if !-d _;
+
+    $directory_fh = $self->_open_pinned_directory(
+      $label, $open_path, $open_path, $flags,
+    );
+    @opened = stat($directory_fh);
+    croak "could not inspect $label" if !@opened;
+    croak "$label changed while it was being established"
+      if $candidate[0] != $opened[0] || $candidate[1] != $opened[1];
+
+    my $private = $force_mode ? 1 : 0;
+    croak "$label has unexpected ownership"
+      if (($was_missing || $private) && $opened[4] != $>);
+    croak "permissions on $path must be " . sprintf('%04o', $mode)
+      if (($was_missing || $private) && ($opened[2] & 07777) != $mode);
+
+    # A descriptor-relative mkdir cannot be redirected through a substituted
+    # symlink, but its pinned parent can be renamed.  Verify containment before
+    # retaining the new descriptor; a just-created empty directory is rolled
+    # back below if either public name no longer identifies the pinned inode.
+    $self->_assert_pinned_directory_matches(
+      $parent_fh, $parent_path, "parent of $label",
+    );
+    $self->_assert_pinned_directory_matches($directory_fh, $path, $label);
+    1;
+  };
+  if (!$verified) {
+    my $error = $@ || "could not verify $label";
+    if ($created) {
+      my $rollback_error;
+      eval {
+        $self->_rollback_created_directory($open_path, \@opened, $path);
+        1;
+      } or $rollback_error = $@ || "could not roll back $path";
+      $error .= "rollback failed: $rollback_error" if defined($rollback_error);
+    }
+    die $error;
+  }
+  return $directory_fh;
+}
+
+sub _rollback_created_directory {
+  my ($self, $open_path, $opened, $public_path) = @_;
+  croak "cannot identify newly created directory for rollback: $public_path"
+    if ref($opened) ne 'ARRAY' || !@$opened;
+  my @current = lstat($open_path);
+  return if !@current;
+  croak "refusing to roll back a substituted directory: $public_path"
+    if -l _ || !-d _
+      || $current[0] != $opened->[0] || $current[1] != $opened->[1];
+  rmdir($open_path)
+    or croak "could not roll back newly created directory $public_path: $!";
+  return;
+}
+
+sub _assert_pinned_directory_matches {
+  my ($self, $fh, $path, $label) = @_;
+  my @expected = lstat($path);
+  croak "missing $label: $path" if !@expected;
+  croak "refusing symbolic-link $label: $path" if -l _;
+  croak "expected $label directory: $path" if !-d _;
+  my @opened = stat($fh);
+  croak "could not inspect pinned $label" if !@opened;
+  croak "$label changed during authentication initialization"
+    if $expected[0] != $opened[0] || $expected[1] != $opened[1];
+  croak "pinned $label is not a directory" if !-d $fh;
   return;
 }
 
@@ -200,6 +409,7 @@ sub _assert_contained {
 sub _guard_auth_path {
   my ($self, $path) = @_;
   $self->_assert_contained($path, $self->{auth_root});
+  $self->_guard_auth_parent_path;
 
   croak "missing authentication root: $self->{auth_root}" if !lstat $self->{auth_root};
   croak "refusing symbolic-link authentication root: $self->{auth_root}" if -l _;
@@ -219,6 +429,108 @@ sub _guard_auth_path {
     croak "expected directory: $current" if !-d _;
   }
   return;
+}
+
+sub _guard_auth_parent_path {
+  my ($self) = @_;
+  my @parents = (
+    [ 'domain directory', $self->{domain_dir} ],
+    [ 'authentication parent', File::Spec->catdir($self->{domain_dir}, '_ORBIT') ],
+  );
+  for my $entry (@parents) {
+    my ($label, $path) = @$entry;
+    croak "missing $label: $path" if !lstat $path;
+    croak "refusing symbolic-link $label: $path" if -l _;
+    croak "expected $label directory: $path" if !-d _;
+  }
+  return;
+}
+
+sub _pin_auth_root {
+  my ($self) = @_;
+  return if defined($self->{auth_dir_fh});
+  croak 'directory-descriptor authentication hardening is unavailable'
+    if !$PATH_ONLY || !$DIRECTORY || !$NOFOLLOW || !-d '/proc/self/fd';
+
+  $self->_guard_auth_parent_path;
+  my $flags = $PATH_ONLY | $DIRECTORY | $NOFOLLOW;
+  my $domain_fh = $self->_open_pinned_directory(
+    'domain directory', $self->{domain_dir}, $self->{domain_dir}, $flags,
+  );
+  my $domain_ref = '/proc/self/fd/' . fileno($domain_fh);
+  my $orbit_path = File::Spec->catdir($self->{domain_dir}, '_ORBIT');
+  my $orbit_fh = $self->_open_pinned_directory(
+    'authentication parent', $orbit_path,
+    File::Spec->catdir($domain_ref, '_ORBIT'), $flags,
+  );
+  my $orbit_ref = '/proc/self/fd/' . fileno($orbit_fh);
+  my $auth_fh = $self->_open_pinned_directory(
+    'authentication root', $self->{auth_root},
+    File::Spec->catdir($orbit_ref, '_AUTH'), $flags,
+  );
+
+  my %pinned = ('' => $auth_fh);
+  for my $parts (
+    [qw(USERS)], [qw(PASSPHRASE)], [qw(SESSIONS)], [qw(LOCKS)],
+    [qw(AUDIT)], [qw(RATELIMIT)], [qw(RATELIMIT ACCOUNT)],
+    [qw(RATELIMIT IP)],
+  ) {
+    my @parent_parts = @$parts;
+    my $name = pop @parent_parts;
+    my $parent_key = join('/', @parent_parts);
+    my $key = join('/', @$parts);
+    my $parent_fh = $pinned{$parent_key};
+    croak "missing pinned authentication parent for $key"
+      if !defined($parent_fh);
+    my $parent_ref = '/proc/self/fd/' . fileno($parent_fh);
+    my $expected = File::Spec->catdir($self->{auth_root}, @$parts);
+    $pinned{$key} = $self->_open_pinned_directory(
+      "authentication directory $key", $expected,
+      File::Spec->catdir($parent_ref, $name), $flags,
+    );
+  }
+
+  $self->{auth_root_fh} = $auth_fh;
+  $self->{auth_dir_fh} = \%pinned;
+  return;
+}
+
+sub _open_pinned_directory {
+  my ($self, $label, $expected_path, $open_path, $flags) = @_;
+  my @expected = lstat($expected_path);
+  croak "missing $label: $expected_path" if !@expected;
+  croak "refusing symbolic-link $label: $expected_path" if -l _;
+  croak "expected $label directory: $expected_path" if !-d _;
+
+  sysopen(my $fh, $open_path, $flags)
+    or croak "could not pin $label: $!";
+  my @opened = stat($fh);
+  croak "could not inspect pinned $label" if !@opened;
+  croak "$label changed while it was being pinned"
+    if $expected[0] != $opened[0] || $expected[1] != $opened[1];
+  croak "pinned $label is not a directory" if !-d $fh;
+  return $fh;
+}
+
+sub _pinned_auth_path {
+  my ($self, $path) = @_;
+  $self->_assert_contained($path, $self->{auth_root});
+  $self->_pin_auth_root if !defined($self->{auth_dir_fh});
+  my $relative = File::Spec->abs2rel($path, $self->{auth_root});
+  my @parts = grep { $_ ne '' && $_ ne '.' } File::Spec->splitdir($relative);
+  croak "unsafe pinned authentication path: $path" if grep { $_ eq '..' } @parts;
+
+  my $exact_key = join('/', @parts);
+  if (defined(my $exact_fh = $self->{auth_dir_fh}{$exact_key})) {
+    return '/proc/self/fd/' . fileno($exact_fh);
+  }
+
+  my $name = pop @parts;
+  my $directory_key = join('/', @parts);
+  my $directory_fh = $self->{auth_dir_fh}{$directory_key};
+  croak "authentication path does not use a pinned directory: $path"
+    if !defined($name) || !defined($directory_fh);
+  return File::Spec->catfile('/proc/self/fd/' . fileno($directory_fh), $name);
 }
 
 sub validate_username {
@@ -252,6 +564,9 @@ sub validate_passphrase {
     }
     elsif ($normalized =~ /[\p{Cc}\p{Cs}]/) {
       ($valid, $reason) = (0, 'control_character');
+    }
+    elsif ($normalized =~ /[\#<>]/) {
+      ($valid, $reason) = (0, 'markup');
     }
     elsif (length($normalized) < 15) {
       ($valid, $reason) = (0, 'too_short');
@@ -348,6 +663,11 @@ sub provision_account {
       created_at   => $now,
       updated_at   => $now,
       last_logon   => undef,
+      credential_transition => {
+        kind          => 'provision',
+        target_status => $final_status,
+        started_at    => $now,
+      },
     };
     $self->_write_json($self->_account_path($username), $record);
     $self->_write_json($self->_credential_path($username), {
@@ -358,6 +678,7 @@ sub provision_account {
       updated_at => $now,
     });
     $record->{status} = $final_status;
+    delete $record->{credential_transition};
     $record->{updated_at} = $self->_now;
     $self->_write_json($self->_account_path($username), $record);
     return $record;
@@ -371,6 +692,39 @@ sub read_account {
   $self->_ensure_initialized;
   $username = $self->_validated_username($username);
   return $self->_read_account_unchecked($username);
+}
+
+sub list_accounts {
+  my ($self) = @_;
+  $self->_ensure_initialized;
+  my $dir = $self->_dir('USERS');
+  $self->_guard_auth_path(File::Spec->catfile($dir, 'placeholder.json'));
+  my $safe_dir = $self->_pinned_auth_path($dir);
+  opendir(my $dh, $safe_dir) or croak "could not open account directory: $!";
+  my @accounts;
+  while (my $name = readdir $dh) {
+    next if $name !~ /\A([a-z][a-z0-9]*(?:-[a-z0-9]+)*)\.json\z/;
+    my $username = $1;
+    next if !$self->validate_username($username);
+    next if @accounts >= 500;
+    my $account = eval { $self->read_account($username) };
+    next if $@ || ref($account) ne 'HASH';
+    my $sessions = eval { scalar $self->_sessions_for_user($username) };
+    $sessions = 0 if !defined $sessions;
+    push @accounts, {
+      username    => $account->{username},
+      role        => $account->{role},
+      status      => $account->{status},
+      must_change => $account->{must_change} ? 1 : 0,
+      person      => defined($account->{person}) ? $account->{person} : '',
+      last_logon  => $account->{last_logon},
+      created_at  => $account->{created_at} || 0,
+      updated_at  => $account->{updated_at} || 0,
+      sessions    => 0 + $sessions,
+    };
+  }
+  closedir($dh) or croak "could not close account directory: $!";
+  return [ sort { $a->{username} cmp $b->{username} } @accounts ];
 }
 
 sub _read_account_unchecked {
@@ -395,23 +749,72 @@ sub update_account {
   _validate_account_attrs(\%attrs, 0);
   croak 'no account attributes supplied' if !keys %attrs;
 
-  my $account = $self->_with_lock("user:$username", sub {
+  my $changed = $self->_with_lock("user:$username", sub {
     my $record = $self->_read_account_unchecked($username);
     croak "account does not exist: $username" if !defined $record;
     if (defined($attrs{status}) && $attrs{status} eq 'active') {
       croak 'an account cannot be activated without a credential'
         if !defined $self->_read_json($self->_credential_path($username));
     }
+    my $invalidate_sessions = grep {
+      exists($attrs{$_}) && $record->{$_} ne $attrs{$_}
+    } qw(role status);
     for my $field (keys %attrs) {
       $record->{$field} = $field eq 'must_change' ? ($attrs{$field} ? 1 : 0) : $attrs{$field};
     }
     $record->{person} = undef if exists($attrs{person}) && (!defined($attrs{person}) || $attrs{person} eq '');
+    $record->{auth_version} = 1 + ($record->{auth_version} || 0)
+      if $invalidate_sessions;
     $record->{updated_at} = $self->_now;
     $self->_write_json($self->_account_path($username), $record);
-    return $record;
+    my ($revoked, $cleanup_error) = (0, undef);
+    if ($invalidate_sessions) {
+      eval {
+        $revoked = $self->_revoke_all_sessions_user_locked($username);
+        1;
+      } or $cleanup_error = $@ || 'session cleanup failed';
+    }
+    return {
+      account => $record,
+      invalidated_sessions => $invalidate_sessions ? 1 : 0,
+      revoked => $revoked,
+      cleanup_error => $cleanup_error,
+    };
   });
-  $self->audit(event => 'account.update', result => 'success', username => $username);
-  return $account;
+
+  # The account record is the authoritative invalidation boundary: it is
+  # replaced with the new auth_version before session files are removed.  If
+  # physical cleanup or either audit later fails, no old session can become
+  # valid again after a disable/enable or role-change sequence.
+  my @post_commit_errors;
+  if ($changed->{invalidated_sessions}) {
+    if (defined($changed->{cleanup_error})) {
+      push @post_commit_errors, $changed->{cleanup_error};
+      eval {
+        $self->audit(
+          event => 'session.revoke_all', result => 'failure', username => $username,
+          reason => 'account_security_update_cleanup_failed',
+        );
+        1;
+      } or push @post_commit_errors, $@ || 'session cleanup failure audit failed';
+    }
+    else {
+      eval {
+        $self->_audit_revoke_all(
+          $username, $changed->{revoked}, 'account_security_update',
+        );
+        1;
+      } or push @post_commit_errors, $@ || 'session invalidation audit failed';
+    }
+  }
+  eval {
+    $self->audit(event => 'account.update', result => 'success', username => $username);
+    1;
+  } or push @post_commit_errors, $@ || 'account update audit failed';
+  warn 'account update committed with post-commit failure: '
+    . join('; ', @post_commit_errors)
+    if @post_commit_errors;
+  return $changed->{account};
 }
 
 sub _validate_account_attrs {
@@ -423,8 +826,10 @@ sub _validate_account_attrs {
   croak 'invalid role' if defined($attrs->{role}) && !$VALID_ROLE{$attrs->{role}};
   croak 'invalid account status' if defined($attrs->{status}) && !$VALID_STATUS{$attrs->{status}};
   if (defined($attrs->{person}) && $attrs->{person} ne '') {
-    croak 'invalid person pointer'
-      if ref($attrs->{person}) || $attrs->{person} !~ /\A[A-Za-z0-9][A-Za-z0-9._-]{0,79}\z/;
+    require Orbit::Person;
+    my $word = Orbit::Person->normalize($attrs->{person});
+    croak 'invalid person pointer' if !defined($word) || $word eq '';
+    $attrs->{person} = $word;
   }
   return;
 }
@@ -455,6 +860,15 @@ sub create_credential {
     my $record = $self->_read_account_unchecked($username);
     croak "account does not exist: $username" if !defined $record;
     croak "credential already exists: $username" if defined $self->_read_json($self->_credential_path($username));
+    my $target_status = $record->{status};
+    if ($record->{status} eq 'incomplete') {
+      $target_status = 'active';
+      if (ref($record->{credential_transition}) eq 'HASH'
+          && $VALID_STATUS{$record->{credential_transition}{target_status} || ''}
+          && $record->{credential_transition}{target_status} ne 'incomplete') {
+        $target_status = $record->{credential_transition}{target_status};
+      }
+    }
     my $now = $self->_now;
     $self->_write_json($self->_credential_path($username), {
       schema     => $SCHEMA_VERSION,
@@ -464,7 +878,8 @@ sub create_credential {
       updated_at => $now,
     });
     if ($record->{status} eq 'incomplete') {
-      $record->{status} = 'active';
+      $record->{status} = $target_status;
+      delete $record->{credential_transition};
       $record->{updated_at} = $now;
       $self->_write_json($self->_account_path($username), $record);
     }
@@ -727,17 +1142,13 @@ sub authenticate {
       die $verification_error;
     }
 
-    my $after = $self->_finish_login_attempt($admission, 'failure');
+    $self->_finish_login_attempt($admission, 'failure');
     $self->audit(
       event => 'auth.login', result => 'failure', username => $username,
       ip => $ip, user_agent => $ua, reason => 'account_rate_limited',
       request_id => $context{request_id},
     );
-    return {
-      ok => 0,
-      error => 'invalid_credentials',
-      ($after->{allowed} ? () : (retry_after => $after->{retry_after})),
-    };
+    return { ok => 0, error => 'invalid_credentials' };
   }
 
   my $attempt;
@@ -815,17 +1226,13 @@ sub authenticate {
   }
 
   if (!$attempt->{verified}) {
-    my $after = $self->_finish_login_attempt($admission, 'failure');
+    $self->_finish_login_attempt($admission, 'failure');
     $self->audit(
       event => 'auth.login', result => 'failure', username => $username,
       ip => $ip, user_agent => $ua, reason => $attempt->{reason},
       request_id => $context{request_id},
     );
-    return {
-      ok => 0,
-      error => 'invalid_credentials',
-      ($after->{allowed} ? () : (retry_after => $after->{retry_after})),
-    };
+    return { ok => 0, error => 'invalid_credentials' };
   }
 
   my $finish_error;
@@ -895,7 +1302,8 @@ sub _create_session_user_locked {
     for (1 .. 5) {
       $token = _base64url($self->_random_bytes(32));
       my $digest = sha256_hex($token);
-      next if -e $self->_session_path($digest) || -l $self->_session_path($digest);
+      my $candidate = $self->_pinned_auth_path($self->_session_path($digest));
+      next if -e $candidate || -l $candidate;
       $csrf = _base64url($self->_random_bytes(32));
       my $now = $self->_now;
       $session = {
@@ -1085,7 +1493,8 @@ sub revoke_session {
   if (defined $username) {
     $removed = $self->_with_lock("user:$username", sub {
       return $self->_with_lock("sessions:$username", sub {
-        return 0 if !-e $path && !-l $path;
+        my $safe_path = $self->_pinned_auth_path($path);
+        return 0 if !-e $safe_path && !-l $safe_path;
         $self->_safe_unlink($path);
         return 1;
       });
@@ -1097,7 +1506,8 @@ sub revoke_session {
     # orphan lock.  Attacker-chosen bearer values cannot grow LOCKS without
     # bound.
     $removed = $self->_with_lock($self->_orphan_lock_key($digest), sub {
-      return 0 if !-e $path && !-l $path;
+      my $safe_path = $self->_pinned_auth_path($path);
+      return 0 if !-e $safe_path && !-l $safe_path;
       $self->_safe_unlink($path);
       return 1;
     });
@@ -1178,7 +1588,8 @@ sub _sessions_for_user {
   my ($self, $username) = @_;
   my $dir = $self->_dir('SESSIONS');
   $self->_guard_auth_path(File::Spec->catfile($dir, 'placeholder'));
-  opendir(my $dh, $dir) or croak "could not open session directory: $!";
+  my $safe_dir = $self->_pinned_auth_path($dir);
+  opendir(my $dh, $safe_dir) or croak "could not open session directory: $!";
   my @items;
   while (my $name = readdir $dh) {
     next if $name !~ /\A([0-9a-f]{64})\.json\z/;
@@ -1205,6 +1616,26 @@ sub check_rate_limit {
   });
 }
 
+sub admit_self_signup {
+  my ($self, $ip) = @_;
+  $self->_ensure_initialized;
+  my $ip_key = _rate_subject($ip);
+  return $self->_with_lock($self->_rate_lock_key('IP', $ip_key), sub {
+    my $now = $self->_now;
+    my $address = $self->_load_rate_state('IP', $ip_key, $now);
+    my $status = $self->_bucket_status($address, $self->{ip_limit}, $now);
+    return $status if !$status->{allowed};
+
+    # Count the request before the caller can begin Argon2 work.  This makes
+    # the existing per-IP bucket a hard sequential as well as concurrent gate
+    # for public account creation.
+    $self->_append_rate_failure($address, $self->{ip_limit}, $now);
+    $self->_store_rate_state('IP', $ip_key, $address, $now);
+    my $after = $self->_bucket_status($address, $self->{ip_limit}, $now);
+    return { %$after, allowed => 1 };
+  });
+}
+
 sub record_login_failure {
   my ($self, $username, $ip) = @_;
   $self->_ensure_initialized;
@@ -1225,7 +1656,10 @@ sub record_login_failure {
 sub record_login_success {
   my ($self, $username, $ip) = @_;
   $self->_ensure_initialized;
-  my $account_key = $self->_login_account_rate_subject($username, $ip);
+  my $account_key = _account_rate_subject($username);
+  return 0 if !$self->validate_username($account_key);
+  my $known_account = eval { $self->_read_account_unchecked($account_key) };
+  return 0 if $@ || !defined($known_account) || $known_account->{status} ne 'active';
   my $ip_key = _rate_subject($ip);
   $self->_with_rate_locks($account_key, $ip_key, sub {
     my $now = $self->_now;
@@ -1243,8 +1677,28 @@ sub record_login_success {
 sub _reserve_login_attempt {
   my ($self, $username, $ip) = @_;
   $self->_ensure_initialized;
-  my $account_key = $self->_login_account_rate_subject($username, $ip);
   my $ip_key = _rate_subject($ip);
+
+  # Consult the hard pre-hash IP gate before resolving whether the submitted
+  # username has an account bucket.  Besides avoiding needless account I/O for
+  # a blocked source, this guarantees retry_after reflects only source-IP state
+  # and cannot disclose a separately locked real account.
+  my $initial_ip_status = $self->_with_lock(
+    $self->_rate_lock_key('IP', $ip_key),
+    sub {
+      my $now = $self->_now;
+      my $address = $self->_load_rate_state('IP', $ip_key, $now);
+      return $self->_bucket_status($address, $self->{ip_limit}, $now);
+    },
+  );
+  return {
+    allowed => 0,
+    retry_after => $initial_ip_status->{retry_after},
+    ip_count => $initial_ip_status->{count},
+    ip_in_flight => $initial_ip_status->{in_flight},
+  } if !$initial_ip_status->{allowed};
+
+  my $account_key = $self->_login_account_rate_subject($username, $ip);
   return $self->_with_rate_locks($account_key, $ip_key, sub {
     my $now = $self->_now;
     my $account = $self->_load_rate_state('ACCOUNT', $account_key, $now);
@@ -1256,7 +1710,12 @@ sub _reserve_login_attempt {
     # Only the shared IP limit may reject before expensive verification.  If
     # just the account bucket is blocked, admit a masked dummy verification so
     # known and unknown usernames have the same expensive response shape.
-    return $status if !$ip_status->{allowed};
+    return {
+      allowed => 0,
+      retry_after => $ip_status->{retry_after},
+      ip_count => $ip_status->{count},
+      ip_in_flight => $ip_status->{in_flight},
+    } if !$ip_status->{allowed};
     my $credential_allowed = $account_status->{allowed} ? 1 : 0;
 
     my $reservation_id;
@@ -1407,7 +1866,8 @@ sub _store_rate_state {
   if (!@{$state->{failures}}
       && !keys(%{$state->{reservations}})
       && ($state->{locked_until} || 0) <= $now) {
-    $self->_safe_unlink($path) if -e $path || -l $path;
+    my $safe_path = $self->_pinned_auth_path($path);
+    $self->_safe_unlink($path) if -e $safe_path || -l $safe_path;
     return;
   }
   $state->{updated_at} = $now;
@@ -1512,7 +1972,8 @@ sub _maintain_sessions {
   my ($self, $summary) = @_;
   my $dir = $self->_dir('SESSIONS');
   $self->_guard_auth_path(File::Spec->catfile($dir, 'placeholder'));
-  opendir(my $dh, $dir) or croak "could not open session directory: $!";
+  my $safe_dir = $self->_pinned_auth_path($dir);
+  opendir(my $dh, $safe_dir) or croak "could not open session directory: $!";
   my @digests;
   while (my $name = readdir $dh) {
     push @digests, $1 if $name =~ /\A([0-9a-f]{64})\.json\z/;
@@ -1531,7 +1992,8 @@ sub _maintain_sessions {
       if (defined $username && !$initial_error) {
         $removed = $self->_with_lock("user:$username", sub {
           return $self->_with_lock("sessions:$username", sub {
-            return 0 if !-e $path && !-l $path;
+            my $safe_path = $self->_pinned_auth_path($path);
+            return 0 if !-e $safe_path && !-l $safe_path;
             my $fresh = $self->_read_json($path);
             return 0 if !$self->_session_needs_cleanup_user_locked($fresh, $digest);
             return $self->_safe_unlink($path);
@@ -1542,7 +2004,8 @@ sub _maintain_sessions {
         # Corrupt/unattributable records cannot be restored.  A fixed stripe
         # coordinates cleanup without allocating a lock per attacker digest.
         $removed = $self->_with_lock($self->_orphan_lock_key($digest), sub {
-          return 0 if !-e $path && !-l $path;
+          my $safe_path = $self->_pinned_auth_path($path);
+          return 0 if !-e $safe_path && !-l $safe_path;
           my ($fresh, $read_error);
           $fresh = eval { $self->_read_json($path) };
           $read_error = $@;
@@ -1581,7 +2044,8 @@ sub _maintain_rate_buckets {
   for my $type (qw(ACCOUNT IP)) {
     my $dir = $self->_dir('RATELIMIT', $type);
     $self->_guard_auth_path(File::Spec->catfile($dir, 'placeholder'));
-    opendir(my $dh, $dir) or croak "could not open rate-limit directory: $!";
+    my $safe_dir = $self->_pinned_auth_path($dir);
+    opendir(my $dh, $safe_dir) or croak "could not open rate-limit directory: $!";
     my @digests;
     while (my $name = readdir $dh) {
       push @digests, $1 if $name =~ /\A([0-9a-f]{64})\.json\z/;
@@ -1593,7 +2057,8 @@ sub _maintain_rate_buckets {
       my ($removed, $rewritten) = (0, 0);
       my $ok = eval {
         $self->_with_lock($self->_rate_lock_key_for_digest($digest), sub {
-          return if !-e $path && !-l $path;
+          my $safe_path = $self->_pinned_auth_path($path);
+          return if !-e $safe_path && !-l $safe_path;
           my $state = $self->_read_json($path);
           $self->_normalize_rate_state_for_maintenance($path, $state, $now);
           if (!@{$state->{failures}}
@@ -1679,13 +2144,14 @@ sub audit {
   my $path = File::Spec->catfile($self->_dir('AUDIT'), 'auth.jsonl');
   my $line = $self->_json->encode($record) . "\n";
   $self->_guard_auth_path($path);
+  my $safe_path = $self->_pinned_auth_path($path);
   $self->_with_lock('audit-log', sub {
-    croak "refusing symbolic-link audit log: $path" if -l $path;
+    croak "refusing symbolic-link audit log: $path" if -l $safe_path;
     $self->_rotate_audit_unlocked($path, length($line));
     _with_secure_umask(sub {
-      sysopen(my $fh, $path, O_WRONLY | O_APPEND | O_CREAT | $NOFOLLOW, 0600)
+      sysopen(my $fh, $safe_path, O_WRONLY | O_APPEND | O_CREAT | $NOFOLLOW, 0600)
         or croak "could not open audit log: $!";
-      chmod(0600, $path) or croak "could not set permissions on audit log: $!";
+      chmod(0600, $safe_path) or croak "could not set permissions on audit log: $!";
       flock($fh, LOCK_EX) or croak "could not lock audit log: $!";
       binmode($fh, ':raw');
       print {$fh} $line or croak "could not append audit log: $!";
@@ -1701,7 +2167,8 @@ sub audit {
 
 sub _rotate_audit_unlocked {
   my ($self, $path, $incoming_bytes) = @_;
-  return if !lstat $path;
+  my $safe_path = $self->_pinned_auth_path($path);
+  return if !lstat $safe_path;
   croak "refusing symbolic-link audit log: $path" if -l _;
   croak "expected regular audit log: $path" if !-f _;
   my $current_bytes = -s _;
@@ -1716,13 +2183,14 @@ sub _rotate_audit_unlocked {
       $milliseconds, $$, $sequence);
     my $candidate = File::Spec->catfile($self->_dir('AUDIT'), $name);
     $self->_guard_auth_path($candidate);
-    next if lstat $candidate;
+    next if lstat $self->_pinned_auth_path($candidate);
     $archive = $candidate;
     last;
   }
   croak 'could not allocate an audit archive name' if !defined $archive;
-  rename($path, $archive) or croak "could not rotate audit log: $!";
-  chmod(0600, $archive) or croak "could not set audit archive permissions: $!";
+  my $safe_archive = $self->_pinned_auth_path($archive);
+  rename($safe_path, $safe_archive) or croak "could not rotate audit log: $!";
+  chmod(0600, $safe_archive) or croak "could not set audit archive permissions: $!";
   return;
 }
 
@@ -1730,14 +2198,16 @@ sub _prune_audit_archives_unlocked {
   my ($self) = @_;
   my $dir = $self->_dir('AUDIT');
   $self->_guard_auth_path(File::Spec->catfile($dir, 'placeholder'));
-  opendir(my $dh, $dir) or croak "could not open audit directory: $!";
+  my $safe_dir = $self->_pinned_auth_path($dir);
+  opendir(my $dh, $safe_dir) or croak "could not open audit directory: $!";
   my @archives;
   while (my $name = readdir $dh) {
     next if $name !~ /\Aauth\.([0-9]{20})\.([0-9]+)\.([0-9]{6})\.jsonl\z/;
     my $path = File::Spec->catfile($dir, $name);
-    croak "refusing symbolic-link audit archive: $path" if -l $path;
-    croak "expected regular audit archive: $path" if !-f $path;
-    push @archives, { name => $name, path => $path, mtime => (stat($path))[9] || 0 };
+    my $safe_path = $self->_pinned_auth_path($path);
+    croak "refusing symbolic-link audit archive: $path" if -l $safe_path;
+    croak "expected regular audit archive: $path" if !-f $safe_path;
+    push @archives, { name => $name, path => $path, mtime => (stat($safe_path))[9] || 0 };
   }
   closedir($dh) or croak "could not close audit directory: $!";
   @archives = sort {
@@ -1886,12 +2356,13 @@ sub _with_lock {
   my $digest = sha256_hex(encode_utf8($key));
   my $path = File::Spec->catfile($self->_dir('LOCKS'), "$digest.lock");
   $self->_guard_auth_path($path);
-  croak "refusing symbolic-link lock file: $path" if -l $path;
+  my $safe_path = $self->_pinned_auth_path($path);
+  croak "refusing symbolic-link lock file: $path" if -l $safe_path;
 
   return _with_secure_umask(sub {
-    sysopen(my $fh, $path, O_RDWR | O_CREAT | $NOFOLLOW, 0600)
+    sysopen(my $fh, $safe_path, O_RDWR | O_CREAT | $NOFOLLOW, 0600)
       or croak "could not open authentication lock: $!";
-    chmod(0600, $path) or croak "could not set lock permissions: $!";
+    chmod(0600, $safe_path) or croak "could not set lock permissions: $!";
     flock($fh, LOCK_EX) or croak "could not acquire authentication lock: $!";
     my ($result, $error);
     eval { $result = $code->(); 1 } or $error = $@ || 'locked operation failed';
@@ -1904,11 +2375,12 @@ sub _with_lock {
 sub _read_json {
   my ($self, $path) = @_;
   $self->_guard_auth_path($path);
-  return undef if !lstat $path;
+  my $safe_path = $self->_pinned_auth_path($path);
+  return undef if !lstat $safe_path;
   croak "refusing symbolic-link data file: $path" if -l _;
   croak "expected regular data file: $path" if !-f _;
   croak "authentication data file is too large: $path" if -s _ > $MAX_JSON_BYTES;
-  sysopen(my $fh, $path, O_RDONLY | $NOFOLLOW) or croak "could not open $path: $!";
+  sysopen(my $fh, $safe_path, O_RDONLY | $NOFOLLOW) or croak "could not open $path: $!";
   flock($fh, LOCK_SH) or croak "could not lock $path: $!";
   binmode($fh, ':raw');
   local $/;
@@ -1925,13 +2397,15 @@ sub _write_json {
   my $bytes = $self->_json->encode($data) . "\n";
   croak 'authentication JSON record exceeds maximum size' if length($bytes) > $MAX_JSON_BYTES;
   $self->_guard_auth_path($path);
-  croak "refusing symbolic-link data file: $path" if -l $path;
+  my $safe_path = $self->_pinned_auth_path($path);
+  croak "refusing symbolic-link data file: $path" if -l $safe_path;
   my $parent = dirname($path);
   my $temp = File::Spec->catfile($parent, sprintf('.auth-%d-%d.tmp', $$, ++$TEMP_SEQUENCE));
   $self->_guard_auth_path($temp);
+  my $safe_temp = $self->_pinned_auth_path($temp);
 
   return _with_secure_umask(sub {
-    sysopen(my $fh, $temp, O_WRONLY | O_CREAT | O_EXCL | $NOFOLLOW, 0600)
+    sysopen(my $fh, $safe_temp, O_WRONLY | O_CREAT | O_EXCL | $NOFOLLOW, 0600)
       or croak "could not create temporary authentication file: $!";
     binmode($fh, ':raw');
     my $ok = eval {
@@ -1939,14 +2413,14 @@ sub _write_json {
       $fh->flush or die "could not flush temporary authentication file: $!";
       $fh->sync or die "could not sync temporary authentication file: $!";
       close($fh) or die "could not close temporary authentication file: $!";
-      chmod(0600, $temp) or die "could not set authentication file permissions: $!";
-      croak "refusing symbolic-link data file: $path" if -l $path;
-      rename($temp, $path) or die "could not install authentication file: $!";
+      chmod(0600, $safe_temp) or die "could not set authentication file permissions: $!";
+      croak "refusing symbolic-link data file: $path" if -l $safe_path;
+      rename($safe_temp, $safe_path) or die "could not install authentication file: $!";
       1;
     };
     my $error = $@;
     close($fh) if !$ok;
-    unlink($temp) if -f $temp && !-l $temp;
+    unlink($safe_temp) if -f $safe_temp && !-l $safe_temp;
     die $error if !$ok;
     return 1;
   });
@@ -1955,10 +2429,11 @@ sub _write_json {
 sub _safe_unlink {
   my ($self, $path) = @_;
   $self->_guard_auth_path($path);
-  return 0 if !lstat $path;
+  my $safe_path = $self->_pinned_auth_path($path);
+  return 0 if !lstat $safe_path;
   croak "refusing to unlink symbolic link: $path" if -l _;
   croak "refusing to unlink non-file: $path" if !-f _;
-  unlink($path) or croak "could not remove authentication file $path: $!";
+  unlink($safe_path) or croak "could not remove authentication file $path: $!";
   return 1;
 }
 
@@ -2042,11 +2517,15 @@ Orbit::Auth - private file-backed authentication for an Orbit domain
 =head1 STORAGE AND SECURITY CONTRACT
 
 Data lives below C<_ORBIT/_AUTH> in C<USERS>, C<PASSPHRASE>, C<SESSIONS>,
-C<RATELIMIT>, C<LOCKS>, and C<AUDIT>.  Authentication directories are mode
+C<RATELIMIT>, C<LOCKS>, and C<AUDIT>, with domain policy in C<POLICY.json>.
+Authentication directories are mode
 0700 and files are mode 0600.  JSON replacement is same-directory and atomic;
 read/modify/write operations use advisory locks.  Generated paths are bounded
 by strict identifiers and every authentication path is checked for containment
-and symbolic-link parents.  Operations needing both account and session state
+and symbolic-link parents.  On the supported Linux hosts, private I/O is also
+resolved below a pinned authentication-root directory descriptor so a parent
+rename/symlink race cannot redirect a checked operation.  Operations needing
+both account and session state
 always acquire C<user:E<lt>nameE<gt>> before C<sessions:E<lt>nameE<gt>>; session
 creation, touch, individual revocation, bulk revocation, and cap eviction all
 coordinate on that same per-user sessions lock.
@@ -2072,6 +2551,13 @@ bytes.  Argon2id PHC strings use 19 MiB, two iterations, parallelism one, a
 
 =over
 
+=item C<self_signup_enabled>, C<set_self_signup($boolean)>, C<provision_self_signup>
+
+The policy is disabled when C<POLICY.json> is missing, unreadable, malformed,
+or does not contain a real JSON boolean.  Policy replacement is protected and
+atomic.  Public provisioning rechecks the policy while holding its lock and
+always creates an active C<viewer> account without C<must_change>.
+
 =item C<validate_username($value)>, C<validate_passphrase($value)>
 
 Return a boolean in scalar context or C<($boolean, $reason)> in list context.
@@ -2085,13 +2571,17 @@ active account without a credential.
 
 Hashes first, writes an incomplete account, writes its credential, and only
 then marks it active (or disabled if requested).  An interrupted operation
-therefore fails closed.
+therefore fails closed.  The staging record persists the requested final
+status so recovery cannot accidentally activate an account intended to stay
+disabled.
 
-=item C<read_account>, C<update_account>, C<bump_auth_version>
+=item C<read_account>, C<list_accounts>, C<update_account>, C<bump_auth_version>
 
 Account fields available to callers are role, status, optional person pointer,
 and must_change.  Roles are viewer/editor/admin.  Authentication versions are
-maintained internally.
+maintained internally.  A real role or status change advances auth_version and
+revokes all sessions as part of the same per-user operation; setting a field to
+its existing value does not invalidate sessions again.
 
 =item C<create_credential>, C<verify_passphrase>, C<reset_passphrase>, C<change_passphrase>
 
@@ -2134,9 +2624,12 @@ pre-session login form from account-confusion attacks.
 
 Maintain independent account (five failures) and IP (twenty failures) buckets
 over 15 minutes with a 15-minute lockout.  A successful login clears only the
-account failure history.  C<authenticate> atomically reserves capacity in both
-buckets before doing expensive work; abandoned reservations expire after five
-minutes.
+known, active account's failure history; C<record_login_success> returns false
+for unknown or inactive names and never clears their shared bucket.
+C<authenticate> atomically reserves capacity in both buckets before doing
+expensive work; abandoned reservations expire after five minutes.
+C<admit_self_signup> consumes IP capacity before public provisioning can begin
+Argon2 work and returns a fail-closed throttled status when capacity is spent.
 
 =item C<audit(%event)>
 

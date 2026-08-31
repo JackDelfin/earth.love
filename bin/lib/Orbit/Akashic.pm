@@ -39,6 +39,9 @@
 # SetInputParams()
 #   - Define the primary parameters for Akashic earth.love pages
 #
+# _ApplyHomeNavigatorDefaults()
+#   - Bare /o/page opens the Action Navigator instead of LANGS search
+#
 # SetFormFields($CGIabbrev, $CGIparam)
 #   - Set and get the form fields from the "formfields" parameter
 #
@@ -139,7 +142,9 @@ sub Orbit::SetInputParams
   $O->SetParamTokens('dt', 'datatype', 'DATATYPE', '');
   $O->SetParamTokens('p',  'page',     'PAGE',     '');
   $O->SetParamTokens('np', 'npage',    'NPAGE',    '');   # Next Page for Navigation
-  $O->SetParamTokens('l',  'list',     'LIST',     '');   # Values: LIST BO (Bubble)
+  # `l` is language.  List vs bubble style is only the full `list` parameter
+  # (list | button).  Sharing the `l` abbrev would steal LANG (e.g. ENG).
+  $O->SetParamTokens('',  'list',     'LIST',     '');   # Values: list | button
   $O->SetParamTokens('m',  'menu',     'MENU',     '');
   $O->SetParamTokens('n',  'nav',      'NAV',      '');
   $O->SetParamTokens('pm', 'pmenu',    'PMENU',    '');
@@ -149,8 +154,57 @@ sub Orbit::SetInputParams
   $O->SetParamTokens('a',  'action',   'ACTION',   '');
   # Set the form fields as tokens as passed in with 'formfields'
   $O->SetFormFields('ff',  'formfields');
+  $O->_ApplyHomeNavigatorDefaults();
 
 } #SetInputParams
+
+
+#*******************************************************************************
+#
+# _CGIHasValue(@names)
+#
+# - True when any of the named CGI parameters is a non-empty scalar.
+#
+#*******************************************************************************
+sub Orbit::_CGIHasValue
+{
+  my ( $O, @names ) = @_;
+  foreach my $name (@names) {
+    next if (!defined($name) || $name eq '');
+    my $value = $O->getCGIParam($name);
+    return 1 if (defined($value) && !ref($value) && $value ne '');
+  }
+  return 0;
+} #_CGIHasValue
+
+
+#*******************************************************************************
+#
+# _ApplyHomeNavigatorDefaults()
+#
+# - A web request with no root, object, word, menu, tree, or nav selector is
+#   the site home.  Open the Action Navigator (COMMS / action) instead of the
+#   implicit LANGS search.  Explicit r=/o=/w=/m= requests are left alone so
+#   root index links and content pages keep their destinations.
+#
+#*******************************************************************************
+sub Orbit::_ApplyHomeNavigatorDefaults
+{
+  my ( $O ) = @_;
+  return if ($O->{_InvalidRequestInput} || $O->{_InvalidRootInput});
+  return if (($ENV{GATEWAY_INTERFACE} // '') eq ''
+          && ($ENV{REQUEST_METHOD} // '') eq '');
+  return if ($O->_CGIHasValue(qw(r root o object w word m menu t tree n nav)));
+
+  my $page = $O->getCGIParam('p');
+  $page = $O->getCGIParam('page') if (!defined($page) || $page eq '');
+  $page = '' if (!defined($page) || ref($page));
+  return if ($page ne '' && $page !~ /\ADEFAULT\z/i);
+
+  $O->SetRoot('COMMS');
+  $O->SetUntrustedToken('ROOT', $O->Get_Token('ROOT'));
+  $O->SetUntrustedToken('MENU', 'action');
+} #_ApplyHomeNavigatorDefaults
 
 
 #*******************************************************************************
@@ -279,7 +333,7 @@ sub Orbit::SetFormFields
       my $is_page_field = ($ff =~ /\A[A-Za-z][A-Za-z0-9_]{0,61}[QSM]\z/) ? 1 : 0;
       my $upper = uc($ff);
       $upper =~ s/_REQ\z//;
-      my $reserved = ($upper =~ /\A(?:ENV_.*|AUTH.*|CSRF.*|RETURN_TO|ROOT|PROOT|NROOT|DOMAIN|OBJECT|LANG|TREE|BRANCH|WORD|NWORD|DATATYPE|PAGE|NPAGE|LIST|MENU|NAV|PMENU|NMENU|STEP|STEPS|ACTION|FORMFIELDS|ERROR_TEXT|SUCCESS_TEXT|MESSAGE_TEXT)\z/
+      my $reserved = ($upper =~ /\A(?:ENV_.*|AUTH.*|CSRF.*|PROFILE.*|ADMIN.*|PERSON.*|LINK_USER|SETTINGS_TAB|RETURN_TO|ROOT|PROOT|NROOT|DOMAIN|OBJECT|LANG|TREE|BRANCH|WORD|NWORD|DATATYPE|PAGE|NPAGE|LIST|MENU|NAV|PMENU|NMENU|STEP|STEPS|ACTION|FORMFIELDS|ERROR_TEXT|SUCCESS_TEXT|MESSAGE_TEXT)\z/
         || $upper =~ /\A_(?:ORBIT|DEBUG|STATIC)\z/
         || $upper =~ /\A_(?:DEBUG|STATIC|WORD|PHRASE|PATH|BADWORD|WORDTYPE|WORDFOUND|WORDDIR|PARTIALWORD|FORMFIELDS|DOMAINDIR|ROOT(?:_[A-Z0-9]+)*)_\z/) ? 1 : 0;
       # Underscored data fields belong only to POSTs handled by the dedicated
@@ -531,6 +585,14 @@ sub Orbit::SetWordTokens
       $O->SetUntrustedToken('_PARTIALWORD_', $A->GetPartialWord( $WordDir ));
     }
     $O->Set_Token('_WORDDIR_', $WordDir);
+  }
+
+  if (($O->Get_Token('_WORDFOUND_') // '') eq '1') {
+    # Auth is not initialized yet during Orbit->new().  Skip until
+    # _PublishPersonPageIfCurrent runs after InitializeAuth / ShowPage.
+    if (defined($O->{_Auth}) && $O->can('_PublishPersonPageIfCurrent')) {
+      eval { $O->_PublishPersonPageIfCurrent($pWord) };
+    }
   }
 
   return 1;

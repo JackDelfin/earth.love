@@ -12,6 +12,7 @@ use Test::More;
 
 my $repo = abs_path(File::Spec->catdir($FindBin::Bin, '..', '..'));
 my $sync = File::Spec->catfile($repo, 'bin', 'setup', 'el_sync_auth_templates.sh');
+my $packager = File::Spec->catfile($repo, 'bin', 'setup', 'el_package_setup_dom.sh');
 
 sub write_file {
   my ($path, $contents, $mode) = @_;
@@ -42,7 +43,7 @@ sub run_command {
 subtest 'propagation requests all configured vhost domains' => sub {
   for my $relative (qw(bin/setup/el_propogate.sh bin/setup/el_propogate_fedora.sh)) {
     my $source = slurp(File::Spec->catfile($repo, $relative));
-    like($source, qr/el_sync_auth_templates\.sh --all/, "$relative synchronizes every vhost");
+    like($source, qr/el_sync_auth_templates\.sh"? --all/, "$relative synchronizes every vhost");
     unlike($source, qr/el_sync_auth_templates\.sh \/LOVE\/earth\.love/, "$relative has no single-domain sync");
   }
   my $sync_source = slurp($sync);
@@ -50,12 +51,114 @@ subtest 'propagation requests all configured vhost domains' => sub {
     'template ownership falls back to the Fedora Apache account when needed');
   like($sync_source, qr/EL_BUTTON_NEW\.oml.*EL_BUTTON_ADD\.oml/s,
     'dedicated mutation-route buttons are part of the forced security template sync');
+  like($sync_source, qr/EL_LOGON\.oml.*EL_SIGNUP\.oml/s,
+    'public signup template is part of the forced authentication template sync');
+  like($sync_source, qr/EL_HEADER\.oml.*EL_NAV_BUTTONS\.oml.*EL_NAV_MENUS\.oml.*DEFAULT\.oml/s,
+    'header chrome and the default landing page are part of the forced template sync');
+  like($sync_source, qr/EL_NAV_SHOW_MORE\.oml.*EL_TOKENS_SEARCH\.oml/s,
+    'data-box toolbar templates are part of the forced template sync');
+  my $propagator = slurp(File::Spec->catfile($repo, 'bin', 'tools', 'PROPOGATE_earthlove.pl'));
+  like($propagator, qr/ellogon\.pl\s+elsignup\.pl\s+ellogoff\.pl/s,
+    'public signup CGI is installed with the authentication routes');
+  ok(-x File::Spec->catfile($repo, 'bin', 'cgi', 'elsignup.pl'),
+    'public signup CGI source is executable');
   my $new_button = slurp(File::Spec->catfile($repo, 'bin', '_TEMPLATES', 'EL_BUTTON_NEW.oml'));
   my $add_button = slurp(File::Spec->catfile($repo, 'bin', '_TEMPLATES', 'EL_BUTTON_ADD.oml'));
   like($new_button, qr/#_ORBIT#elnew\?/, 'create navigation enters the authorized elnew handler');
   unlike($new_button, qr/#SHOWPAGE_BUTTON#/, 'create navigation cannot invoke EL_NEW through generic page');
   like($add_button, qr/#_ORBIT#eladd\?/, 'add navigation enters the authorized eladd handler');
   unlike($add_button, qr/#SHOWPAGE_BUTTON#/, 'add navigation cannot invoke EL_ADD through generic page');
+};
+
+subtest 'deployment fails closed and is independent of the installed Perl version' => sub {
+  for my $relative (qw(bin/setup/el_propogate.sh bin/setup/el_propogate_fedora.sh)) {
+    my $source = slurp(File::Spec->catfile($repo, $relative));
+    like($source, qr/^set -euo pipefail$/m, "$relative exits on an unhandled command failure");
+    like($source, qr{/usr/bin/perl -MConfig -e 'print \$Config\{sitelib\}'},
+      "$relative discovers the site-library path from the CGI interpreter");
+    unlike($source, qr{/usr/local/share/perl/5\.38\.2},
+      "$relative does not hardcode a distribution Perl version");
+    like($source,
+      qr/if ! sudo "\$SCRIPTPATH\/el_sync_auth_templates\.sh" --all; then.*?exit 1/s,
+      "$relative explicitly fails when template synchronization fails");
+    unlike($source, qr{chmod \+x /(?:usr/lib|var/www)/cgi-bin/\*},
+      "$relative has no obsolete wildcard CGI chmod");
+  }
+
+  my $propagator = slurp(File::Spec->catfile($repo, 'bin', 'tools', 'PROPOGATE_earthlove.pl'));
+  like($propagator, qr/chmod\(0755, \$newfile, \$file\) == 2/,
+    'the propagator itself makes both CGI names executable');
+
+  my $activation = slurp(File::Spec->catfile($repo, 'bin', 'SETUP_DOM', 'installACTIVATION.pl'));
+  like($activation, qr/system\('sudo', \$auth_template_sync, \$domdir\)/,
+    'activation routes policy files and root-specific shadows through the hardened synchronizer');
+
+  for my $relative (qw(
+      bin/setup/el_setup_EARTHLOVE.sh
+      bin/setup/el_setup_EARTHLOVE_fedora.sh
+  )) {
+    my $source = slurp(File::Spec->catfile($repo, $relative));
+    like($source,
+      qr{if ! "\$SCRIPTPATH/el_package_setup_dom\.sh" .*?; then.*?exit 1}s,
+      "$relative fails if deterministic security-package staging fails");
+  }
+
+  my $guide = slurp(File::Spec->catfile($repo, 'doc', '4_AUTHENTICATION.md'));
+  like($guide, qr{sudo -u www-data /usr/local/sbin/eluser create},
+    'administrator examples use the absolute eluser installation path');
+  unlike($guide, qr{sudo -u (?:www-data|apache) eluser\b},
+    'administrator examples do not depend on the runtime user PATH');
+};
+
+subtest 'domain setup packaging overwrites stale files and fails closed' => sub {
+  my $tmp = tempdir(CLEANUP => 1);
+  my $target = File::Spec->catdir($tmp, 'SETUP_DOM');
+  make_path(File::Spec->catdir($target, '_TEMPLATES'));
+  my $stale_activation = File::Spec->catfile($target, 'installACTIVATION.pl');
+  my $stale_template = File::Spec->catfile($target, '_TEMPLATES', 'EL_LOGON.oml');
+  write_file($stale_activation, "stale activation\n", 0755);
+  write_file($stale_template, "stale template\n", 0644);
+  my $future = time + 86_400;
+  utime($future, $future, $stale_activation, $stale_template)
+    or die "Unable to set future package mtimes: $!";
+
+  my ($status, $output) = run_command($packager,
+    File::Spec->catdir($repo, 'bin'), $target);
+  is($status, 0, 'domain setup package staging succeeds') or diag($output);
+  is(slurp($stale_activation),
+    slurp(File::Spec->catfile($repo, 'bin', 'SETUP_DOM', 'installACTIVATION.pl')),
+    'a newer-mtime activation installer is force-refreshed');
+  is(slurp($stale_template),
+    slurp(File::Spec->catfile($repo, 'bin', '_TEMPLATES', 'EL_LOGON.oml')),
+    'a newer-mtime authentication template is force-refreshed');
+  ok(-x File::Spec->catfile($target, 'el_sync_auth_templates.sh'),
+    'the packaged synchronizer is executable');
+  ok(-f File::Spec->catfile($target, '_TEMPLATES', 'EL_SIGNUP.oml'),
+    'the packaged domain setup includes the public signup template');
+
+  my $outside = File::Spec->catfile($tmp, 'outside-template');
+  write_file($outside, "outside must remain unchanged\n", 0644);
+  unlink($stale_template) or die "Unable to replace packaged template for symlink test: $!";
+  symlink($outside, $stale_template) or die "Unable to create packaged template symlink: $!";
+  my ($resync_status, $resync_output) = run_command($packager,
+    File::Spec->catdir($repo, 'bin'), $target);
+  is($resync_status, 0, 'restaging safely replaces a nested destination symlink')
+    or diag($resync_output);
+  ok(!-l $stale_template && -f $stale_template,
+    'the packaged authentication template is restored as a regular file');
+  is(slurp($stale_template),
+    slurp(File::Spec->catfile($repo, 'bin', '_TEMPLATES', 'EL_LOGON.oml')),
+    'the replacement template contains the current policy');
+  is(slurp($outside), "outside must remain unchanged\n",
+    'restaging never writes through a destination symlink');
+
+  my $invalid_target = File::Spec->catfile($tmp, 'not-a-directory');
+  write_file($invalid_target, "occupied\n");
+  my ($failure_status, $failure_output) = run_command($packager,
+    File::Spec->catdir($repo, 'bin'), $invalid_target);
+  isnt($failure_status, 0, 'an invalid package target fails instead of continuing');
+  like($failure_output, qr/Refusing unsafe domain-setup package target/,
+    'package failure identifies its unsafe target');
 };
 
 subtest 'fresh-domain builders establish the private store last' => sub {
@@ -71,6 +174,16 @@ subtest 'fresh-domain builders establish the private store last' => sub {
   my $activation = slurp(File::Spec->catfile($repo, 'bin', 'SETUP_DOM', 'installACTIVATION.pl'));
   like($activation, qr/EnsureAuthRoot\(\$domdir, \$AuthRuntimeUser\)/,
     'activation installation also establishes the private auth root');
+
+  for my $relative (qw(
+      bin/SETUP_DOM/elBUILD_root.pl
+      bin/SETUP_DOM/elSETUP_DOM.pl
+      bin/SETUP_DOM/installACTIVATION.pl
+      bin/setup/el_setup_AKASHIC.sh
+  )) {
+    like(slurp(File::Spec->catfile($repo, $relative)), qr{restorecon[^\n]*-RF[^\n]*(?:\$auth_dir|\$AUTH_DIR)},
+      "$relative restores the targeted authentication SELinux label");
+  }
 
   for my $relative (qw(
       bin/SETUP_DOM/elBUILD_root.pl
@@ -98,14 +211,22 @@ subtest 'eluser keeps recovery commands independent of crypto providers' => sub 
     'irrelevant role options are rejected');
   like($source, qr/--person is valid only with create/,
     'irrelevant person options are rejected');
+  like($source, qr/if \(\$< == 0 \|\| \$> == 0\)/,
+    'eluser refuses both real-root and effective-root execution');
+  my @version_bumps = ($source =~ /bump_auth_version/g);
+  my @bulk_revokes = ($source =~ /revoke_all_sessions/g);
+  is(scalar(@version_bumps), 1,
+    'only the explicit revoke command advances auth_version in the CLI');
+  is(scalar(@bulk_revokes), 1,
+    'only the explicit revoke command performs separate bulk revocation');
   like($source,
-    qr/if \(\$command eq 'enable'\).*?bump_auth_version.*?revoke_all_sessions.*?update_account\(\$username, status => 'active'\)/s,
-    'enable invalidates sessions while disabled and writes active last');
+    qr/if \(\$command eq 'enable'\).*?update_account\(\$username, status => 'active'\)/s,
+    'enable delegates atomic version invalidation and revocation to update_account');
 };
 
 SKIP: {
   my ($probe_status) = run_command('unshare', '-Ur', 'true');
-  skip 'unprivileged user namespaces are unavailable for safe installer testing', 16
+  skip 'unprivileged user namespaces are unavailable for safe installer testing', 19
     if $probe_status != 0;
 
   my $tmp = tempdir(CLEANUP => 1);
@@ -122,6 +243,28 @@ SKIP: {
     0755,
   );
   write_file(File::Spec->catfile($fake_bin, 'chown'), "#!/bin/sh\nexit 0\n", 0755);
+
+  # Exercise the exact installed layout: activation and its synchronizer live
+  # in SETUP_DOM, with the complete source in SETUP_DOM/_TEMPLATES.
+  my $packaged = File::Spec->catdir($tmp, 'SETUP_DOM');
+  my ($package_copy_status, $package_copy_output) = run_command(
+    $packager, File::Spec->catdir($repo, 'bin'), $packaged,
+  );
+  is($package_copy_status, 0, 'test packages the complete template source')
+    or diag($package_copy_output);
+
+  my $packaged_domain = File::Spec->catdir($tmp, 'packaged.example');
+  make_path(File::Spec->catdir($packaged_domain, '_WEB'));
+  make_path(File::Spec->catdir($packaged_domain, '_ROOT', '_TEMPLATES'));
+  my $path = "$fake_bin:$ENV{PATH}";
+  my ($packaged_status, $packaged_output) = run_command(
+    'unshare', '-Ur', 'env', "PATH=$path",
+    File::Spec->catfile($packaged, 'el_sync_auth_templates.sh'), $packaged_domain,
+  );
+  is($packaged_status, 0, 'the packaged SETUP_DOM synchronizer finds its local templates')
+    or diag($packaged_output);
+  ok(-f File::Spec->catfile($packaged_domain, '_ROOT', '_TEMPLATES', 'EL_LOGON.oml'),
+    'packaged-layout execution installs the login template');
 
   my @domains;
   for my $name (qw(one.example two.example)) {
@@ -147,7 +290,6 @@ SKIP: {
   my $shadow = File::Spec->catfile($shadow_dir, 'EL_HEADER.oml');
   write_file($shadow, "stale root-specific shadow\n");
 
-  my $path = "$fake_bin:$ENV{PATH}";
   my ($status, $output) = run_command(
     'unshare', '-Ur', 'env',
     "EL_APACHE_SITES_DIR=$sites", "PATH=$path", $sync, '--all',

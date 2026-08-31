@@ -193,6 +193,164 @@ use Orbit::Auth;
 }
 
 {
+  package Local::FailingCredentialWriteAuth;
+
+  our @ISA = qw(Orbit::Auth);
+
+  sub fail_next_credential_write {
+    my ($self) = @_;
+    $self->{_test_fail_next_credential_write} = 1;
+    return $self;
+  }
+
+  sub _write_json {
+    my ($self, $path, $data) = @_;
+    if ($self->{_test_fail_next_credential_write}
+        && $path =~ m{/PASSPHRASE/[a-z][a-z0-9-]*\.json\z}) {
+      delete $self->{_test_fail_next_credential_write};
+      die "injected credential write failure\n";
+    }
+    return $self->SUPER::_write_json($path, $data);
+  }
+}
+
+{
+  package Local::RetainingSessionAuth;
+
+  our @ISA = qw(Orbit::Auth);
+
+  # Model an interrupted/best-effort physical cleanup.  auth_version remains
+  # the authoritative boundary and must keep these retained records invalid.
+  sub _revoke_all_sessions_user_locked { return 0 }
+}
+
+{
+  package Local::FailingSessionCleanupAuth;
+
+  our @ISA = qw(Orbit::Auth);
+  sub _revoke_all_sessions_user_locked { die "injected session cleanup failure\n" }
+}
+
+{
+  package Local::SwapAfterGuardAuth;
+
+  our @ISA = qw(Orbit::Auth);
+
+  sub arm_parent_swap {
+    my ($self, $relocated, $replacement) = @_;
+    $self->{_test_parent_swap} = [$relocated, $replacement];
+    return;
+  }
+
+  sub _guard_auth_path {
+    my ($self, @args) = @_;
+    $self->SUPER::_guard_auth_path(@args);
+    if (my $swap = delete($self->{_test_parent_swap})) {
+      my $orbit = File::Spec->catdir($self->{domain_dir}, '_ORBIT');
+      rename($orbit, $swap->[0]) or die "relocate guarded _ORBIT: $!";
+      symlink($swap->[1], $orbit) or die "replace guarded _ORBIT: $!";
+    }
+    return;
+  }
+}
+
+{
+  package Local::SwapDuringInitializationAuth;
+
+  our @ISA = qw(Orbit::Auth);
+
+  sub arm_initialization_swap {
+    my ($self, $relocated, $replacement) = @_;
+    $self->{_test_initialization_swap} = [$relocated, $replacement];
+    return;
+  }
+
+  sub _guard_auth_parent_path {
+    my ($self, @args) = @_;
+    $self->SUPER::_guard_auth_parent_path(@args);
+    if (my $swap = delete($self->{_test_initialization_swap})) {
+      my $orbit = File::Spec->catdir($self->{domain_dir}, '_ORBIT');
+      rename($orbit, $swap->[0]) or die "relocate initializing _ORBIT: $!";
+      symlink($swap->[1], $orbit) or die "replace initializing _ORBIT: $!";
+    }
+    return;
+  }
+}
+
+{
+  package Local::MoveParentAfterMatchAuth;
+
+  our @ISA = qw(Orbit::Auth);
+
+  sub arm_parent_move {
+    my ($self, $relocated) = @_;
+    $self->{_test_parent_move_after_match} = $relocated;
+    return;
+  }
+
+  sub _assert_pinned_directory_matches {
+    my ($self, $fh, $path, $label) = @_;
+    $self->SUPER::_assert_pinned_directory_matches($fh, $path, $label);
+    if ($label eq 'parent of authentication root'
+        && (my $relocated = delete($self->{_test_parent_move_after_match}))) {
+      rename($path, $relocated)
+        or die "relocate matched authentication parent: $!";
+    }
+    return;
+  }
+}
+
+{
+  package Local::SwapOpenedAuthRoot;
+
+  our @ISA = qw(Orbit::Auth);
+
+  sub arm_opened_auth_swap {
+    my ($self, $relocated, $replacement) = @_;
+    $self->{_test_opened_auth_swap} = [$relocated, $replacement];
+    return;
+  }
+
+  sub _open_pinned_directory {
+    my ($self, $label, @args) = @_;
+    my $fh = $self->SUPER::_open_pinned_directory($label, @args);
+    if ($label eq 'authentication root'
+        && (my $swap = delete($self->{_test_opened_auth_swap}))) {
+      rename($self->{auth_root}, $swap->[0])
+        or die "relocate opened authentication root: $!";
+      if (defined($swap->[1])) {
+        symlink($swap->[1], $self->{auth_root})
+          or die "replace opened authentication root: $!";
+      }
+    }
+    return $fh;
+  }
+}
+
+{
+  package Local::SwapUsersAfterGuardAuth;
+
+  our @ISA = qw(Orbit::Auth);
+
+  sub arm_users_swap {
+    my ($self, $relocated, $replacement) = @_;
+    $self->{_test_users_swap} = [$relocated, $replacement];
+    return;
+  }
+
+  sub _guard_auth_path {
+    my ($self, @args) = @_;
+    $self->SUPER::_guard_auth_path(@args);
+    if (my $swap = delete($self->{_test_users_swap})) {
+      my $users = File::Spec->catdir($self->{auth_root}, 'USERS');
+      rename($users, $swap->[0]) or die "relocate guarded USERS: $!";
+      symlink($swap->[1], $users) or die "replace guarded USERS: $!";
+    }
+    return;
+  }
+}
+
+{
   package Local::FailingAuditAuth;
 
   our @ISA = qw(Orbit::Auth);
@@ -291,6 +449,64 @@ for my $relative (qw(USERS PASSPHRASE SESSIONS RATELIMIT LOCKS AUDIT)) {
   is(mode_of($path), 0700, "$relative directory is mode 0700");
 }
 
+subtest 'path pinning supports write-execute-only parent directories' => sub {
+  my $restricted_domain = tempdir(CLEANUP => 1);
+  my $restricted_orbit = File::Spec->catdir($restricted_domain, '_ORBIT');
+  mkdir($restricted_orbit, 0300) or die "create restricted Orbit parent: $!";
+  chmod(0300, $restricted_orbit) or die "restrict Orbit parent: $!";
+  chmod(0300, $restricted_domain) or die "restrict domain parent: $!";
+
+  my $restricted = Orbit::Auth->new(
+    domain_dir => $restricted_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'traverse-only-pins'),
+  );
+  my $error = '';
+  eval { $restricted->initialize; 1 } or $error = $@;
+
+  # Restore listing permission before File::Temp performs recursive cleanup.
+  chmod(0700, $restricted_domain) or die "restore domain permissions: $!";
+  chmod(0700, $restricted_orbit) or die "restore Orbit permissions: $!";
+
+  is($error, '', 'O_PATH pins do not require read permission on parent directories');
+  ok(-d File::Spec->catdir($restricted_orbit, '_AUTH', 'USERS'),
+    'authentication tree initializes through write-execute-only parents');
+};
+
+subtest 'a legitimate existing authentication tree initializes without mode mutation' => sub {
+  my $existing_domain = tempdir(CLEANUP => 1);
+  my $orbit = File::Spec->catdir($existing_domain, '_ORBIT');
+  my $root = File::Spec->catdir($orbit, '_AUTH');
+  mkdir($orbit, 0775) or die "create existing Orbit directory: $!";
+  chmod(0775, $orbit) or die "set existing Orbit directory mode: $!";
+  mkdir($root, 0700) or die "create existing authentication directory: $!";
+  for my $relative (
+    qw(USERS PASSPHRASE SESSIONS LOCKS AUDIT RATELIMIT),
+    'RATELIMIT/ACCOUNT', 'RATELIMIT/IP',
+  ) {
+    my $path = File::Spec->catdir($root, split(m{/}, $relative));
+    mkdir($path, 0700) or die "create existing $relative directory: $!";
+    chmod(0700, $path) or die "set existing $relative directory mode: $!";
+  }
+  chmod(0700, $root) or die "set existing authentication directory mode: $!";
+
+  my $existing = Orbit::Auth->new(
+    domain_dir => $existing_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'existing-tree'),
+  );
+  ok($existing->initialize, 'correctly owned and permissioned existing tree initializes');
+  is(mode_of($orbit), 0775, 'shared existing Orbit parent mode is preserved');
+  is(mode_of($root), 0700, 'existing authentication root remains private');
+  for my $relative (
+    qw(USERS PASSPHRASE SESSIONS LOCKS AUDIT RATELIMIT),
+    'RATELIMIT/ACCOUNT', 'RATELIMIT/IP',
+  ) {
+    is(mode_of(File::Spec->catdir($root, split(m{/}, $relative))), 0700,
+      "existing $relative directory remains private");
+  }
+};
+
 subtest 'username and passphrase policy' => sub {
   for my $valid (qw(jane jane-doe editor7 a00)) {
     ok($auth->validate_username($valid), "$valid is accepted");
@@ -303,7 +519,38 @@ subtest 'username and passphrase policy' => sub {
   ok(!$auth->validate_passphrase('short pass'), 'short passphrase is rejected');
   ok(!$auth->validate_passphrase('passwordpassword'), 'common passphrase is rejected');
   ok(!$auth->validate_passphrase("valid passphrase\nwith newline"), 'control characters are rejected');
+  ok(!$auth->validate_passphrase('valid #OML[]# passphrase'), 'OML delimiters are rejected');
+  ok(!$auth->validate_passphrase('valid <markup> passphrase'), 'HTML markup delimiters are rejected');
   ok(!$auth->validate_passphrase('x' x 129), 'passphrase character cap is enforced');
+};
+
+subtest 'list_accounts enumerates only valid account records' => sub {
+  my $dir = tempdir(CLEANUP => 1);
+  my $listed = Orbit::Auth->new(
+    domain_dir      => $dir,
+    now             => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'list-accounts'),
+  );
+  ok($listed->initialize, 'list test store initializes');
+  $listed->provision_account('river-editor', 'a unique editor passphrase', role => 'editor');
+  $listed->provision_account('sky-watcher', 'a unique admin passphrase', role => 'admin');
+
+  my $users = File::Spec->catdir($dir, '_ORBIT', '_AUTH', 'USERS');
+  open(my $junk, '>', File::Spec->catfile($users, 'README.txt')) or die "write junk: $!";
+  print {$junk} "not an account\n";
+  close($junk) or die "close junk: $!";
+  symlink('/etc/passwd', File::Spec->catfile($users, 'rooted.json'))
+    or die "symlink account file: $!";
+
+  my $accounts = $listed->list_accounts;
+  is_deeply(
+    [ map { $_->{username} } @$accounts ],
+    [ 'river-editor', 'sky-watcher' ],
+    'account listing is sorted and ignores non-account names',
+  );
+  is($accounts->[0]{role}, 'editor', 'listing includes the editor role');
+  is($accounts->[1]{role}, 'admin', 'listing includes the admin role');
+  ok(!(grep { $_->{username} eq 'rooted' } @$accounts), 'symlink account files are skipped');
 };
 
 subtest 'incomplete accounts fail closed until credential creation' => sub {
@@ -324,6 +571,46 @@ subtest 'incomplete accounts fail closed until credential creation' => sub {
   my $credential_path = File::Spec->catfile($auth_root, 'PASSPHRASE', 'jane-doe.json');
   is(mode_of($credential_path), 0600, 'credential record is mode 0600');
   unlike(slurp($credential_path), qr/leading and trailing/, 'credential file does not contain passphrase');
+};
+
+subtest 'interrupted disabled provisioning preserves its final status' => sub {
+  my $other_domain = tempdir(CLEANUP => 1);
+  my $faulting = Local::FailingCredentialWriteAuth->new(
+    domain_dir => $other_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'disabled-stage-fault'),
+  );
+  $faulting->fail_next_credential_write;
+
+  my $error = '';
+  eval {
+    $faulting->provision_account(
+      'disabled-stage', 'disabled staging passphrase', status => 'disabled',
+    );
+  };
+  $error = $@;
+  like($error, qr/injected credential write failure/, 'provisioning stops after its staging record');
+
+  my $recovering = Orbit::Auth->new(
+    domain_dir => $other_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'disabled-stage-recovery'),
+  );
+  my $staged = $recovering->read_account('disabled-stage');
+  is($staged->{status}, 'incomplete', 'interrupted account remains fail-closed');
+  is($staged->{credential_transition}{target_status}, 'disabled',
+    'staging record persists the requested disabled status');
+
+  my $recovered = $recovering->create_credential(
+    'disabled-stage', 'disabled staging passphrase',
+  );
+  is($recovered->{status}, 'disabled', 'credential recovery does not activate the account');
+  ok(!exists($recovered->{credential_transition}), 'completed recovery clears staging metadata');
+  ok($recovering->verify_passphrase('disabled-stage', 'disabled staging passphrase'),
+    'recovered credential is valid');
+  ok(!$recovering->authenticate(
+      'disabled-stage', 'disabled staging passphrase', ip => '203.0.113.213',
+    )->{ok}, 'disabled recovered account still cannot log in');
 };
 
 subtest 'NFC normalization is consistent' => sub {
@@ -355,9 +642,16 @@ subtest 'session restoration uses fresh account state and bounded touches' => su
   ok($auth->verify_csrf($restored, $created->{csrf_token}), 'correct CSRF value accepted');
   ok(!$auth->verify_csrf($restored, $created->{csrf_token} . 'x'), 'wrong CSRF value rejected');
 
-  $auth->update_account('jane-doe', role => 'editor');
+  my $before_role_version = $auth->read_account('jane-doe')->{auth_version};
+  my $updated = $auth->update_account('jane-doe', role => 'editor');
+  is($updated->{auth_version}, $before_role_version + 1,
+    'role update advances the authentication version');
+  ok(!$auth->restore_session($created->{token})->{ok},
+    'role update invalidates the existing session');
+
+  $created = $auth->create_session('jane-doe', ip => '127.0.0.1', user_agent => 'test');
   $restored = $auth->restore_session($created->{token});
-  is($restored->{role}, 'editor', 'role is reloaded from fresh account state');
+  is($restored->{role}, 'editor', 'new session receives the updated role');
 
   my $initial_seen = $restored->{session}{last_seen};
   $now += 299;
@@ -368,6 +662,72 @@ subtest 'session restoration uses fresh account state and bounded touches' => su
   is($restored->{session}{last_seen}, $now, 'session is touched at five minutes');
 
   return $created;
+};
+
+subtest 'direct role and status updates cannot revive retained sessions' => sub {
+  my $other_domain = tempdir(CLEANUP => 1);
+  my $direct = Local::RetainingSessionAuth->new(
+    domain_dir => $other_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'direct-account-update'),
+  );
+  $direct->provision_account('direct-update', 'direct account update passphrase');
+
+  my $role_session = $direct->create_session('direct-update');
+  my $before = $direct->read_account('direct-update')->{auth_version};
+  my $account = $direct->update_account('direct-update', role => 'editor');
+  is($account->{auth_version}, $before + 1, 'direct role change advances auth_version once');
+  is($direct->restore_session($role_session->{token})->{reason}, 'auth_version_changed',
+    'auth_version rejects a role session even when physical cleanup retained it');
+
+  my $status_session = $direct->create_session('direct-update');
+  $before = $direct->read_account('direct-update')->{auth_version};
+  $account = $direct->update_account('direct-update', status => 'disabled');
+  is($account->{auth_version}, $before + 1, 'disable advances auth_version once');
+  $account = $direct->update_account('direct-update', status => 'active');
+  is($account->{auth_version}, $before + 2, 're-enable advances auth_version once more');
+  is($direct->restore_session($status_session->{token})->{reason}, 'auth_version_changed',
+    'disable then enable cannot revive a retained pre-disable session');
+
+  my $same_value_session = $direct->create_session('direct-update');
+  $before = $direct->read_account('direct-update')->{auth_version};
+  $account = $direct->update_account('direct-update', status => 'active', role => 'editor');
+  is($account->{auth_version}, $before, 'same-value security update does not double-invalidate');
+  ok($direct->restore_session($same_value_session->{token})->{ok},
+    'same-value update leaves a current session valid');
+};
+
+subtest 'account updates remain truthful after physical session cleanup failure' => sub {
+  my $other_domain = tempdir(CLEANUP => 1);
+  my $direct = Local::FailingSessionCleanupAuth->new(
+    domain_dir => $other_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'cleanup-failure'),
+  );
+  $direct->provision_account('cleanup-user', 'cleanup failure account passphrase');
+  my $session = $direct->create_session('cleanup-user');
+
+  my ($updated, $error, @warnings);
+  {
+    local $SIG{__WARN__} = sub { push @warnings, @_ };
+    eval { $updated = $direct->update_account('cleanup-user', role => 'editor'); 1 }
+      or $error = $@;
+  }
+  is($error // '', '', 'committed account update is not reported as a failure');
+  is($updated->{role}, 'editor', 'caller receives the committed role');
+  like(join('', @warnings), qr/account update committed.*session cleanup failure/s,
+    'cleanup failure remains visible to server operations');
+  is($direct->restore_session($session->{token})->{reason}, 'auth_version_changed',
+    'retained session remains invalid through the committed auth_version');
+
+  my $audit_path = File::Spec->catfile(
+    $other_domain, '_ORBIT', '_AUTH', 'AUDIT', 'auth.jsonl',
+  );
+  my $audit = slurp($audit_path);
+  like($audit, qr/"event":"session\.revoke_all".*"result":"failure"/,
+    'physical cleanup failure is audited');
+  like($audit, qr/"event":"account\.update".*"result":"success"/,
+    'committed account update is still audited as successful');
 };
 
 subtest 'session cap removes the oldest session' => sub {
@@ -540,6 +900,7 @@ subtest 'auth version and expiration failures are structured' => sub {
 subtest 'account and IP failure buckets throttle independently' => sub {
   my $user = 'rate-user';
   my $ip = '192.0.2.9';
+  $auth->provision_account($user, 'known rate account passphrase');
   for (1 .. 4) {
     my $state = $auth->record_login_failure($user, $ip);
     ok($state->{allowed}, "account attempt $_ remains allowed");
@@ -551,11 +912,94 @@ subtest 'account and IP failure buckets throttle independently' => sub {
   $auth->record_login_success($user, $ip);
   ok($auth->check_rate_limit($user, '192.0.2.10')->{allowed}, 'success clears only account bucket');
 
+  my $unknown_ip = '192.0.2.200';
+  for (1 .. 5) {
+    $auth->record_login_failure('unknown-rate-a', $unknown_ip);
+  }
+  ok(!$auth->check_rate_limit('unknown-rate-b', $unknown_ip)->{allowed},
+    'unknown candidates share a locked account bucket for their source IP');
+  ok(!$auth->record_login_success('unknown-rate-b', $unknown_ip),
+    'unknown name cannot claim a successful login');
+  ok(!$auth->check_rate_limit('unknown-rate-c', $unknown_ip)->{allowed},
+    'rejected unknown success does not clear the shared unknown bucket');
+
   my $shared_ip = '198.51.100.7';
   for my $index (1 .. 20) {
     $auth->record_login_failure("ip-user-$index", $shared_ip);
   }
   ok(!$auth->check_rate_limit('unrelated-user', $shared_ip)->{allowed}, 'IP bucket throttles at twenty failures');
+};
+
+subtest 'public authentication does not reveal account-only lockout state' => sub {
+  my $other_domain = tempdir(CLEANUP => 1);
+  my $crypto = Local::MockCrypto->new(random_seed => 'lockout-oracle');
+  my $other = Orbit::Auth->new(
+    domain_dir => $other_domain,
+    now => sub { $now },
+    crypto_provider => $crypto,
+  );
+  $other->provision_account('oracle-user', 'oracle account passphrase');
+
+  for my $index (1 .. 4) {
+    my $failed = $other->authenticate(
+      'oracle-user', 'wrong but deliberately long passphrase',
+      ip => "192.0.2.$index",
+    );
+    is_deeply($failed, { ok => 0, error => 'invalid_credentials' },
+      "known-account failure $index has the generic public shape");
+  }
+
+  my $fifth = $other->authenticate(
+    'oracle-user', 'wrong but deliberately long passphrase', ip => '192.0.2.5',
+  );
+  my $unknown = $other->authenticate(
+    'missing-oracle-user', 'wrong but deliberately long passphrase', ip => '192.0.2.200',
+  );
+  is_deeply($fifth, $unknown,
+    'the attempt that locks a real account matches a fresh unknown account response');
+
+  my $before = $crypto->{verify_calls};
+  my $masked = $other->authenticate(
+    'oracle-user', 'wrong but deliberately long passphrase', ip => '192.0.2.6',
+  );
+  my $fresh_unknown = $other->authenticate(
+    'another-missing-user', 'wrong but deliberately long passphrase', ip => '192.0.2.201',
+  );
+  is_deeply($masked, $fresh_unknown,
+    'an already locked real account matches a fresh unknown account response');
+  is($crypto->{verify_calls} - $before, 2,
+    'both locked and unknown account attempts perform one masked verification');
+};
+
+subtest 'IP throttling does not expose a separately locked account' => sub {
+  my $other_domain = tempdir(CLEANUP => 1);
+  my $oracle_now = $now;
+  my $other = Orbit::Auth->new(
+    domain_dir => $other_domain,
+    now => sub { $oracle_now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'ip-lockout-oracle'),
+  );
+  $other->provision_account('ip-oracle-user', 'IP oracle account passphrase');
+
+  my $probe_ip = '198.51.100.240';
+  for my $index (1 .. 20) {
+    $other->record_login_failure("missing-ip-$index", $probe_ip);
+  }
+  $oracle_now += 100;
+  for my $index (1 .. 5) {
+    $other->record_login_failure('ip-oracle-user', "192.0.2.$index");
+  }
+
+  my $known = $other->authenticate(
+    'ip-oracle-user', 'wrong but deliberately long passphrase', ip => $probe_ip,
+  );
+  my $unknown = $other->authenticate(
+    'fresh-missing-ip-user', 'wrong but deliberately long passphrase', ip => $probe_ip,
+  );
+  is_deeply($known, $unknown,
+    'IP-throttled known and unknown accounts expose the same public result');
+  is_deeply($known, { ok => 0, error => 'throttled', retry_after => 800 },
+    'public retry duration comes only from the blocked IP bucket');
 };
 
 subtest 'account candidates are canonical and unknown names have bounded storage' => sub {
@@ -1097,6 +1541,216 @@ subtest 'symbolic-link data records are refused' => sub {
     eval { $auth->read_account('evil') };
     $error = $@;
     like($error, qr/symbolic-link data file/, 'symlink account record is rejected');
+  }
+};
+
+subtest 'the authentication parent cannot be replaced by a symbolic link' => sub {
+  my $other_domain = tempdir(CLEANUP => 1);
+  my $other = Orbit::Auth->new(
+    domain_dir => $other_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'parent-symlink'),
+  );
+  $other->provision_account('parent-user', 'parent symlink test passphrase');
+
+  my $orbit_dir = File::Spec->catdir($other_domain, '_ORBIT');
+  my $relocated = File::Spec->catdir($other_domain, 'relocated-orbit');
+  rename($orbit_dir, $relocated) or die "relocate _ORBIT: $!";
+  my $made = symlink($relocated, $orbit_dir);
+  SKIP: {
+    skip 'symbolic links unavailable', 1 if !$made;
+    my $error = '';
+    eval { $other->read_account('parent-user') };
+    $error = $@;
+    like($error, qr/refusing symbolic-link authentication parent/,
+      'a swapped _ORBIT parent cannot relocate private authentication data');
+  }
+  unlink($orbit_dir) or die "remove _ORBIT symlink: $!" if $made;
+  rename($relocated, $orbit_dir) or die "restore _ORBIT: $!";
+};
+
+subtest 'initialization cannot mutate a tree substituted after parent validation' => sub {
+  my $victim_domain = tempdir(CLEANUP => 1);
+  my $attacker_domain = tempdir(CLEANUP => 1);
+  my $attacker_orbit = File::Spec->catdir($attacker_domain, '_ORBIT');
+  my $attacker_auth = File::Spec->catdir($attacker_orbit, '_AUTH');
+  mkdir($attacker_orbit, 0755) or die "create attacker _ORBIT: $!";
+  mkdir($attacker_auth, 0755) or die "create attacker _AUTH: $!";
+  chmod(0755, $attacker_auth) or die "set attacker _AUTH mode: $!";
+  my $sentinel = File::Spec->catfile($attacker_auth, 'sentinel');
+  open(my $sentinel_fh, '>:raw', $sentinel) or die "create attacker sentinel: $!";
+  print {$sentinel_fh} "unchanged\n";
+  close($sentinel_fh) or die "close attacker sentinel: $!";
+
+  my $probe = File::Spec->catfile($victim_domain, 'initialization-symlink-probe');
+  if (!symlink($attacker_orbit, $probe)) {
+    plan skip_all => 'symbolic links unavailable';
+  }
+  unlink($probe) or die "remove initialization symlink probe: $!";
+
+  my $victim = Local::SwapDuringInitializationAuth->new(
+    domain_dir => $victim_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'initialization-swap'),
+  );
+  my $orbit = File::Spec->catdir($victim_domain, '_ORBIT');
+  my $relocated = File::Spec->catdir($victim_domain, 'relocated-initializing-orbit');
+  $victim->arm_initialization_swap($relocated, $attacker_orbit);
+
+  my $error = '';
+  eval { $victim->initialize };
+  $error = $@;
+  like($error, qr/refusing symbolic-link parent of authentication root/,
+    'initialization fails closed when _ORBIT changes after validation');
+  ok(-l $orbit, 'test substituted the attacker tree during initialization');
+  is(mode_of($attacker_auth), 0755,
+    'initialization does not chmod the substituted authentication root');
+  ok(!-e File::Spec->catdir($attacker_auth, 'USERS'),
+    'initialization does not create directories in the substituted tree');
+  is(slurp($sentinel), "unchanged\n", 'attacker-tree contents remain untouched');
+  ok(!-e File::Spec->catdir($relocated, '_AUTH'),
+    'initialization stops before creating private state in a renamed parent');
+
+  unlink($orbit) or die "remove initialization _ORBIT symlink: $!";
+  rename($relocated, $orbit) or die "restore initializing _ORBIT: $!";
+};
+
+subtest 'initialization rolls back a mkdir if its pinned parent moves outside' => sub {
+  my $victim_domain = tempdir(CLEANUP => 1);
+  my $outside = tempdir(CLEANUP => 1);
+  my $relocated = File::Spec->catdir($outside, 'relocated-orbit');
+  my $victim = Local::MoveParentAfterMatchAuth->new(
+    domain_dir => $victim_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'parent-move-after-match'),
+  );
+  $victim->arm_parent_move($relocated);
+
+  my $error = '';
+  eval { $victim->initialize };
+  $error = $@;
+  like($error, qr/missing parent of authentication root/,
+    'initialization fails after the public parent no longer matches its descriptor');
+  ok(-d $relocated, 'test moved the matched parent outside the domain');
+  ok(!-e File::Spec->catdir($relocated, '_AUTH'),
+    'descriptor-relative authentication-root creation is rolled back outside the domain');
+  is(mode_of($relocated), 0755, 'new Orbit parent was born with its final public mode');
+
+  rename($relocated, File::Spec->catdir($victim_domain, '_ORBIT'))
+    or die "restore parent moved after match: $!";
+};
+
+subtest 'initialization never chmods a pre-existing root renamed outside' => sub {
+  my $victim_domain = tempdir(CLEANUP => 1);
+  my $outside = tempdir(CLEANUP => 1);
+  my $orbit = File::Spec->catdir($victim_domain, '_ORBIT');
+  my $auth_path = File::Spec->catdir($orbit, '_AUTH');
+  mkdir($orbit, 0775) or die "create existing Orbit parent: $!";
+  chmod(0775, $orbit) or die "set existing Orbit parent mode: $!";
+  mkdir($auth_path, 0755) or die "create existing authentication root: $!";
+  chmod(0755, $auth_path) or die "set existing authentication root mode: $!";
+  my $sentinel = File::Spec->catfile($auth_path, 'sentinel');
+  open(my $sentinel_fh, '>:raw', $sentinel) or die "create root sentinel: $!";
+  print {$sentinel_fh} "outside unchanged\n";
+  close($sentinel_fh) or die "close root sentinel: $!";
+
+  my $relocated = File::Spec->catdir($outside, 'relocated-auth');
+
+  my $victim = Local::SwapOpenedAuthRoot->new(
+    domain_dir => $victim_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'opened-auth-swap'),
+  );
+  $victim->arm_opened_auth_swap($relocated, undef);
+
+  my $error = '';
+  eval { $victim->initialize };
+  $error = $@;
+  like($error, qr/permissions on .*_AUTH must be 0700/,
+    'a wrong-mode existing root fails validation after it is opened');
+  ok(!-e $auth_path, 'test moved the just-opened authentication root outside');
+  is(mode_of($relocated), 0755,
+    'runtime initialization does not chmod the now off-tree directory');
+  is(slurp(File::Spec->catfile($relocated, 'sentinel')), "outside unchanged\n",
+    'the moved root contents remain unchanged');
+  ok(!-e File::Spec->catdir($relocated, 'USERS'),
+    'no authentication child is created in the moved root');
+
+  rename($relocated, $auth_path) or die "restore opened authentication root: $!";
+};
+
+subtest 'authentication I/O stays on its pinned root after a post-check swap' => sub {
+  my $victim_domain = tempdir(CLEANUP => 1);
+  my $attacker_domain = tempdir(CLEANUP => 1);
+  my $victim = Local::SwapAfterGuardAuth->new(
+    domain_dir => $victim_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'pinned-victim'),
+  );
+  my $attacker = Orbit::Auth->new(
+    domain_dir => $attacker_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'pinned-attacker'),
+  );
+  $victim->provision_account('pinned-user', 'pinned victim passphrase', role => 'viewer');
+  $attacker->provision_account('pinned-user', 'pinned attacker passphrase', role => 'admin');
+
+  my $probe = File::Spec->catfile($victim_domain, 'symlink-probe');
+  my $made = symlink(File::Spec->catdir($attacker_domain, '_ORBIT'), $probe);
+  SKIP: {
+    skip 'symbolic links unavailable', 2 if !$made;
+    unlink($probe) or die "remove symlink probe: $!";
+    my $relocated = File::Spec->catdir($victim_domain, 'guarded-orbit');
+    $victim->arm_parent_swap($relocated, File::Spec->catdir($attacker_domain, '_ORBIT'));
+    my $account = $victim->read_account('pinned-user');
+    is($account->{role}, 'viewer',
+      'post-check parent swap cannot redirect a read to the attacker account');
+    ok(-l File::Spec->catdir($victim_domain, '_ORBIT'),
+      'test performed the parent swap after validation');
+    unlink(File::Spec->catdir($victim_domain, '_ORBIT'))
+      or die "remove swapped _ORBIT: $!";
+    rename($relocated, File::Spec->catdir($victim_domain, '_ORBIT'))
+      or die "restore guarded _ORBIT: $!";
+  }
+};
+
+subtest 'authentication I/O stays on its pinned leaf after an internal swap' => sub {
+  my $victim_domain = tempdir(CLEANUP => 1);
+  my $attacker_domain = tempdir(CLEANUP => 1);
+  my $victim = Local::SwapUsersAfterGuardAuth->new(
+    domain_dir => $victim_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'pinned-users-victim'),
+  );
+  my $attacker = Orbit::Auth->new(
+    domain_dir => $attacker_domain,
+    now => sub { $now },
+    crypto_provider => Local::MockCrypto->new(random_seed => 'pinned-users-attacker'),
+  );
+  $victim->provision_account('pinned-leaf-user', 'pinned leaf victim passphrase', role => 'viewer');
+  $attacker->provision_account('pinned-leaf-user', 'pinned leaf attacker passphrase', role => 'admin');
+
+  my $probe = File::Spec->catfile($victim_domain, 'users-symlink-probe');
+  my $made = symlink(
+    File::Spec->catdir($attacker_domain, '_ORBIT', '_AUTH', 'USERS'), $probe,
+  );
+  SKIP: {
+    skip 'symbolic links unavailable', 2 if !$made;
+    unlink($probe) or die "remove USERS symlink probe: $!";
+    my $users = File::Spec->catdir($victim_domain, '_ORBIT', '_AUTH', 'USERS');
+    my $relocated = File::Spec->catdir(
+      $victim_domain, '_ORBIT', '_AUTH', 'guarded-users',
+    );
+    $victim->arm_users_swap(
+      $relocated,
+      File::Spec->catdir($attacker_domain, '_ORBIT', '_AUTH', 'USERS'),
+    );
+    my $account = $victim->read_account('pinned-leaf-user');
+    is($account->{role}, 'viewer',
+      'post-check USERS swap cannot redirect a read to the attacker account');
+    ok(-l $users, 'test performed the USERS swap after validation');
+    unlink($users) or die "remove swapped USERS: $!";
+    rename($relocated, $users) or die "restore guarded USERS: $!";
   }
 };
 

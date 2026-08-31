@@ -117,34 +117,29 @@ sub Orbit::omlDATA
   #
   $bSilent = $self->Eval($bSilent);
 
+  # Pagination tokens must be ready before the header is parsed so box
+  # toolbars can live in _DATA_HEAD_ (show more / show less).
+  if ($bData && $MaxRows >= 1) {
+    my $start = 1;
+    if (@data > $MaxRows) {
+      $start = $StartRow + $MaxRows;
+      $self->Set_Token($datafile.'_NEXT', $start);
+      delete($data[$MaxRows]);
+    }
+    if ($StartRow > 1) {
+      $start = $StartRow - $MaxRows;
+      $start = 1 if ($start < 1);
+      $self->Set_Token($datafile.'_PREV', $start);
+    }
+  }
+
   # Print the header if we have data
   if ($bData || !$bSilent) {
-    # Add the header
-    $V .= $self->Parse($a1."\n", $bFlush);   # Parse after data is loaded
+    $V .= $self->Parse($a1."\n", $bFlush);
   }
 
   # Process the data
   if ($bData) {
-    #
-    # Set data PREV/NEXT tokens
-    #
-    if ($MaxRows >= 1) {
-      my $start = 1;
-      # Set NEXT record
-      if (@data > $MaxRows) {
-        $start = $StartRow + $MaxRows;
-        $self->Set_Token($datafile.'_NEXT', $start);
-        # Remove the extra row we added
-        delete($data[$MaxRows]);
-      }
-      # Set PREVious record
-      if ($StartRow > 1) {
-        $start = $StartRow - $MaxRows;
-        $start = 1 if ($start < 1);
-        $self->Set_Token($datafile.'_PREV', $start);
-      }
-    } #if MaxRows
-
     # Loop through the data
     # Show the keys/values SORTED from the data array
     # {$a <=> $b} to use numeric sort

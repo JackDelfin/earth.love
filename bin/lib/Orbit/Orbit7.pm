@@ -368,6 +368,12 @@ sub Orbit::ShowPage
   #
   $self->initOrbit();
 
+  # ProcessNewRecords may create and bind a Person after construction.
+  # Refresh those tokens immediately before the template is parsed.
+  if ($self->can('_PublishPersonPageIfCurrent')) {
+    eval { $self->_PublishPersonPageIfCurrent() };
+  }
+
   #
   # Get the Template File Path
   #

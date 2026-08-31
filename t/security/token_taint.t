@@ -124,9 +124,10 @@ subtest 'form field values are inert and cannot choose arbitrary token names' =>
   local $ENV{SCRIPT_NAME} = '/o/elnew';
   my $orbit = test_orbit(
     cgi => Local::CGI->new(
-      formfields => '_text,ENV_HOST',
+      formfields => '_text,ENV_HOST,AUTH_SELF_SIGNUP,PROFILE_BIO,PERSON_LINKED_USER',
       _text      => 'prefix #PROBE[]# suffix',
       ENV_HOST   => '#SENTINEL#',
+      PROFILE_BIO => '#SENTINEL#',
     ),
   );
   $orbit->Set_Token('SENTINEL', 'expanded');
@@ -136,10 +137,16 @@ subtest 'form field values are inert and cannot choose arbitrary token names' =>
     return 'function-executed';
   };
   $orbit->Set_Token('ENV_HOST', 'https://earth.love');
+  $orbit->Set_Token('AUTH_SELF_SIGNUP', '1');
+  $orbit->Set_Token('PROFILE_BIO', 'kept');
+  $orbit->SetUntrustedToken('PERSON_LINKED_USER', 'kept-user');
 
   ok($orbit->SetFormFields('ff', 'formfields'), 'at least one valid form field is accepted');
   is($orbit->Get_Token('FORMFIELDS'), '_text', 'invalid/reserved field names are removed from the field list');
   is($orbit->Get_Token('ENV_HOST'), 'https://earth.love', 'reserved tokens cannot be overwritten through formfields');
+  is($orbit->Get_Token('AUTH_SELF_SIGNUP'), '1', 'public policy discovery cannot be overwritten through formfields');
+  is($orbit->Get_Token('PROFILE_BIO'), 'kept', 'profile tokens cannot be overwritten through formfields');
+  is($orbit->Get_Token('PERSON_LINKED_USER'), 'kept-user', 'person-link tokens cannot be overwritten through formfields');
   is($orbit->GetTokenRecursiveFlag('_TEXT'), 0, 'form value token is marked non-recursive');
   is(
     $orbit->Parse('#_TEXT#', 0),

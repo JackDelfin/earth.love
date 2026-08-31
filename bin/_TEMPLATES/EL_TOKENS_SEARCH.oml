@@ -1,9 +1,9 @@
 <!--- EL_TOKENS_SEARCH - OML Tokens for supporting Search --->
 #LOADTOKEN[
-_DATA_HEAD_=[<div class="#BOX#"><div class="#BOX_HEAD#"><h3>#_DATA_MSG_#</h3></div>]
+_DATA_HEAD_=[<div class="#BOX#"><div class="#BOX_HEAD#"><h3>#_DATA_MSG_#</h3>#NEXT_PREV#</div>]
 _DATA_HREF_=[#SHOWPAGElite##1.tr#&p=el_show&o=word]
 _DATA_BODY_=[<a class="w3-link-plain" href="#_DATA_HREF_#"><div id="list" class="#BOX_ROW#">#1.html#</div></a>]
-_DATA_FOOT_=[#NEXT_PREV#</div>]
+_DATA_FOOT_=[</div>]
 ]#
 #OMLIF[#_STATIC_#][EL_TOKENS_SEARCH_STATIC]#
 <!--- Backup for convenience when overriding --->

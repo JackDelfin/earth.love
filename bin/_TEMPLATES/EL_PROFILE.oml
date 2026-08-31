@@ -1,0 +1,37 @@
+#INCLUDE[EL_TOKENS]#
+#INCLUDE![EL_HEADER]#
+<main class="w3-container w3-content" style="max-width:52rem">
+  <section class="#BOX# w3-left-align">
+    <div class="w3-center w3-padding">
+      #EXISTS[#PROFILE_AVATAR_URL#][
+        <img class="el-avatar el-avatar-lg" src="#PROFILE_AVATAR_URL.html#" alt="#PROFILE_USERNAME.html#">
+      ][
+        <span class="el-avatar el-avatar-lg el-avatar-fallback">#PROFILE_AVATAR_INITIAL.html#</span>
+      ]#
+      <h2 class="w3-margin-top">#PROFILE_USERNAME.html#</h2>
+      #EXISTS[#PROFILE_PRONOUNS#][<p class="w3-text-grey">#PROFILE_PRONOUNS.html#</p>][]#
+      #EXISTS[#PROFILE_ROLE#][<p class="w3-small w3-text-grey">#PROFILE_ROLE.html#</p>][]#
+    </div>
+
+    <dl class="w3-padding">
+      <dt>#MSG[Linked person]#</dt>
+      <dd>#EXISTS[#PROFILE_PERSON#][
+        #EQUAL[#PROFILE_PERSON_EXISTS#][1][
+          <a href="#PROFILE_PERSON_URL.html#">#NVL[#PROFILE_PERSON_NAME.html#][#PROFILE_PERSON.html#]#</a>
+        ][
+          #PROFILE_PERSON.html#
+        ]#
+      ][#MSG[Not linked yet]#]#</dd>
+      #EXISTS[#PROFILE_BIO#][<dt>#MSG[Bio]#</dt><dd style="white-space:pre-wrap">#PROFILE_BIO.html#</dd>][]#
+      #EXISTS[#PROFILE_EMAIL#][<dt>#MSG[Email]#</dt><dd>#PROFILE_EMAIL.html#</dd>][]#
+      #EXISTS[#PROFILE_URL#][<dt>#MSG[URL]#</dt><dd><a href="#PROFILE_URL.html#" rel="nofollow noopener">#PROFILE_URL.html#</a></dd>][]#
+    </dl>
+
+    #EQUAL[#PROFILE_IS_SELF#][1][
+      <p class="w3-padding">
+        <a class="w3-button w3-teal w3-round-large" href="#_ORBIT#elsettings?tab=profile">#MSG[Edit profile]#</a>
+      </p>
+    ][]#
+  </section>
+</main>
+#INCLUDE![EL_FOOTER]#

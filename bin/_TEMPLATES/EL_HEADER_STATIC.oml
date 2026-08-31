@@ -7,6 +7,34 @@
 <title>#TITLE#</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 #INC![_STYLES/#STYLE#]#
+<style>
+body.w3-responsive { overflow-x: clip; }
+header {
+  position: relative;
+  z-index: 60;
+}
+.el-hex-menu { z-index: 70; }
+.el-hex-menu .w3-dropdown-content { z-index: 70; }
+.el-box-head {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.el-box-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0.15rem;
+}
+.el-box-tools-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+}
+</style>
 </head>
 <body class="#MOBILE#w3-container w3-responsive">
 <header class="#HEADER_BOX#">

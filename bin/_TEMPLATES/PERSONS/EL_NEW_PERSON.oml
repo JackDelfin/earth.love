@@ -3,6 +3,7 @@
 <h2>#MSG[Create Person]#</h2>
 #OML[EL_FORM_DATA][elnew]#
 #INC[EL_INPUT_STANDARD_HIDDEN]#
+<input type="hidden" name="link_user" value="#LINK_USER.html#">
 <!--- NEXT STEP HEADER --->
 #OML[EL_INPUT_STEPS][4]#
 <!---CONTENT--->

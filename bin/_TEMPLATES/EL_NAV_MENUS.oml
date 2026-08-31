@@ -1,16 +1,15 @@
 <!--- EL_NAV_MENUS --->
-<div class="w3-dropdown-hover w3-center w3-round-xxlarge w3-transparent">
+<div class="w3-dropdown-hover el-hex-menu w3-center w3-round-xxlarge w3-transparent">
 #OML[EL_LOGO_FLOWER]#
   <div class="w3-dropdown-content w3-bar-block w3-card-4 Xw3-hover w3-border w3-round-xlarge w3-transparent">
 #OML[EL_BUTTON_MENU][home][Home]#
 #OML[EL_BUTTON_MENU][action][Action]#
-
 #OML[EL_BUTTON_MENU][comms][Community]#
 #OML[EL_BUTTON_MENU][camps][Camps]#
 #OML[EL_BUTTON_MENU][flower][Flower]#
 #OML[EL_BUTTON_MENU][FolMoh][FoLMoH]#
 #OML[EL_BUTTON_MENU][game][Game]#
-#OML[EL_BUTTON_MENU][index][Index]#
+<a class="#BUTTON_CLASS# #BUTTON_MENU_COLOR#" href="#ELSHOWNAV#root=MENU&menu=index&tree=mother">#MSG[ROOTS]#</a>
 #OML[EL_BUTTON_MENU][library][Library]#
 #OML[EL_BUTTON_MENU][Control_Panel][Control Panel]#
 #OML[EL_BUTTON_MENU][SWOT][SWOT]#

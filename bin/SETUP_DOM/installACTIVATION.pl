@@ -8,7 +8,6 @@
 #
 use strict;
 use warnings;
-use File::Compare qw(compare);
 use File::Spec;
 
 my $mydomain = shift;
@@ -52,6 +51,13 @@ $template_source = $repository_templates
   if (!-e "$template_source/EL_LOGON.oml" && -e "$repository_templates/EL_LOGON.oml");
 die "Complete Orbit template source not found: $template_source\n"
   if (!-e "$template_source/EL_HEADER.oml" || !-e "$template_source/EL_LOGON.oml");
+my @sync_candidates = (
+  File::Spec->catfile($appdir, 'el_sync_auth_templates.sh'),
+  File::Spec->catfile($appdir, '..', 'setup', 'el_sync_auth_templates.sh'),
+);
+my ($auth_template_sync) = grep { -f $_ && -x $_ && !-l $_ } @sync_candidates;
+die "Hardened authentication template synchronizer not found beside SETUP_DOM\n"
+  if (!defined($auth_template_sync));
 
 #
 # Loop through each domain and copy the OML
@@ -102,9 +108,13 @@ foreach my $domconf (@DOMCONFS) {
   # synchronized explicitly below.
   #
   $templates = "$domdir/_ROOT/_TEMPLATES/";
-  system('sudo', 'mkdir', '-p', $templates) == 0
-    or die "Unable to create template directory: $templates\n";
-  if (!-e "$templates/EL_HEADER.oml") {
+  my $needs_initial_templates = !-e "$templates/EL_HEADER.oml";
+  # Run the shared symlink-safe synchronizer before any root-owned template
+  # copy.  It validates the canonical domain tree and refreshes both the main
+  # policy files and any existing root-specific shadows.
+  system('sudo', $auth_template_sync, $domdir) == 0
+    or die "Unable to synchronize authentication templates for: $domdir\n";
+  if ($needs_initial_templates) {
     system('sudo', 'cp', '-pr', "$template_source/.", $templates) == 0
       or die "Unable to install the initial template set from $template_source\n";
     $processed = 1;
@@ -162,32 +172,9 @@ foreach my $domconf (@DOMCONFS) {
     print "$out\n";
   }
 
-  # Authentication and mutation-control templates must never remain at an older
-  # security policy merely because their mtimes or local copies differ.  Preserve
-  # a numbered backup when an installed file is replaced.
-  foreach my $auth_template (qw(
-      EL_LOGON.oml EL_CHANGE_PASSPHRASE.oml EL_HEADER.oml
-      EL_FORM_DATA.oml EL_FORM_DATA_ADD.oml EL_TOKENS.oml
-      EL_INPUT_BUTTONS.oml EL_FN_GET_BUTTON_PREV.oml
-      EL_INPUT_STANDARD_HIDDEN.oml EL_INPUT_DATA_COLOR.oml
-      LANGS/ENG/EL_SHOW_WORD.oml
-  )) {
-    my $source = "$template_source/$auth_template";
-    my $target = "$templates/$auth_template";
-    die "Required authentication template is missing: $source\n" if (!-f $source);
-    next if (-f $target && compare($source, $target) == 0);
-    my (undef, $target_dir, undef) = File::Spec->splitpath($target);
-    system('sudo', 'mkdir', '-p', $target_dir) == 0
-      or die "Unable to create authentication template directory: $target_dir\n";
-    system('sudo', 'cp', '-p', '--backup=numbered', $source, $target) == 0
-      or die "Unable to synchronize authentication template: $auth_template\n";
-    $processed = 1;
-    print "..Synchronized authentication template: $auth_template\n";
-  }
-
   # Set ownership to www-data and group write permissions
   if ($processed eq "1") {
-    system('sudo', 'chown', '-R', 'www-data:www-data', $templates) == 0
+    system('sudo', 'chown', '-R', "$AuthRuntimeUser:$AuthRuntimeUser", $templates) == 0
       or die "Unable to set template ownership: $templates\n";
     system('sudo', 'chmod', '-R', 'g+w', $templates) == 0
       or die "Unable to set template permissions: $templates\n";
@@ -303,6 +290,10 @@ sub EnsureAuthRoot {
     or die "Unable to restore authentication directory permissions: $auth_dir\n";
   system('sudo', 'find', $auth_dir, '-type', 'f', '-exec', 'chmod', '0600', '{}', '+') == 0
     or die "Unable to restore authentication file permissions: $auth_dir\n";
+  if (-x '/usr/sbin/restorecon') {
+    system('sudo', '/usr/sbin/restorecon', '-RF', $auth_dir) == 0
+      or die "Unable to restore authentication SELinux labels: $auth_dir\n";
+  }
   return 1;
 }
 

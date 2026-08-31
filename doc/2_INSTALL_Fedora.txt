@@ -205,10 +205,27 @@ does not exist or is empty" (from configtest):
   The BASE setup creates it automatically; to do it by hand:
   sudo systemctl start httpd-init.service
 
-Local HTTPS (self-signed):
+Local HTTPS:
   EARTHLOVE enables earth.love-ssl.conf + 000-default-ssl.conf using
-  the Fedora localhost.crt.  Browsers will warn until you replace it
-  with Let's Encrypt via elSETUP_DOM.pl for a public domain.
+  Fedora's self-signed localhost.crt so Apache can start on first boot
+  before any mkcert files exist.  Browsers will warn on that cert.
+
+  For a locally trusted https://el.local (no public domain):
+    bin/setup/fedora/apply_mkcert_el_local.sh
+  That script installs mkcert, issues a cert for el.local / localhost /
+  127.0.0.1 / ::1, enables the dedicated ServerName el.local vhosts,
+  and can retarget the live 000-default-ssl.conf and ssl.conf
+  SSLCertificate* lines from localhost.crt to the mkcert files.
+  Restart the browser if it still warns after the CA is installed.
+
+  Let's Encrypt cannot issue certificates for .local names (they are
+  not public DNS).  Use elSETUP_DOM.pl / certbot only for a public
+  domain.
+
+  A dedicated ServerName el.local vhost is required.  Without it,
+  SNI for https://el.local hits Apache's _default_:443 (ssl.conf or
+  000-default-ssl.conf) and the certificate will not match el.local.
+
   If https:// still returns 403: ensure welcome.conf is disabled
   (welcome.conf.disabled) and ssl.conf DocumentRoot points at
   /LOVE/earth.love/_WEB.

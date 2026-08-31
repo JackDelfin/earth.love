@@ -123,6 +123,8 @@ my @REL = qw {
     Orbit/Tokens.pm
     Orbit/User.pm
     Orbit/Auth.pm
+    Orbit/Profile.pm
+    Orbit/Person.pm
     Orbit/Utils.pm
     Orbit/Utils/Message.pm
     Orbit/Utils/Wrap.pm
@@ -199,8 +201,12 @@ my @CGISOURCE = qw {
     eledit7.pl
     eldel7.pl
     ellogon.pl
+    elsignup.pl
     ellogoff.pl
     elpasswd.pl
+    elprofile.pl
+    elsettings.pl
+    eladmin.pl
 };
 #
 # Retired CGI programs - remove both the .pl file and the extensionless alias
@@ -603,7 +609,10 @@ sub AddHeaderAlias
   close(NEWFILE);
   # copy newfile to oldfile
   # newfile remains as the shorthand version
-  copy($newfile, $file);
+  copy($newfile, $file)
+    or die "Unable to update CGI program: $file\n";
+  chmod(0755, $newfile, $file) == 2
+    or die "Unable to set executable CGI permissions: $file / $newfile\n";
 } #AddHeaderAlias
 
 

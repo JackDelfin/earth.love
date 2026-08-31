@@ -1,0 +1,72 @@
+#INCLUDE[EL_TOKENS]#
+#INCLUDE![EL_HEADER]#
+<main class="w3-container">
+  <div class="w3-row-padding el-settings">
+    <nav class="w3-col m3 w3-margin-bottom">
+      <div class="w3-card w3-round-large w3-white">
+        <h3 class="w3-padding">#MSG[Settings]#</h3>
+        <a class="w3-bar-item w3-button w3-block w3-left-align#EQUAL[#SETTINGS_TAB#][profile][ w3-teal][]#" href="#_ORBIT#elsettings?tab=profile">#MSG[Public Profile]#</a>
+        <a class="w3-bar-item w3-button w3-block w3-left-align#EQUAL[#SETTINGS_TAB#][account][ w3-teal][]#" href="#_ORBIT#elsettings?tab=account">#MSG[Account]#</a>
+      </div>
+    </nav>
+    <section class="w3-col m9">
+      <div class="#BOX# w3-left-align">
+        #EQUAL[#SETTINGS_TAB#][account][
+          <h2>#MSG[Account]#</h2>
+          <p><strong>#MSG[User name]#:</strong> #AUTH_USER.html#</p>
+          <p><strong>#MSG[Role]#:</strong> #AUTH_ROLE.html#</p>
+          <p>
+            <a class="w3-button w3-teal w3-round-large" href="#_ORBIT#elpasswd">#MSG[Change passphrase]#</a>
+          </p>
+        ][
+          <h2>#MSG[Public Profile]#</h2>
+          <p class="w3-small w3-text-grey">#MSG[These details appear on your public profile.]#</p>
+          <form name="public_profile" action="#_ORBIT#elsettings" method="post" enctype="multipart/form-data" accept-charset="UTF-8" class="w3-container">
+            <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+            <input type="hidden" name="tab" value="profile">
+
+            <label>#MSG[Profile picture]#</label>
+            <div class="w3-padding-small">
+              #EXISTS[#PROFILE_AVATAR_URL#][
+                <img class="el-avatar el-avatar-lg" src="#PROFILE_AVATAR_URL.html#" alt="#AUTH_USER.html#">
+              ][
+                <span class="el-avatar el-avatar-lg el-avatar-fallback">#AUTH_AVATAR_INITIAL.html#</span>
+              ]#
+            </div>
+            <input class="w3-input w3-margin-bottom" type="file" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp">
+            #EXISTS[#PROFILE_AVATAR_URL#][
+              <p><label><input type="checkbox" name="remove_avatar" value="1"> #MSG[Remove profile picture]#</label></p>
+            ][]#
+
+            <label for="profile-person">#MSG[Linked person]#</label>
+            <select id="profile-person" class="w3-select w3-margin-bottom w3-round-large" name="person">
+              #PROFILE_PERSON_OPTIONS#
+            </select>
+            #EQUAL[#AUTH_CAN_CREATE_PERSON#][1][
+              <p class="w3-small w3-margin-bottom">
+                <a class="w3-button w3-teal w3-round-large" href="#PROFILE_CREATE_PERSON_URL.html#">#MSG[Create and link a person]#</a>
+              </p>
+            ][
+              <p class="w3-small w3-text-grey">#MSG[Only people already in the directory can be linked. Ask an editor if your person record is missing.]#</p>
+            ]#
+
+            <label for="profile-email">#MSG[Email]#</label>
+            <input id="profile-email" class="w3-input w3-margin-bottom w3-round-large" type="email" name="email" maxlength="254" value="#PROFILE_EMAIL.html#" autocomplete="email">
+
+            <label for="profile-pronouns">#MSG[Pronouns]#</label>
+            <input id="profile-pronouns" class="w3-input w3-margin-bottom w3-round-large" type="text" name="pronouns" maxlength="32" value="#PROFILE_PRONOUNS.html#">
+
+            <label for="profile-url">#MSG[URL]#</label>
+            <input id="profile-url" class="w3-input w3-margin-bottom w3-round-large" type="url" name="url" maxlength="200" value="#PROFILE_URL.html#" placeholder="https://">
+
+            <label for="profile-bio">#MSG[Bio]#</label>
+            <textarea id="profile-bio" class="w3-input w3-margin-bottom w3-round-large" name="bio" rows="5" maxlength="500">#PROFILE_BIO.html#</textarea>
+
+            <button type="submit" class="w3-button w3-green w3-card-4 w3-round-large">#MSG[Save public profile]#</button>
+          </form>
+        ]#
+      </div>
+    </section>
+  </div>
+</main>
+#INCLUDE![EL_FOOTER]#

@@ -7,21 +7,32 @@
       <input type="hidden" name="return_to" value="#RETURN_TO.html#">
       <input type="hidden" name="login_csrf_token" value="#LOGIN_CSRF_TOKEN.html#">
 
-      <label for="auth-username">#MSG[User name]#</label>
-      <input id="auth-username" name="username" type="text"
-             class="w3-input w3-margin-bottom w3-round-large"
-             minlength="3" maxlength="32" autocomplete="username"
-             autocapitalize="none" spellcheck="false" required autofocus>
+      <div class="el-field el-field-checked">
+        <label for="auth-username">#MSG[User name]#</label>
+        <p id="auth-username-help" class="el-field-hint">#MSG[Lowercase letters, digits, and hyphens. Example: river-editor.]#</p>
+        <input id="auth-username" name="username" type="text"
+               class="w3-input w3-round-large"
+               minlength="3" maxlength="32" autocomplete="username"
+               autocapitalize="none" spellcheck="false" required autofocus
+               pattern="[A-Za-z][A-Za-z0-9]*(-[A-Za-z0-9]+)*" placeholder=" "
+               aria-describedby="auth-username-help">
+      </div>
 
-      <label for="auth-passphrase">#MSG[Passphrase]#</label>
-      <input id="auth-passphrase" name="passphrase" type="password"
-             class="w3-input w3-margin-bottom w3-round-large"
-             maxlength="128" autocomplete="current-password" required>
+      <div class="el-field">
+        <label for="auth-passphrase">#MSG[Passphrase]#</label>
+        <input id="auth-passphrase" name="passphrase" type="password"
+               class="w3-input w3-round-large"
+               maxlength="128" autocomplete="current-password" required
+               spellcheck="false" placeholder=" ">
+      </div>
 
       <button type="submit" class="w3-button w3-green w3-card-4 w3-round-large">
         #MSG[Log on]#
       </button>
     </form>
+    #EQUAL[#AUTH_SELF_SIGNUP#][1][
+      <p><a href="#_ORBIT#elsignup">#MSG[Create account]#</a></p>
+    ][]#
   </section>
 </main>
 #INCLUDE![EL_FOOTER]#

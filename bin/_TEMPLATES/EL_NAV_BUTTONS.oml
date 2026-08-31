@@ -1,30 +1,12 @@
 <!--- #OML[EL_NAV_BUTTONS]# - Navigation Buttons Layout --->
 #LOADTOKEN[
-<!--- Index Menu --->
 CLASS_NAV_BUT = [w3-badge w3-card-4 w3-hover w3-cursive w3-xlarge w3-blue w3-link-plain w3-center]
-Help       = HELPOVER[Main Index]
-NAV_INDEX  = PARSE[<a #HELP# class="#CLASS_NAV_BUT# w3-violet" href="#ELSHOWNAV#root=MENU&menu=index&tree=mother"><B>M</B></a>]
-<!--- Back Menu --->
 Help       = HELPOVER[Go Back]
 proot      =NVL[#proot#][#root#]
-NAV_BACK   = EXISTS[#pmenu#][<td><a #HELP# class="#CLASS_NAV_BUT# w3-orange" href="#ELSHOWNAV#root=#proot#&menu=#pmenu#"><B>&laquo;</B></a></td>][<td>&nbsp;</td>]
-<!--- Community Navigator --->
-Help       = HELPOVER[Community Navigator]
-NAV_COMM   = PARSE[<a #HELP# class="#CLASS_NAV_BUT# w3-green" href="#ELSHOWNAV#root=COMMS&menu=comms"><B>O</B></a>]
-<!--- Home Navigation --->
-Help       = HELPOVER[Action Navigator]
-NAV_HOME   = PARSE[<a #HELP# class="#CLASS_NAV_BUT# w3-yellow" href="#ELSHOWNAV#root=COMMS&menu=action"><B>A</B></a>]
-<!--- Library Navigation --->
-Help       = HELPOVER[Library Navigator]
-NAV_LIBRA  = PARSE[<a #HELP# class="#CLASS_NAV_BUT# w3-indigo" href="#ELSHOWNAV#root=MENU&menu=library"><B>E</B></a>]
+NAV_BACK   = EXISTS[#pmenu#][<a #HELP# class="#CLASS_NAV_BUT# w3-orange" href="#ELSHOWNAV#root=#proot#&menu=#pmenu#"><B>&laquo;</B></a>][]
 ]#
-<!--- Show Navigation Buttons --->
-<div class="w3-contaier w3-row w3-responsive">
-<table border="0" cellpadding="1" cellspacing="1" align="center" width="100%"><tr>
+#EXISTS[#pmenu#][
+<div class="w3-container w3-row w3-responsive">
 #NAV_BACK#
-<td>#NAV_INDEX#</td>
-<td>#NAV_COMM#</td>
-<td>#NAV_HOME#</td>
-<td>#NAV_LIBRA#</td>
-</tr></table>
 </div>
+]#

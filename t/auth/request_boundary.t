@@ -46,6 +46,7 @@ use Orbit::Orbit7;
       change_result       => $args{change_result},
       create_session_result => $args{create_session_result},
       create_session_error  => $args{create_session_error},
+      self_signup_enabled   => $args{self_signup_enabled} ? 1 : 0,
       authenticate_calls  => 0,
       revoke_calls        => 0,
       change_calls        => 0,
@@ -55,6 +56,7 @@ use Orbit::Orbit7;
   }
 
   sub issue_login_nonce { return shift->{nonce}; }
+  sub self_signup_enabled { return shift->{self_signup_enabled}; }
 
   sub verify_login_nonce {
     my ($self, $cookie, $candidate) = @_;
@@ -80,6 +82,25 @@ use Orbit::Orbit7;
   }
 
   sub restore_session { return shift->{restore_result} || { ok => 0 }; }
+
+  sub list_accounts { return []; }
+
+  sub validate_username {
+    my ($self, $username) = @_;
+    return defined($username) && $username =~ /\A[a-z][a-z0-9]*(?:-[a-z0-9]+)*\z/
+      && length($username) >= 3 && length($username) <= 32;
+  }
+
+  sub read_account {
+    my ($self, $username) = @_;
+    return $self->{accounts}{$username};
+  }
+
+  sub update_account {
+    my ($self, $username, %attrs) = @_;
+    $self->{updated}{$username} = \%attrs;
+    return 1;
+  }
 
   sub change_passphrase {
     my ($self, @args) = @_;
@@ -118,6 +139,12 @@ use Orbit::Orbit7;
     return 'template';
   }
 
+  sub _ShowAccountTemplate {
+    my ($self, $template) = @_;
+    $self->{_LastTemplate} = $template;
+    return 'template';
+  }
+
   sub _RenderAuthError {
     my ($self, $status, $message) = @_;
     $self->{_LastAuthError} = [$status, $message];
@@ -136,6 +163,14 @@ sub boundary_orbit {
   return bless {
     _TOKENS           => {},
     _Utils            => CoreUtils->new(),
+    _DomainDir        => $args{domain_dir} // '/srv/earth.love/',
+    _TOKEN_MODIFIERS  => {},
+    _OML_FUNCTIONS    => {},
+    _FN_GROUPS_LOADED => {},
+    _BackupExt        => '_BACK',
+    _RecursiveCount   => 0,
+    _RecursiveMax     => 100,
+    _ParseMax         => 1000,
     _StatsCnt         => 0,
     _STATS            => {},
     _bLogStats        => 0,
@@ -277,6 +312,76 @@ subtest 'logoff expiration requires a live session and valid CSRF' => sub {
   is($orbit->HandleLogoff(), 'redirect', 'valid authenticated CSRF logs off');
   is($auth->{revoke_calls}, 1, 'server session is revoked once');
   like($orbit->{_LastRedirect}[1], qr/^__Host-el_sid=; .*Max-Age=0;/, 'cookie expires only after successful revocation');
+
+  delete $ENV{HTTPS};
+  $ENV{REQUEST_SCHEME} = 'http';
+  $ENV{SERVER_PORT} = 80;
+  $ENV{EL_AUTH_ALLOW_INSECURE_LOOPBACK} = '';
+  $ENV{REMOTE_ADDR} = '192.0.2.10';
+  $ENV{HTTP_HOST} = 'earth.love';
+  $auth = BoundaryAuth->new();
+  $orbit = boundary_orbit(
+    auth => $auth, user => 'river-editor', role => 'editor',
+    session => { csrf_secret => ('c' x 43) }, session_token => ('s' x 43),
+    session_cookie_name => '__Host-el_sid',
+    cgi => BoundaryCGI->new(params => { csrf_token => ('c' x 43), return_to => '/o/page' }),
+  );
+  is($orbit->HandleLogoff(), 'error', 'disallowed HTTP cannot log off an attached session');
+  is_deeply($orbit->{_LastAuthError}, [403, 'HTTPS is required for logoff.'],
+    'insecure logoff is forbidden at the handler boundary');
+  is($auth->{revoke_calls}, 0, 'insecure logoff cannot revoke the server session');
+  ok(!defined($orbit->{_LastRedirect}), 'insecure logoff emits no redirect or cookie');
+
+  $ENV{EL_AUTH_ALLOW_INSECURE_LOOPBACK} = '1';
+  $ENV{REMOTE_ADDR} = '127.0.0.1';
+  $ENV{HTTP_HOST} = 'localhost';
+  $auth = BoundaryAuth->new();
+  $orbit = boundary_orbit(
+    auth => $auth, user => 'river-editor', role => 'editor',
+    session => { csrf_secret => ('c' x 43) }, session_token => ('s' x 43),
+    session_cookie_name => 'el_dev_sid',
+    cgi => BoundaryCGI->new(params => { csrf_token => ('c' x 43), return_to => '/o/page' }),
+  );
+  is($orbit->HandleLogoff(), 'redirect', 'explicit loopback HTTP remains available for development');
+  is($auth->{revoke_calls}, 1, 'loopback logoff revokes the server session');
+  like($orbit->{_LastRedirect}[1], qr/^el_dev_sid=; .*Max-Age=0;/,
+    'loopback logoff expires only the development cookie');
+};
+
+subtest 'restored account identity remains inert OML data' => sub {
+  local %ENV = %ENV;
+  $ENV{HTTPS} = 'on';
+  $ENV{REQUEST_SCHEME} = 'https';
+  $ENV{SERVER_PORT} = 443;
+
+  my $username = '#PROBE[]#<script>';
+  my $role = '#PROBE[]#';
+  my $auth = BoundaryAuth->new(restore_result => {
+    ok => 1,
+    account => { username => $username, role => $role, must_change => 0 },
+    session => {
+      username => $username,
+      csrf_token => ('c' x 43),
+      csrf_secret => ('c' x 43),
+    },
+  });
+  my $orbit = boundary_orbit(
+    auth => $auth,
+    cgi => BoundaryCGI->new(cookies => { '__Host-el_sid' => ('s' x 43) }),
+  );
+  $orbit->_SetAnonymousAuthTokens();
+  ok($orbit->RestoreSession(), 'a substituted backend result reaches the facade in the regression harness');
+  is($orbit->GetTokenRecursiveFlag('AUTH_USER'), 0, 'restored username token is non-recursive');
+  is($orbit->GetTokenRecursiveFlag('AUTH_ROLE'), 0, 'restored role token is non-recursive');
+
+  $orbit->{_ProbeExecutions} = 0;
+  $orbit->{_OML_FUNCTIONS}->{PROBE} = sub {
+    $orbit->{_ProbeExecutions}++;
+    return 'function-executed';
+  };
+  is($orbit->Parse('#AUTH_USER#', 0), $username, 'OML-shaped username is rendered as literal data');
+  is($orbit->Parse('#AUTH_ROLE#', 0), $role, 'OML-shaped role is rendered as literal data');
+  is($orbit->{_ProbeExecutions}, 0, 'identity fields cannot invoke the OML function dispatcher');
 };
 
 subtest 'passphrase-change throttling reaches the browser boundary' => sub {
@@ -375,7 +480,7 @@ subtest 'Orbit 7 caps CGI bodies before object construction' => sub {
   my @params = $cgi->param();
   is(scalar(@params), 0, 'oversized request parameters are never parsed');
 
-  for my $script (qw(ellogon.pl ellogoff.pl elpasswd.pl)) {
+  for my $script (qw(ellogon.pl elsignup.pl ellogoff.pl elpasswd.pl elprofile.pl eladmin.pl)) {
     open(my $script_fh, '<:raw', "bin/cgi/$script")
       or die "open bin/cgi/$script: $!";
     local $/;
@@ -388,6 +493,139 @@ subtest 'Orbit 7 caps CGI bodies before object construction' => sub {
       "$script lowers the cap and disables uploads before constructing CGI",
     );
   }
+
+  open(my $settings_fh, '<:raw', 'bin/cgi/elsettings.pl')
+    or die 'open bin/cgi/elsettings.pl: $!';
+  local $/;
+  my $settings = <$settings_fh>;
+  close($settings_fh) or die 'close bin/cgi/elsettings.pl: $!';
+  like(
+    $settings,
+    qr/\$CGI::POST_MAX\s*=\s*1536\s*\*\s*1024\s*;.*
+       \$CGI::DISABLE_UPLOADS\s*=\s*0\s*;.*Orbit->new\(\)/sx,
+    'elsettings.pl allows a bounded avatar upload before constructing CGI',
+  );
+};
+
+subtest 'signup template requires its dedicated secure handler' => sub {
+  local %ENV = %ENV;
+  $ENV{HTTPS} = 'on';
+  $ENV{REQUEST_SCHEME} = 'https';
+  $ENV{SERVER_PORT} = 443;
+  my $auth = BoundaryAuth->new(self_signup_enabled => 1);
+  my $orbit = boundary_orbit(auth => $auth);
+
+  ok(!$orbit->_WebTemplateAllowed('EL_SIGNUP'),
+    'signup template cannot be selected as a public page');
+  local $orbit->{_AuthTemplateAllowed} = 1;
+  ok(!$orbit->_WebTemplateAllowed('EL_SIGNUP'),
+    'a different authentication handler cannot opt in signup');
+  local $orbit->{_SignupTemplateAllowed} = 1;
+  ok($orbit->_WebTemplateAllowed('EL_SIGNUP'),
+    'enabled signup handler may opt in its own template');
+
+  $auth->{self_signup_enabled} = 0;
+  ok(!$orbit->_WebTemplateAllowed('EL_SIGNUP'),
+    'dedicated handler still fails closed when policy turns off');
+};
+
+subtest 'profile and settings routes fail closed' => sub {
+  local %ENV = %ENV;
+  $ENV{REQUEST_METHOD} = 'GET';
+
+  my $orbit = boundary_orbit();
+  is($orbit->HandleProfile(), 'redirect', 'anonymous profile without a username goes to logon');
+  is($orbit->{_LastRedirect}[0], '/o/ellogon', 'profile redirect uses the logon route');
+
+  $ENV{HTTPS} = 'on';
+  $ENV{REQUEST_SCHEME} = 'https';
+  $ENV{SERVER_PORT} = 443;
+  $orbit = boundary_orbit(
+    cgi => BoundaryCGI->new(params => { u => 'missing-user' }),
+  );
+  is($orbit->HandleProfile(), 'error', 'unknown profile usernames are not found');
+  is_deeply($orbit->{_LastAuthError}, [404, 'That profile is not available.'], 'missing profile is 404');
+
+  $ENV{REQUEST_METHOD} = 'POST';
+  $orbit = boundary_orbit();
+  is($orbit->HandleProfile(), 'error', 'profile is read-only');
+  is($orbit->{_LastAuthError}[0], 405, 'profile POST is not allowed');
+
+  $ENV{REQUEST_METHOD} = 'GET';
+  delete $ENV{HTTPS};
+  $ENV{REQUEST_SCHEME} = 'http';
+  $ENV{SERVER_PORT} = 80;
+  $ENV{EL_AUTH_ALLOW_INSECURE_LOOPBACK} = '';
+  $ENV{REMOTE_ADDR} = '192.0.2.10';
+  $orbit = boundary_orbit(
+    user => 'river-editor', role => 'editor',
+    session => { csrf_secret => 'c' x 43 },
+  );
+  is($orbit->HandleSettings(), 'error', 'settings require HTTPS');
+  is($orbit->{_LastAuthError}[0], 403, 'insecure settings is forbidden');
+
+  $ENV{HTTPS} = 'on';
+  $ENV{REQUEST_SCHEME} = 'https';
+  $ENV{SERVER_PORT} = 443;
+  $orbit = boundary_orbit();
+  is($orbit->HandleSettings(), 'error', 'settings require a session');
+  is_deeply($orbit->{_LastAuthError}, [401, 'Please log on before editing settings.'], 'anonymous settings is unauthorized');
+
+  $ENV{REQUEST_METHOD} = 'POST';
+  $orbit = boundary_orbit(
+    user => 'river-editor', role => 'editor',
+    session => { csrf_secret => 'c' x 43 },
+    cgi => BoundaryCGI->new(params => { tab => 'profile', bio => 'hi' }),
+  );
+  is($orbit->HandleSettings(), 'error', 'settings POST without CSRF is rejected');
+  is_deeply($orbit->{_LastAuthError}, [403, 'The security token is invalid or expired.'], 'settings CSRF failure is forbidden');
+};
+
+subtest 'admin page is limited to administrators with CSRF' => sub {
+  local %ENV = %ENV;
+  $ENV{REQUEST_METHOD} = 'GET';
+  delete $ENV{HTTPS};
+  $ENV{REQUEST_SCHEME} = 'http';
+  $ENV{SERVER_PORT} = 80;
+  $ENV{EL_AUTH_ALLOW_INSECURE_LOOPBACK} = '';
+  $ENV{REMOTE_ADDR} = '192.0.2.10';
+
+  my $orbit = boundary_orbit(
+    user => 'sky-watcher', role => 'admin',
+    session => { csrf_secret => 'c' x 43 },
+  );
+  is($orbit->HandleAdmin(), 'error', 'admin page requires HTTPS');
+  is($orbit->{_LastAuthError}[0], 403, 'insecure admin is forbidden');
+
+  $ENV{HTTPS} = 'on';
+  $ENV{REQUEST_SCHEME} = 'https';
+  $ENV{SERVER_PORT} = 443;
+  $orbit = boundary_orbit();
+  is($orbit->HandleAdmin(), 'error', 'admin page requires a session');
+  is($orbit->{_LastAuthError}[0], 401, 'anonymous admin is unauthorized');
+
+  $orbit = boundary_orbit(
+    user => 'river-editor', role => 'editor',
+    session => { csrf_secret => 'c' x 43 },
+  );
+  is($orbit->HandleAdmin(), 'error', 'editors cannot open administration');
+  is_deeply($orbit->{_LastAuthError}, [403, 'Administrator access is required.'], 'editor admin is forbidden');
+
+  $orbit = boundary_orbit(
+    user => 'sky-watcher', role => 'admin',
+    session => { csrf_secret => 'c' x 43, csrf_token => 'c' x 43 },
+  );
+  is($orbit->HandleAdmin(), 'template', 'administrators may open the admin page');
+  is($orbit->{_LastTemplate}, 'EL_ADMIN', 'admin handler renders EL_ADMIN');
+
+  $ENV{REQUEST_METHOD} = 'POST';
+  $orbit = boundary_orbit(
+    user => 'sky-watcher', role => 'admin',
+    session => { csrf_secret => 'c' x 43 },
+    cgi => BoundaryCGI->new(params => { admin_action => 'disable', username => 'river-editor' }),
+  );
+  is($orbit->HandleAdmin(), 'error', 'admin POST without CSRF is rejected');
+  is_deeply($orbit->{_LastAuthError}, [403, 'The security token is invalid or expired.'], 'admin CSRF failure is forbidden');
 };
 
 done_testing;

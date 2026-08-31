@@ -31,6 +31,11 @@ use Orbit::User;
   }
   sub cookie { my ($self, $name) = @_; return $self->{cookies}{$name} }
   sub cgi_error { my ($self) = @_; return $self->{params}{_cgi_error} // '' }
+  sub header {
+    my ($self, @args) = @_;
+    $self->{header_args} = \@args;
+    return '';
+  }
 }
 
 {
@@ -60,10 +65,20 @@ subtest 'fixed role matrix and protected roots' => sub {
   my $anonymous = orbit_for('anonymous');
   ok($anonymous->AuthorizeAction('content.read', root => 'LANGS/ENG'), 'anonymous may read public content');
   ok(!$anonymous->AuthorizeAction('content.write', root => 'LANGS/ENG'), 'anonymous may not write');
+  ok(!$anonymous->AuthorizeAction('person.self_create', root => 'PERSONS'),
+    'anonymous cannot create a linked person');
 
   my $viewer = orbit_for('viewer');
   ok($viewer->AuthorizeAction('account.self'), 'viewer may use own account functions');
   ok(!$viewer->AuthorizeAction('content.write', root => 'LANGS/ENG'), 'viewer may not write content');
+  ok($viewer->AuthorizeAction('person.self_create', root => 'PERSONS'),
+    'viewer may create a person when linking it to their own account');
+  ok(!$viewer->AuthorizeAction('person.self_create', root => 'LANGS/ENG'),
+    'viewer cannot use person self-create on other roots');
+  $viewer->{_MustChange} = 1;
+  ok(!$viewer->AuthorizeAction('person.self_create', root => 'PERSONS'),
+    'forced-change viewer cannot create a person');
+  $viewer->{_MustChange} = 0;
 
   my $editor = orbit_for('editor');
   ok($editor->AuthorizeAction('content.write', root => 'LANGS/ENG'), 'editor may write public content');
@@ -79,6 +94,49 @@ subtest 'fixed role matrix and protected roots' => sub {
   ok($admin->AuthorizeAction('account.admin'), 'admin may administer accounts');
   ok(!$admin->AuthorizeAction('content.write', root => '_ORBIT'), 'even admin cannot use generic writes on protected roots');
   ok(!$admin->AuthorizeAction('unknown.action', root => 'LANGS'), 'unknown actions deny by default');
+
+  my $guard = orbit_for('admin');
+  $guard->{_User} = 'sky-watcher';
+  like(
+    $guard->_AdminProtectTarget('sky-watcher', 'disable', [
+      { username => 'sky-watcher', role => 'admin', status => 'active' },
+    ]),
+    qr/own administrator/,
+    'an administrator cannot disable themselves from the admin page',
+  );
+  like(
+    $guard->_AdminProtectTarget('sky-watcher', 'role', [
+      { username => 'sky-watcher', role => 'admin', status => 'active' },
+    ]),
+    qr/own administrator/,
+    'an administrator cannot demote themselves from the admin page',
+  );
+  $guard->{_cgi} = TestCGI->new(role => 'editor');
+  like(
+    $guard->_AdminProtectTarget('sky-watcher', 'disable', [
+      { username => 'sky-watcher', role => 'admin', status => 'active' },
+      { username => 'other-admin', role => 'admin', status => 'active' },
+    ]),
+    qr/own administrator/,
+    'self-protection applies even when another administrator exists',
+  );
+  $guard->{_User} = 'other-admin';
+  $guard->{_cgi} = TestCGI->new(role => 'viewer');
+  like(
+    $guard->_AdminProtectTarget('sky-watcher', 'role', [
+      { username => 'sky-watcher', role => 'admin', status => 'active' },
+    ]),
+    qr/last active administrator/,
+    'the last active administrator cannot be demoted',
+  );
+  is(
+    $guard->_AdminProtectTarget('river-editor', 'disable', [
+      { username => 'sky-watcher', role => 'admin', status => 'active' },
+      { username => 'river-editor', role => 'editor', status => 'active' },
+    ]),
+    '',
+    'a non-admin account can be disabled',
+  );
 
   $admin->{_InvalidRootInput} = 1;
   ok(!$admin->AuthorizeAction('content.write', root => 'LANGS'), 'a replaced invalid CGI root cannot become an allowed write');
@@ -136,10 +194,23 @@ subtest 'web top-level templates fail closed' => sub {
   ok($anonymous->_WebTemplateAllowed('EL_STYLE'), 'stylesheet entry point is public');
   ok(!$anonymous->_WebTemplateAllowed('EL_VIEW_FLOWER_BASIC'), 'internal rendering helper cannot be selected as a page');
   ok(!$anonymous->_WebTemplateAllowed('EL_LOGON'), 'credential template requires its dedicated handler');
+  ok(!$anonymous->_WebTemplateAllowed('EL_SIGNUP'), 'signup template requires its dedicated handler');
+  ok(!$anonymous->_WebTemplateAllowed('EL_PROFILE'), 'profile template requires its dedicated handler');
+  ok(!$anonymous->_WebTemplateAllowed('EL_SETTINGS'), 'settings template requires its dedicated handler');
 
   local $ENV{HTTPS} = 'on';
   local $anonymous->{_AuthTemplateAllowed} = 1;
   ok($anonymous->_WebTemplateAllowed('EL_LOGON'), 'secure authentication handler may render its form');
+  ok($anonymous->_WebTemplateAllowed('EL_PROFILE'), 'profile handler may render its page');
+  ok($anonymous->_WebTemplateAllowed('EL_SETTINGS'), 'settings handler may render its page');
+  ok(!$anonymous->_WebTemplateAllowed('EL_ADMIN'), 'anonymous cannot render the admin template');
+
+  my $admin = orbit_for('admin');
+  ok(!$admin->_WebTemplateAllowed('EL_ADMIN'), 'admin template requires its dedicated handler');
+  local $admin->{_AuthTemplateAllowed} = 1;
+  ok($admin->_WebTemplateAllowed('EL_ADMIN'), 'admin handler may render its page');
+  $admin->{_MustChange} = 1;
+  ok(!$admin->_WebTemplateAllowed('EL_ADMIN'), 'forced-change admin cannot open administration');
 
   local $anonymous->{_MutationTemplateAllowed} = 'EL_ADD';
   ok($anonymous->_WebTemplateAllowed('EL_ADD'), 'authorized mutation handler may render its own template');
@@ -155,8 +226,28 @@ subtest 'safe redirect targets' => sub {
   is($orbit->_ValidateReturnTo('https://evil.example/'), '/o/page', 'absolute URL rejected');
   is($orbit->_ValidateReturnTo('//evil.example/'), '/o/page', 'scheme-relative URL rejected');
   is($orbit->_ValidateReturnTo('/o/../_ORBIT'), '/o/page', 'parent traversal rejected');
+  is($orbit->_ValidateReturnTo('/o/%2e%2e/_ORBIT'), '/o/page', 'encoded parent traversal rejected');
+  is($orbit->_ValidateReturnTo('/o/%252e%252e/_ORBIT'), '/o/page', 'double-encoded parent traversal rejected');
+  is($orbit->_ValidateReturnTo('/o/page?q=a%2Fb'), '/o/page?q=a%2Fb', 'encoded query data remains valid');
+  is($orbit->_ValidateReturnTo('/o/page%'), '/o/page', 'malformed percent escape rejected');
   is($orbit->_ValidateReturnTo("/o/page\r\nX-Test: bad"), '/o/page', 'header injection rejected');
+  is($orbit->_ValidateReturnTo('/o/page%0d%0aX-Test:bad'), '/o/page', 'encoded header injection rejected');
   is($orbit->_ValidateReturnTo("/o/page\x1fhidden"), '/o/page', 'all ASCII control bytes are rejected');
+};
+
+subtest 'redirects retain the standard response security headers' => sub {
+  my $orbit = orbit_for('anonymous');
+  my $output = '';
+  open(my $capture, '>', \$output) or die "open scalar output: $!";
+  {
+    local *STDOUT = $capture;
+    $orbit->_EmitRedirect('/o/page');
+  }
+  close($capture) or die "close scalar output: $!";
+  my %headers = @{$orbit->{_cgi}{header_args}};
+  is($headers{-X_Content_Type_Options}, 'nosniff', 'redirect disables MIME sniffing');
+  is($headers{-Referrer_Policy}, 'same-origin', 'redirect limits referrer disclosure');
+  is($headers{-X_Frame_Options}, 'SAMEORIGIN', 'redirect retains frame protection');
 };
 
 subtest 'production and loopback cookie policy' => sub {
@@ -188,6 +279,10 @@ subtest 'production and loopback cookie policy' => sub {
 
   $ENV{REMOTE_ADDR} = '192.0.2.10';
   ok(!$orbit->_AuthTransportAllowed, 'insecure LAN client is denied');
+  is($orbit->_NewSessionCookie('c' x 43), '', 'session helper cannot mint a LAN HTTP cookie');
+  is($orbit->_ExpiredSessionCookie(), '', 'session helper cannot emit a LAN HTTP cookie');
+  $ENV{REMOTE_ADDR} = '127.0.0.1';
+  is($orbit->_NewSessionCookie('short'), '', 'session helper rejects malformed tokens');
 };
 
 subtest 'web mutations cannot trigger legacy remote image fetching' => sub {

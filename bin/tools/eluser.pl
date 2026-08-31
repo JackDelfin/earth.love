@@ -55,7 +55,7 @@ die "--role is valid only with create or role\n"
 die "--person is valid only with create\n"
   if (defined($person) && $command ne 'create');
 die "Refusing to create root-owned authentication data; run as the CGI runtime user\n"
-  if ($> == 0);
+  if ($< == 0 || $> == 0);
 
 my $domain_dir = realpath($domain_arg);
 die "Domain directory does not exist: $domain_arg\n"
@@ -118,11 +118,7 @@ if ($command eq 'reset') {
 }
 
 if ($command eq 'disable') {
-  # Disable first: even if subsequent invalidation encounters an I/O failure,
-  # no existing session can authenticate against an active account.
   _require_ok($auth->update_account($username, status => 'disabled'), "disable $username");
-  _require_ok($auth->bump_auth_version($username), "invalidate sessions for $username");
-  $auth->revoke_all_sessions($username, reason => 'administrator_disable');
   print "Disabled $username\n";
   exit 0;
 }
@@ -133,10 +129,6 @@ if ($command eq 'enable') {
   die "Unable to enable $username: account must be disabled first\n"
     if (($account->{status} // '') ne 'disabled');
 
-  # Invalidate/revoke while the account is still disabled.  Active is the final
-  # write, so no pre-disable session can become valid if an earlier step fails.
-  _require_ok($auth->bump_auth_version($username), "invalidate sessions for $username");
-  $auth->revoke_all_sessions($username, reason => 'administrator_enable');
   _require_ok($auth->update_account($username, status => 'active'), "enable $username");
   print "Enabled $username\n";
   exit 0;
@@ -145,10 +137,8 @@ if ($command eq 'enable') {
 if ($command eq 'role') {
   die "The role command requires --role viewer|editor|admin\n" if (!defined($role));
   _validate_role($role);
-  _require_ok($auth->bump_auth_version($username), "invalidate sessions for $username");
-  $auth->revoke_all_sessions($username, reason => 'administrator_role_change');
   _require_ok($auth->update_account($username, role => $role), "change role for $username");
-  print "Changed $username role to $role; all sessions revoked\n";
+  print "Role for $username is $role; a role change revokes all sessions\n";
   exit 0;
 }
 

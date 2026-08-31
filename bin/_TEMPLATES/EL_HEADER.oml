@@ -7,6 +7,80 @@
 <title>#TITLE#</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 #INC![_STYLES/#STYLE#]#
+<style>
+.el-header-tools { display: flex; justify-content: flex-end; align-items: flex-start; gap: 0.75rem; overflow: visible; }
+.el-header-tools .el-search { flex: 1; min-width: 0; }
+.el-header-account { position: relative; overflow: visible; z-index: 40; }
+.el-account { position: relative; display: inline-block; text-align: left; overflow: visible; }
+.el-account summary { list-style: none; cursor: pointer; display: inline-flex; }
+.el-account summary::-webkit-details-marker { display: none; }
+.el-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+  background: #0d7377; color: #fff; font-weight: 700; vertical-align: middle;
+}
+.el-avatar-lg { width: 112px; height: 112px; font-size: 2.5rem; }
+.el-avatar-fallback { text-transform: uppercase; }
+.el-account-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); min-width: 16rem;
+  z-index: 50; padding: 0.5rem 0;
+}
+.el-account-menu a, .el-account-menu button {
+  display: block; width: 100%; text-align: left; border: 0; background: none;
+  padding: 0.6rem 1rem; cursor: pointer; font: inherit;
+}
+.el-account-menu a:hover, .el-account-menu button:hover { background: #f1f1f1; }
+.el-account-id { padding: 0.6rem 1rem 0.8rem; border-bottom: 1px solid #ddd; }
+.el-auth-anonymous { display: flex; align-items: center; gap: 0.5rem; }
+.el-field { margin-bottom: 1rem; }
+.el-field .w3-input { margin-bottom: 0; }
+.el-field-hint, .el-field-example, .el-field-rules {
+  margin: 0.3rem 0 0.55rem;
+  color: #555;
+  font-size: 0.875rem;
+}
+.el-field-rules { margin-left: 1.15rem; padding: 0; }
+.el-field-example { margin-top: 0; }
+.el-field-checked:has(input:not(:placeholder-shown):invalid) .el-field-hint,
+.el-field-checked:has(input:not(:placeholder-shown):invalid) .el-field-rules,
+.el-field-checked:has(input:not(:placeholder-shown):invalid) .el-field-example { color: #b71c1c; }
+.el-field-checked:has(input:not(:placeholder-shown):valid) .el-field-hint,
+.el-field-checked:has(input:not(:placeholder-shown):valid) .el-field-rules,
+.el-field-checked:has(input:not(:placeholder-shown):valid) .el-field-example { color: #2e7d32; }
+.el-field-checked input:not(:placeholder-shown):invalid {
+  border: 2px solid #c62828;
+  background: #fff8f8;
+}
+.el-field-checked input:not(:placeholder-shown):valid {
+  border: 2px solid #2e7d32;
+}
+body.w3-responsive { overflow-x: clip; }
+header {
+  position: relative;
+  z-index: 60;
+}
+.el-hex-menu { z-index: 70; }
+.el-hex-menu .w3-dropdown-content { z-index: 70; }
+.el-box-head {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.el-box-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0.15rem;
+}
+.el-box-tools-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+}
+</style>
 </head>
 <body class="#MOBILE#w3-container w3-responsive">
 <header class="#HEADER_BOX#">
@@ -14,22 +88,51 @@
     <div class="w3-third"><h2>#HEADER#</h2></div>
     <div class="w3-third w3-center"><h3>#HEADER_CENTER#</h3>#OML[EL_NAV_BUTTONS]#</div>
     <div class="w3-third w3-right-align">
-      #INCLUDE[EL_FORM_SEARCH_HEADER]#
-      <div class="w3-bar w3-right-align">
-        #EQUAL[#AUTHENTICATED#][1][
-          <span class="w3-bar-item">#AUTH_USER.html#</span>
-          <a class="w3-bar-item w3-button w3-round-large" href="#_ORBIT#elpasswd">#MSG[Change passphrase]#</a>
-          <form name="logoff" action="#_ORBIT#ellogoff" method="post" class="w3-bar-item w3-margin-bottom-0">
-            <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
-            <input type="hidden" name="return_to" value="#RETURN_TO.html#">
-            <button type="submit" class="w3-button w3-round-large">#MSG[Log off]#</button>
-          </form>
-        ][
-          <form name="logon_link" action="#_ORBIT#ellogon" method="get" class="w3-bar-item w3-margin-bottom-0">
-            <input type="hidden" name="return_to" value="#RETURN_TO.html#">
-            <button type="submit" class="w3-button w3-round-large">#MSG[Log on]#</button>
-          </form>
-        ]#
+      <div class="el-header-tools">
+        <div class="el-search">#INCLUDE[EL_FORM_SEARCH_HEADER]#</div>
+        <div class="el-header-account w3-right-align">
+          #EQUAL[#AUTHENTICATED#][1][
+            <details class="el-account">
+              <summary title="#AUTH_USER.html#">
+                #EXISTS[#AUTH_AVATAR_URL#][
+                  <img class="el-avatar" src="#AUTH_AVATAR_URL.html#" alt="#AUTH_USER.html#">
+                ][
+                  <span class="el-avatar el-avatar-fallback">#AUTH_AVATAR_INITIAL.html#</span>
+                ]#
+              </summary>
+              <div class="el-account-menu w3-card w3-round-large w3-white">
+                <div class="el-account-id">
+                  <strong>#AUTH_USER.html#</strong><br>
+                  <span class="w3-small w3-text-grey">#AUTH_ROLE.html#</span>
+                </div>
+                <a href="#_ORBIT#elprofile">#MSG[Profile]#</a>
+                <a href="#_ORBIT#elsettings?tab=profile">#MSG[Settings]#</a>
+                #EQUAL[#AUTH_IS_ADMIN#][1][<a href="#_ORBIT#eladmin">#MSG[Admin]#</a>][]#
+                <a href="#_ORBIT#elpasswd">#MSG[Change passphrase]#</a>
+                <form name="switch_account" action="#_ORBIT#ellogoff" method="post">
+                  <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+                  <input type="hidden" name="return_to" value="#_ORBIT#ellogon">
+                  <button type="submit">#MSG[Switch account]#</button>
+                </form>
+                <form name="logoff" action="#_ORBIT#ellogoff" method="post">
+                  <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+                  <input type="hidden" name="return_to" value="#RETURN_TO.html#">
+                  <button type="submit">#MSG[Log off]#</button>
+                </form>
+              </div>
+            </details>
+          ][
+            <div class="el-auth-anonymous">
+              #EQUAL[#AUTH_SELF_SIGNUP#][1][
+                <a class="w3-button w3-round-large" href="#_ORBIT#elsignup">#MSG[Create account]#</a>
+              ][]#
+              <form name="logon_link" action="#_ORBIT#ellogon" method="get">
+                <input type="hidden" name="return_to" value="#RETURN_TO.html#">
+                <button type="submit" class="w3-button w3-round-large">#MSG[Log on]#</button>
+              </form>
+            </div>
+          ]#
+        </div>
       </div>
       #EQUAL[#AUTH_CAN_WRITE#][1][#ifINC[#_WORDFOUND_.0#][EL_ADD_BUTTONS]#]#
     </div>

@@ -1,0 +1,52 @@
+#INCLUDE[EL_TOKENS]#
+#INCLUDE![EL_HEADER]#
+<main class="w3-container w3-content" style="max-width:42rem">
+  <section class="#BOX#">
+    <h2>#MSG[Create account]#</h2>
+    <form name="signup" action="#_ORBIT#elsignup" method="post" accept-charset="UTF-8" class="w3-container w3-left-align">
+      <input type="hidden" name="login_csrf_token" value="#LOGIN_CSRF_TOKEN.html#">
+
+      <div class="el-field el-field-checked">
+        <label for="signup-username">#MSG[User name]#</label>
+        <ul id="signup-username-help" class="el-field-rules">
+          <li>#MSG[3 to 32 characters]#</li>
+          <li>#MSG[Start with a letter]#</li>
+          <li>#MSG[Lowercase letters, digits, and hyphens]#</li>
+        </ul>
+        <p class="el-field-example">#MSG[Example: river-editor.]#</p>
+        <input id="signup-username" name="username" type="text"
+               class="w3-input w3-round-large"
+               minlength="3" maxlength="32" autocomplete="username"
+               autocapitalize="none" spellcheck="false" required autofocus
+               pattern="[A-Za-z][A-Za-z0-9]*(-[A-Za-z0-9]+)*" placeholder=" "
+               aria-describedby="signup-username-help">
+      </div>
+
+      <div class="el-field el-field-checked">
+        <label for="signup-passphrase">#MSG[Passphrase]#</label>
+        <p id="signup-passphrase-help" class="el-field-hint">#MSG[15 to 128 characters. Spaces are welcome.]#</p>
+        <input id="signup-passphrase" name="passphrase" type="password"
+               class="w3-input w3-round-large"
+               minlength="15" maxlength="128" autocomplete="new-password" required
+               spellcheck="false" placeholder=" "
+               aria-describedby="signup-passphrase-help">
+      </div>
+
+      <div class="el-field">
+        <label for="signup-confirm-passphrase">#MSG[Confirm passphrase]#</label>
+        <p id="signup-confirm-passphrase-help" class="el-field-hint">#MSG[Type the same passphrase again to catch typos.]#</p>
+        <input id="signup-confirm-passphrase" name="confirm_passphrase" type="password"
+               class="w3-input w3-round-large"
+               minlength="15" maxlength="128" autocomplete="new-password" required
+               spellcheck="false" placeholder=" "
+               aria-describedby="signup-confirm-passphrase-help">
+      </div>
+
+      <button type="submit" class="w3-button w3-green w3-card-4 w3-round-large">
+        #MSG[Create account]#
+      </button>
+    </form>
+    <p><a href="#_ORBIT#ellogon">#MSG[Already have an account? Log on]#</a></p>
+  </section>
+</main>
+#INCLUDE![EL_FOOTER]#

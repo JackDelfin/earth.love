@@ -3,7 +3,8 @@
 BOX_COLOR   =[el-chakra3]
 _DATA_BODY_ =[<div class="#BOX_ROW#">#1.html#</div>]
 <!--- Special case for Index query - don't show user ./ --->
-_DATA_FOOT_ =[#_datasearch=REPLACE[#_datasearch#\]\[./\]\##NEXT_PREV#</div>]
+_DATA_HEAD_ =[#_datasearch=REPLACE[#_datasearch#\]\[./\]\[#<div class="#BOX#"><div class="#BOX_HEAD#"><h3>#_DATA_MSG_#</h3>#NEXT_PREV#</div>]
+_DATA_FOOT_ =[</div>]
 ]#
 #FUNCTION[EL_GET_DATA][INDEX]#
-#RESTORE[_DATA_BODY_][_DATA_FOOT_][BOX_COLOR]#
+#RESTORE[_DATA_HEAD_][_DATA_BODY_][_DATA_FOOT_][BOX_COLOR]#

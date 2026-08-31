@@ -1,0 +1,35 @@
+<!--- Data-box toolbar: show all / floor of 7, list vs default, search.
+     Lives in the box header. Use lang= (not l=) so list= is not stolen. --->
+#_datamore=TRIM[#OML[EL_FN_DATA_MAX_STEP][MORE]#]#
+#_dataless=TRIM[#OML[EL_FN_DATA_MAX_STEP][LESS]#]#
+#_list_other=EQUAL[#LIST#][list][button][list]#
+#_list_label=EQUAL[#LIST#][list][default][list]#
+#_boxroot_=NVL[#ROOT_BACK#][#ROOT#]#
+#_boxhref_=[#_ORBIT#page?d=#ENV_SERVER_NAME#&r=#_boxroot_#&lang=#LANG#&o=#OBJECT#&m=#MENU#&tree=#TREE#&w=#WORD.tr#&p=#PAGE#]#
+#_FORMFIELDS_=APPEND[#_FORMFIELDS_#][#_datafile#Q][,]#
+#_FORMFIELDS_=APPEND[#_FORMFIELDS_#][#_datafile#S][,]#
+#_FORMFIELDS_=APPEND[#_FORMFIELDS_#][#_datafile#M][,]#
+<div class="el-box-tools">
+#EQUAL[#_dataless#][#_datamax#][][
+<a class="w3-link-plain w3-small w3-button w3-card-4 w3-hover w3-gray w3-round-large" href="#_boxhref_#&ff=#_FORMFIELDS_.TR#&#_datafile#S=1&#_datafile#M=#_dataless#&#_datafile#Q=#_datasearch#&list=#LIST#">#MSG[show less]#</a>
+]#
+<a class="w3-link-plain w3-small w3-button w3-card-4 w3-hover w3-gray w3-round-large" href="#_boxhref_#&ff=#_FORMFIELDS_.TR#&#_datafile#S=1&#_datafile#M=#_datamax#&#_datafile#Q=#_datasearch#&list=#_list_other#">#MSG[#_list_label#]#</a>
+<form name="sm#_datafile#" class="el-box-tools-search" action="#showpage_post#" method="post">
+<input type="hidden" name="root" value="#_boxroot_.html#">
+<input type="hidden" name="lang" value="#LANG.html#">
+<input type="hidden" name="page" value="#PAGE.html#">
+<input type="hidden" name="object" value="#OBJECT.html#">
+<input type="hidden" name="menu" value="#MENU.html#">
+<input type="hidden" name="tree" value="#TREE.html#">
+<input type="hidden" name="word" value="#word.html#">
+<input type="hidden" name="list" value="#LIST.html#">
+<input type="hidden" name="#_datafile#S" value="1">
+<input type="hidden" name="#_datafile#M" value="#_datamax.html#">
+<input type="text" class="w3-light-grey w3-round-large w3-small" name="#_datafile#Q" size="16" value="#_datasearch.html#" aria-label="#MSG[Search]#">
+#INC[EL_INPUT_FIELDS]#
+<input type="submit" class="w3-button w3-small w3-round-large w3-light-grey" value="#MSG[Search]#">
+</form>
+#EQUAL[#_datamax#][All][][
+<a class="w3-link-plain w3-small w3-button w3-card-4 w3-hover w3-gray w3-round-large" href="#_boxhref_#&ff=#_FORMFIELDS_.TR#&#_datafile#S=1&#_datafile#M=#_datamore#&#_datafile#Q=#_datasearch#&list=#LIST#">#MSG[show more]#</a>
+]#
+</div>

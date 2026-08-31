@@ -175,7 +175,10 @@ echo '--'
 echo '-- Enable the earth.love Virtual Hosts'
 echo '-- (000-default.conf ships enabled on Debian - enable it here too)'
 echo '-- Local SSL uses the Fedora self-signed localhost cert until'
-echo '-- elSETUP_DOM.pl / certbot issues a real certificate.'
+echo '-- apply_mkcert_el_local.sh issues a trusted cert for el.local,'
+echo '-- or elSETUP_DOM.pl / certbot issues a certificate for a public domain.'
+echo '-- Do not enable el.local-ssl.conf here: those cert files do not'
+echo '-- exist until mkcert runs.'
 echo '--'
 sudo a2ensite 000-default.conf
 sudo a2ensite 000-default-ssl.conf
@@ -195,6 +198,16 @@ if [ -f /etc/httpd/conf.d/ssl.conf ] \
   echo '-- Set ssl.conf _default_:443 DocumentRoot to /LOVE/earth.love/_WEB';
   sudo sed -i 's|^#DocumentRoot "/var/www/html"|DocumentRoot "/LOVE/earth.love/_WEB"|' \
     /etc/httpd/conf.d/ssl.conf;
+fi
+
+echo
+echo '--'
+echo '-- Local HTTPS for el.local via mkcert (optional; warn and continue)'
+echo '--'
+if ! "$SCRIPTPATH/fedora/apply_mkcert_el_local.sh"; then
+  echo 'NOTE: mkcert for el.local was not applied (network, sudo, or missing tools).'
+  echo 'NOTE: Local HTTPS continues with the Fedora self-signed localhost.crt.'
+  echo 'NOTE: Re-run: bin/setup/fedora/apply_mkcert_el_local.sh'
 fi
 
 echo
@@ -223,9 +236,10 @@ echo '--'
 echo '-- Install the SETUP_DOM directories'
 echo '--'
 cd $SCRIPTPATH/..
-cp -pruv SETUP_DOM ~
-mkdir -p ~/SETUP_DOM/_TEMPLATES
-cp -pruv _TEMPLATES/. ~/SETUP_DOM/_TEMPLATES/
+if ! "$SCRIPTPATH/el_package_setup_dom.sh" "$SCRIPTPATH/.." "$HOME/SETUP_DOM"; then
+  echo 'ERROR: Unable to install the domain setup security package.' >&2
+  exit 1
+fi
 
 echo
 echo '--'

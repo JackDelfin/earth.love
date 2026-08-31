@@ -32,3 +32,38 @@
 #FUNCTION[EL_FN_DIVSPAN_INC]
   [EL_SEARCH_LINKS]
   [EL_SEARCH_PATHS]#
+
+<section class="w3-container w3-margin-top w3-left-align">
+  <h3>#MSG[Orbit account]#</h3>
+  #EXISTS[#PERSON_LINKED_USER#][
+    <p>
+      <a href="#PERSON_LINKED_PROFILE_URL.html#">#PERSON_LINKED_USER.html#</a>
+    </p>
+  ][
+    <p class="w3-text-grey">#MSG[No account is linked to this person.]#</p>
+    #EQUAL[#PERSON_CAN_LINK_SELF#][1][
+      <form action="#_ORBIT#elsettings" method="post" class="w3-container w3-margin-bottom">
+        <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+        <input type="hidden" name="tab" value="profile">
+        <input type="hidden" name="settings_action" value="link_person">
+        <input type="hidden" name="person" value="#PERSON_WORD.html#">
+        <button type="submit" class="w3-button w3-teal w3-round-large">#MSG[Link this person to my account]#</button>
+      </form>
+    ][]#
+    #EQUAL[#AUTH_IS_ADMIN#][1][
+      <form name="admin_link_person" action="#_ORBIT#eladmin" method="post" class="w3-container w3-margin-bottom">
+        <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
+        <input type="hidden" name="admin_action" value="link_person">
+        <input type="hidden" name="person" value="#PERSON_WORD.html#">
+        <label for="person-user">#MSG[Link an existing user]#</label>
+        <select id="person-user" class="w3-select w3-margin-bottom" name="username">
+          #PERSON_USER_OPTIONS#
+        </select>
+        <button type="submit" class="w3-button w3-teal w3-round-large">#MSG[Link user]#</button>
+      </form>
+      <p>
+        <a class="w3-button w3-green w3-round-large" href="#PERSON_CREATE_USER_URL.html#">#MSG[Create and link a user]#</a>
+      </p>
+    ][]#
+  ]#
+</section>

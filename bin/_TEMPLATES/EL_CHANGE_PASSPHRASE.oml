@@ -3,25 +3,37 @@
 <main class="w3-container w3-content" style="max-width:42rem">
   <section class="#BOX#">
     <h2>#MSG[Change passphrase]#</h2>
-    <p>#MSG[Use at least 15 characters. Spaces are welcome.]#</p>
     <form name="change_passphrase" action="#_ORBIT#elpasswd" method="post" accept-charset="UTF-8" class="w3-container w3-left-align">
       <input type="hidden" name="csrf_token" value="#CSRF_TOKEN.html#">
       <input type="hidden" name="return_to" value="#RETURN_TO.html#">
 
-      <label for="auth-current-passphrase">#MSG[Current passphrase]#</label>
-      <input id="auth-current-passphrase" name="current_passphrase" type="password"
-             class="w3-input w3-margin-bottom w3-round-large"
-             maxlength="128" autocomplete="current-password" required autofocus>
+      <div class="el-field">
+        <label for="auth-current-passphrase">#MSG[Current passphrase]#</label>
+        <input id="auth-current-passphrase" name="current_passphrase" type="password"
+               class="w3-input w3-round-large"
+               maxlength="128" autocomplete="current-password" required autofocus
+               spellcheck="false" placeholder=" ">
+      </div>
 
-      <label for="auth-new-passphrase">#MSG[New passphrase]#</label>
-      <input id="auth-new-passphrase" name="new_passphrase" type="password"
-             class="w3-input w3-margin-bottom w3-round-large"
-             minlength="15" maxlength="128" autocomplete="new-password" required>
+      <div class="el-field el-field-checked">
+        <label for="auth-new-passphrase">#MSG[New passphrase]#</label>
+        <p id="auth-new-passphrase-help" class="el-field-hint">#MSG[15 to 128 characters. Spaces are welcome.]#</p>
+        <input id="auth-new-passphrase" name="new_passphrase" type="password"
+               class="w3-input w3-round-large"
+               minlength="15" maxlength="128" autocomplete="new-password" required
+               spellcheck="false" placeholder=" "
+               aria-describedby="auth-new-passphrase-help">
+      </div>
 
-      <label for="auth-confirm-passphrase">#MSG[Confirm new passphrase]#</label>
-      <input id="auth-confirm-passphrase" name="confirm_passphrase" type="password"
-             class="w3-input w3-margin-bottom w3-round-large"
-             minlength="15" maxlength="128" autocomplete="new-password" required>
+      <div class="el-field">
+        <label for="auth-confirm-passphrase">#MSG[Confirm new passphrase]#</label>
+        <p id="auth-confirm-passphrase-help" class="el-field-hint">#MSG[Type the same passphrase again to catch typos.]#</p>
+        <input id="auth-confirm-passphrase" name="confirm_passphrase" type="password"
+               class="w3-input w3-round-large"
+               minlength="15" maxlength="128" autocomplete="new-password" required
+               spellcheck="false" placeholder=" "
+               aria-describedby="auth-confirm-passphrase-help">
+      </div>
 
       <button type="submit" class="w3-button w3-green w3-card-4 w3-round-large">
         #MSG[Change passphrase]#

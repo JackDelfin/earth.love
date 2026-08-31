@@ -2,9 +2,10 @@
 ##########################################
 # apply_https_fixes.sh
 #
-# Apply the two Fedora audit warnings on a live system:
+# Apply Fedora HTTPS / logging fixes on a live system:
 #   1. a2enconf other-vhosts-access-log
-#   2. Enable local HTTPS (self-signed) for earth.love
+#   2. Enable local HTTPS for earth.love (Fedora self-signed
+#      localhost.crt until mkcert is applied for el.local)
 #
 # Run: sudo ./apply_https_fixes.sh
 # Or:  ./apply_https_fixes.sh   (will sudo internally)
@@ -29,7 +30,7 @@ echo '-- Enable other-vhosts-access-log'
 run cp -puv "$SCRIPTPATH/other-vhosts-access-log.conf" /etc/httpd/conf-available/
 run a2enconf other-vhosts-access-log
 
-echo '-- Install local HTTPS vhosts (Fedora localhost.crt)'
+echo '-- Install local HTTPS vhosts (Fedora localhost.crt until mkcert)'
 run cp -puv "$BINDIR/config/000-default-ssl.conf" /etc/httpd/sites-available/
 run cp -puv "$BINDIR/config/earth.love-ssl.conf" /etc/httpd/sites-available/
 run a2ensite 000-default-ssl.conf
@@ -45,6 +46,13 @@ if [ -f /etc/httpd/conf.d/ssl.conf ] \
   echo '-- Set ssl.conf DocumentRoot to /LOVE/earth.love/_WEB';
   run sed -i 's|^#DocumentRoot "/var/www/html"|DocumentRoot "/LOVE/earth.love/_WEB"|' \
     /etc/httpd/conf.d/ssl.conf;
+fi
+
+echo '-- Local HTTPS for el.local via mkcert (optional; does not abort on failure)'
+if ! "$SCRIPTPATH/apply_mkcert_el_local.sh"; then
+  echo 'NOTE: mkcert for el.local was not applied (network, sudo, or missing tools).'
+  echo 'NOTE: Local HTTPS remains the Fedora self-signed localhost.crt.'
+  echo 'NOTE: Re-run: bin/setup/fedora/apply_mkcert_el_local.sh'
 fi
 
 run apachectl configtest

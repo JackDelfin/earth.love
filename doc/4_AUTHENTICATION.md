@@ -19,11 +19,11 @@ for a later ACL design; it is not treated as an authentication database.
   Sessions expire after 30 minutes idle or eight hours absolute time. There is
   no “remember me” session in v1.
 
-The web flows included in v1 are logon, logoff, and change passphrase. Account
-creation, reset, disable/enable, role changes, and session revocation are local
-administrator operations. Self-registration, email reset, security questions,
-OAuth/SSO, email verification, 2FA, WebAuthn, teams, and fine-grained ACLs are
-deferred.
+The web flows included in v1 are logon, logoff, optional public self-signup,
+change passphrase, public profile, and account settings. Account creation,
+reset, disable/enable, role changes, self-signup policy, and session revocation
+are local administrator operations. Email reset, security questions, OAuth/SSO,
+email verification, 2FA, WebAuthn, teams, and fine-grained ACLs are deferred.
 
 ## Private on-disk layout
 
@@ -31,6 +31,7 @@ Each domain owns a separate private store:
 
 ```text
 <domain>/_ORBIT/_AUTH/
+  POLICY.json
   USERS/
   PASSPHRASE/
   SESSIONS/
@@ -46,11 +47,18 @@ Ubuntu, `apache` on Fedora). The deployment scripts prune this tree from their
 legacy recursive web-content permission changes. Authentication paths reject
 symbolic links and path escapes, and record replacement is atomic.
 
+`POLICY.json` is a small protected domain policy record. Public self-signup is
+off by default and is enabled only by a schema-1 record containing a real JSON
+boolean `self_signup: true`. A missing, unreadable, oversized, symlinked,
+malformed, wrong-schema, or wrong-typed policy record is always interpreted as
+disabled. Strings such as `"false"`, `"0"`, or `"1"` never enable signup.
+
 Passphrases use Argon2id through `Crypt::Argon2`, with a 16-byte random salt,
 19 MiB memory, two iterations, one lane, and a 32-byte output. Random tokens use
 `Crypt::URandom`. A missing crypto dependency is a hard authentication failure;
 the code never falls back to a weaker hash or PRNG. Passphrases are normalized
 to Unicode NFC and must be 15–128 characters (and at most 1024 UTF-8 bytes).
+Control characters and HTML/OML delimiters are rejected.
 
 Only a SHA-256 digest of each 256-bit opaque session token is stored. A separate
 256-bit CSRF secret is stored in the session record. Changing/resetting a
@@ -66,12 +74,43 @@ Development over HTTP is available only when
 loopback, and the separate `el_dev_sid` cookie is used.
 
 All content mutations require an authenticated `editor` or `admin`, `POST`, and
-the session CSRF value. Logoff and passphrase change also require `POST` and
-CSRF. Logon uses a pre-authentication CSRF value so a third-party site cannot
-silently replace a browser's identity with the attacker's account. Redirects
-accept only local absolute paths. Authentication responses are `no-store` and
-use restrictive CSP, clickjacking, referrer, MIME-sniffing, and permissions
-headers. HSTS is sent on non-loopback HTTPS responses.
+the session CSRF value. Logoff, passphrase change, and settings saves also
+require `POST` and CSRF. Logon uses a pre-authentication CSRF value so a
+third-party site cannot silently replace a browser's identity with the
+attacker's account. Public signup at `/o/elsignup` uses the same pre-session
+CSRF cookie/form nonce and transport rules. Redirects accept only local absolute
+paths. Authentication
+responses are `no-store` and use restrictive CSP, clickjacking, referrer,
+MIME-sniffing, and permissions headers. HSTS is sent on non-loopback HTTPS
+responses.
+
+Public profiles are world-readable at `/o/elprofile` (add `?u=username` for
+another account). They are stored as JSON under `<domain>/_ORBIT/_PROFILE/` and
+may include a web-served avatar at `/_USERS/<username>/avatar.{jpg,png,gif,webp}`
+inside `<domain>/_WEB/_USERS/`. Settings at `/o/elsettings` require a live
+session and HTTPS. The Public Profile tab stores a Person-word pointer only
+for records that already exist under the PERSONS WordBase, plus email, bio,
+pronouns, URL, and avatar. The settings control is a list of unclaimed people
+(or the account's current link), not a free-text name. Editors, administrators,
+and users with no person yet can create and link a PERSONS record through
+`elnew`; administrators can also create or link an account from a Person page.
+At most one account may claim a Person. Avatar uploads are magic-byte checked
+and capped at 512 KiB.
+
+Domain administrators also get `/o/eladmin` from the account menu. That page
+can create accounts, change roles, disable or enable users, revoke sessions,
+issue a temporary passphrase reset, and explicitly enable or disable public
+self-signup. It requires an `admin` role that is not in `must_change`, HTTPS,
+POST, and CSRF. The setting defaults to disabled. When enabled, anonymous
+visitors see Create account controls in the header and logon page and may use
+`/o/elsignup`; when disabled, both discovery controls are hidden and both GET
+and POST to the route fail closed without a form. Self-created accounts are
+always active `viewer` accounts with `must_change` off because the user chose
+the passphrase. Client-supplied role or `must_change` fields are ignored. An
+administrator cannot disable, demote, reset, or revoke themselves from the
+page, and the last active administrator cannot be disabled or demoted. Store
+initialization and `eluser maintain` stay on the command line. Passphrases are
+never written into templates or audit records.
 
 CGI/environment values and form values are non-recursive OML tokens. Structural
 selectors such as page, root, word, tree, and template names are validated
@@ -90,18 +129,20 @@ path.
 
 ## Administrator commands
 
-Install scripts publish `eluser` in the system administration path. Run it as
-the domain's CGI runtime user, never as root:
+Install scripts publish `eluser` as `/usr/local/sbin/eluser`. Use that absolute
+path because system administration directories are commonly absent from the
+CGI runtime user's `PATH`. Run it as the domain's CGI runtime user, never as
+root:
 
 ```sh
-sudo -u www-data eluser init /LOVE/example.test
-sudo -u www-data eluser create /LOVE/example.test river-editor --role editor
-sudo -u www-data eluser reset /LOVE/example.test river-editor
-sudo -u www-data eluser disable /LOVE/example.test river-editor
-sudo -u www-data eluser enable /LOVE/example.test river-editor
-sudo -u www-data eluser role /LOVE/example.test river-editor --role viewer
-sudo -u www-data eluser revoke /LOVE/example.test river-editor
-sudo -u www-data eluser maintain /LOVE/example.test
+sudo -u www-data /usr/local/sbin/eluser init /LOVE/example.test
+sudo -u www-data /usr/local/sbin/eluser create /LOVE/example.test river-editor --role editor
+sudo -u www-data /usr/local/sbin/eluser reset /LOVE/example.test river-editor
+sudo -u www-data /usr/local/sbin/eluser disable /LOVE/example.test river-editor
+sudo -u www-data /usr/local/sbin/eluser enable /LOVE/example.test river-editor
+sudo -u www-data /usr/local/sbin/eluser role /LOVE/example.test river-editor --role viewer
+sudo -u www-data /usr/local/sbin/eluser revoke /LOVE/example.test river-editor
+sudo -u www-data /usr/local/sbin/eluser maintain /LOVE/example.test
 ```
 
 Use `apache` instead of `www-data` on Fedora. Passphrases are read twice from an
@@ -128,13 +169,21 @@ change attempts cannot exceed the same admission bounds as logon. The
 canonicalized replacement must differ from the current passphrase, so a
 temporary reset secret cannot clear `must_change` without being rotated.
 
+Public signup consumes capacity from the existing IP bucket before any Argon2
+hash begins. The request that spends the last available work unit may finish;
+later requests from that address fail closed until the bucket clears. Invalid,
+duplicate, and successful signup attempts all pass through the same pre-hash
+admission point, and browser-visible failures do not reveal account existence.
+
 Private JSON-lines audit records include timestamp, event/result, bounded user,
 IP, user-agent, reason/action/root, request ID, count, and session digest when
 applicable. They never include a passphrase, cookie, raw bearer token, CSRF
 secret, or request body. The audit log rotates at 10 MiB and retains 30 archives
 by default. Failed/successful/throttled logons, session creation/revocation,
-logoff, account/credential changes, authorization denials, and maintenance are
-recorded.
+logoff, account/credential changes, public signup, administrator self-signup
+policy changes, authorization denials, and maintenance are recorded. Policy
+change records include the administrator username and the new enabled/disabled
+state but no secrets.
 
 ## Deployment checklist
 
@@ -143,11 +192,15 @@ recorded.
 2. Propagate the Orbit libraries and CGI routes. Propagation synchronizes the
    security-sensitive templates to every configured virtual-host document root.
 3. Verify `<domain>/_ORBIT/_AUTH` is `0700` and owned by the CGI runtime user.
-4. Create the initial administrator with `eluser create ... --role admin`.
-5. Exercise logon, a permitted write, a denied write, logoff, and the audit log
-   before exposing the domain.
-6. Schedule `eluser maintain` and normal protected backups of `_AUTH`.
+4. Create the initial administrator with
+   `/usr/local/sbin/eluser create ... --role admin`.
+5. Confirm self-signup is disabled, then exercise logon, a permitted write, a
+   denied write, logoff, and the audit log before exposing the domain. If public
+   signup is desired, enable it explicitly on `/o/eladmin` and test a viewer
+   signup before announcing the route.
+6. Schedule `/usr/local/sbin/eluser maintain` and normal protected backups of
+   `_AUTH`.
 
 Never serve `_ORBIT/_AUTH` through Apache, copy it with public templates, or run
-`eluser` as root. Backups contain password verifiers and active session records
-and need the same protection as the live store.
+`/usr/local/sbin/eluser` as root. Backups contain password verifiers and active
+session records and need the same protection as the live store.

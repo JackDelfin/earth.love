@@ -18,7 +18,18 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-SOURCE_DIR="$SCRIPTPATH/../_TEMPLATES"
+SOURCE_DIR=""
+for source_candidate in "$SCRIPTPATH/_TEMPLATES" "$SCRIPTPATH/../_TEMPLATES"; do
+  if [ -d "$source_candidate" ] && [ ! -L "$source_candidate" ] \
+     && [ -f "$source_candidate/EL_LOGON.oml" ]; then
+    SOURCE_DIR="$source_candidate"
+    break
+  fi
+done
+if [ -z "$SOURCE_DIR" ]; then
+  echo "Complete authentication template source not found beside: $SCRIPTPATH" >&2
+  exit 1
+fi
 SITES_DIR="${EL_APACHE_SITES_DIR:-/etc/apache2/sites-available}"
 TEMPLATE_OWNER=www-data
 TEMPLATE_GROUP=www-data
@@ -35,8 +46,20 @@ fi
 
 AUTH_TEMPLATES=(
   EL_LOGON.oml
+  EL_SIGNUP.oml
   EL_CHANGE_PASSPHRASE.oml
+  EL_PROFILE.oml
+  EL_SETTINGS.oml
+  EL_ADMIN.oml
+  PERSONS/EL_NEW_PERSON.oml
+  PERSONS/EL_SHOW_PERSON.oml
   EL_HEADER.oml
+  EL_NAV_BUTTONS.oml
+  EL_NAV_MENUS.oml
+  EL_NAV_SHOW_MORE.oml
+  EL_TOKENS_SEARCH.oml
+  EL_FN_DATA_MAX_STEP.oml
+  DEFAULT.oml
   EL_FORM_DATA.oml
   EL_FORM_DATA_ADD.oml
   EL_BUTTON_NEW.oml

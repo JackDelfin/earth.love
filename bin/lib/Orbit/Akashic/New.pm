@@ -40,6 +40,7 @@ use warnings;
 #
 use Akashic::Write;
 use Akashic::Write::Data;
+use Orbit::Person;
 
 
 ################################################################################
@@ -69,9 +70,29 @@ sub Orbit::ProcessNewRecords
   my $action = $O->Get_Token('ACTION');
   my $word   = "";
 
+  my $link_user = '';
+  if (defined($O->{_cgi}) && $O->{_cgi}->can('param')) {
+    $link_user = scalar $O->{_cgi}->param('link_user');
+    $link_user = (defined($link_user) && $link_user eq '1') ? '1' : '';
+  }
+  $O->Set_Token('LINK_USER', $link_user);
+
   # A GET may display the editor-only form, but it must never reach storage.  POST
   # additionally requires the session-bound CSRF token.
   my $operation = ($object eq 'ROOT' || $object eq 'DOMAIN') ? 'system.create' : 'create';
+  if ($object eq 'PERSON' && $link_user eq '1'
+      && $O->can('AuthorizeAction')
+      && !$O->AuthorizeAction('content.write', root => $root)) {
+    my $own = '';
+    if ($O->{_User} ne '' && defined($O->{_Auth})) {
+      my $account = eval { $O->{_Auth}->read_account($O->{_User}) };
+      if (ref($account) eq 'HASH') {
+        $own = 'Orbit::Person'->normalize($account->{person} // '');
+        $own = '' if !defined $own;
+      }
+    }
+    $operation = 'person.self_create' if ($own eq '');
+  }
   my ($route_allowed, $process_mutation) = $self->AuthorizeMutationRequest($root, $operation);
   if (!$route_allowed) {
     $O->Set_Token('PAGE', 'DEFAULT');
@@ -114,6 +135,8 @@ sub Orbit::ProcessNewRecords
   my $name   = $O->Get_Token('_name');
   # Trim the input
   $name = $A->StandardLineTrim($name);
+  my $root_code = '';
+  my $root_short = '';
 
   #***************************************
   #
@@ -170,15 +193,32 @@ sub Orbit::ProcessNewRecords
     return $page;
   }
 
+  # ROOT names become directory paths, so they use a deliberately narrower
+  # grammar than ordinary words and phrases.  Validate after CANCEL has had a
+  # chance to leave the form, but before any word lookup or storage operation.
+  if ($object eq 'ROOT') {
+    $root_code = $A->StandardLineTrim($O->Get_Token('_code'));
+    my $validated_root = $O->_NormalizePublicRootName($root_code);
+    $root_short = $A->StandardLineTrim($O->Get_Token('_short'));
+    if (!defined($validated_root)
+        || !$O->_ValidRootDisplayField($name, 160)
+        || !$O->_ValidRootDisplayField($root_short, 80)) {
+      $O->RegisterError('#MSG[Invalid root name]#');
+      $O->Set_Token('PAGE', 'el_new');
+      return 'el_new';
+    }
+    $root_code = $validated_root;
+  }
+
   #***************************************
   #
   # Make sure primary data exists
   #
   # It must also be a valid word/phrase/path for storage in Akashic
   #
-  if ($name eq ""
+  if ($object ne 'ROOT' && ($name eq ""
     ||!$O->SetWordTokens($name, 1)
-    ) {
+    )) {
     $O->RegisterError('#MSG[Name not specified]#') if ($name eq "");
 
     # Don't Process Data on the page
@@ -190,6 +230,8 @@ sub Orbit::ProcessNewRecords
 
     # Go back to the NEW page
     $page = 'el_new';
+    $O->Set_Token('PAGE', $page);
+    return $page;
   }
 
   #***************************************
@@ -197,14 +239,17 @@ sub Orbit::ProcessNewRecords
   # Get the context directory for Word/Phrase/Path
   # - If it exists, not a new entry - go to the SHOW page
   #
-  my $WordDir = $A->GetTextDir($root, $name);
-  if (-d $WordDir) {
-    $O->RegisterError('#MSG[Word already exists]#');
-    $O->Set_Token('WORD', $name);
-    # Set the page to display
-    $page = 'el_show';
-    $O->Set_Token('PAGE', $page);
-    return $page;
+  my $WordDir = '';
+  if ($object ne 'ROOT') {
+    $WordDir = $A->GetTextDir($root, $name);
+    if (-d $WordDir) {
+      $O->RegisterError('#MSG[Word already exists]#');
+      $O->Set_Token('WORD', $name);
+      # Set the page to display
+      $page = 'el_show';
+      $O->Set_Token('PAGE', $page);
+      return $page;
+    }
   }
 
   #***************************************
@@ -320,19 +365,28 @@ sub Orbit::ProcessNewRecords
   # NEW ROOT
   #
   } elsif ($object eq 'ROOT') {
+    # PREV collects fields but never writes them.
+    if (!$bProcessData) {
+      $O->Set_Token('PAGE', $page);
+      return $page;
+    }
     #use AkashicProcess;
-    $root = $name;   # Root directory name
-    $root =~ tr/[a-z]/[A-Z]/;   # uppercase by convention
+    $root = $root_code;   # Validated Root directory code
     #$A->SetVar('Root', $root);
     # Create the word base
-    $A->CreateWordBase($root   # Root Code
-                      ,$O->Get_Token('_root_name')
-                      ,$O->Get_Token('_short')
-                      ,$O->Get_Token('_desc')
-                      ,$O->Get_Token('_color')
-                      );
+    if ($A->CreateWordBase($root   # Root Code
+                         ,'ROOT'
+                         ,$name
+                         ,$root_short
+                         ,$O->Get_Token('_desc')
+                         ,$O->Get_Token('_color')
+                         )) {
+      $O->RegisterError('#MSG[Unable to create root]#');
+      $O->Set_Token('PAGE', 'el_new');
+      return 'el_new';
+    }
     # Show the newly created Root
-    $O->Set_Token('ROOT', $name);
+    $O->Set_Token('ROOT', $root_code);
     $O->Set_Token('OBJECT', '');
     $O->Set_Token('WORD', '');
 
@@ -470,7 +524,9 @@ sub Orbit::ProcessNewRecords
       #
       # Successful
       #
-      $O->RegisterSuccess('#MSG[Word Added]#');
+      $O->RegisterSuccess(($object eq 'PERSON' && $link_user eq '1')
+        ? '#MSG[Person created and linked to your account]#'
+        : '#MSG[Word Added]#');
       $self->GetUprintBuf();   # Reset print buf
       $page = 'el_show';
       # Get the Next Word if available
@@ -517,6 +573,16 @@ sub Orbit::ProcessNewRecords
     $A->AddIndexLine($WordDir, $object.$A->{_DataExt}, $name, 'CREATE ONELINE');
   }
 
+  if ($bProcessData && $object eq 'PERSON' && $link_user eq '1'
+      && $O->{_User} ne '' && $O->can('_BindPersonToUser')) {
+    my $linked = eval { $O->_BindPersonToUser($O->{_User}, $name); 1 };
+    if (!$linked) {
+      my $error = $@ || 'The person was created, but it could not be linked to your account.';
+      $error =~ s/\s+at\s+\S+\s+line\s+\d+.*//s;
+      $O->RegisterError($error);
+    }
+  }
+
 
   #***************************************
   #
@@ -535,6 +601,42 @@ sub Orbit::ProcessNewRecords
   $O->Set_Token('PAGE', $page);
   return $page;
 } #ProcessNewRecords
+
+
+################################################################################
+#
+# _NormalizePublicRootName <root>
+#
+# Public root identifiers are one or more ASCII segments.  Dotted and slash
+# nested-root input is accepted, then normalized to the established dotted
+# representation.  System/private roots are never creatable through elnew.
+#
+################################################################################
+sub Orbit::_NormalizePublicRootName
+{
+  my ( $self, $root ) = @_;
+
+  return if (!defined($root) || ref($root) || $root eq '' || length($root) > 160);
+  return if ($root =~ /[\x00-\x20\x7f\\]/);
+
+  my @segments = split(/[\.\/]/, $root, -1);
+  return if (!@segments);
+  for my $segment (@segments) {
+    return if ($segment !~ /\A[A-Za-z][A-Za-z0-9-]{0,63}\z/);
+    $segment =~ tr/[a-z]/[A-Z]/;
+  }
+
+  return join('.', @segments);
+}
+
+
+sub Orbit::_ValidRootDisplayField
+{
+  my ( $self, $value, $max_length ) = @_;
+  return 0 if (!defined($value) || ref($value) || $value eq '');
+  return 0 if (length($value) > $max_length || $value =~ /[\x00-\x1f\x7f]/);
+  return 1;
+}
 
 
 #******************************************************************************************

@@ -1,0 +1,4 @@
+<!--- #OML[EL_FN_DATA_MAX_STEP][MORE|LESS]#
+     Word-page boxes: MORE jumps to All (empty if already All);
+     LESS jumps to MAX_DEF (the floor, usually 7). --->
+#EQUAL[#_1_#][MORE][#EQUAL[#_datamax#][All][][All]#][#MAX_DEF#]#
