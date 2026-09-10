@@ -63,6 +63,7 @@ my @navigators = (
   [comm_vision  => 'Vision for a Shared Planet'],
   [comm_nature  => 'Spirituality'],
 );
+my @people_petals = qw(Create Find Meet Teach Lead Learn Connect);
 
 sub slurp {
   my ($path) = @_;
@@ -174,6 +175,23 @@ subtest 'COMMS navigator stubs include the MENU originals' => sub {
   }
 };
 
+subtest 'PERSONS navigator keeps its own identity and seven petals' => sub {
+  my $source = slurp(File::Spec->catfile($templates, 'PERSONS', 'EL_NAV_PERSONS.oml'));
+  like($source, qr/FlowerHead\s*=\[People Navigator\]/, 'the heading names People');
+  like($source, qr/PMENU\s*=\[PERSONS\]/, 'the parent menu is PERSONS');
+  like($source, qr/<h3 class="#CLASS_FLOWER_HEAD# w3-red">/, 'the heading uses Root red');
+  unlike($source, qr/Locations|LOCS|w3-orange/, 'no Locations identity remains');
+  for my $i (0 .. $#people_petals) {
+    my $number = $i + 1;
+    my $petal = $people_petals[$i];
+    like($source, qr/_NAV\Q$number\E\s*=\[\Q$petal\E\]/, "petal $number is $petal");
+    like($source, qr/_subroot\Q$number\E\s*=\[PERSONS_\Q$petal\E\]/,
+      "$petal points to its PERSONS subroot");
+  }
+  like(slurp(File::Spec->catfile($templates, 'LOCS', 'EL_NAV_LOCS.oml')),
+    qr/FlowerHead\s*=\[Locations Navigator\]/, 'LOCS keeps Locations Navigator');
+};
+
 my $templates_dst = File::Spec->catdir($domain, '_ROOT', '_TEMPLATES');
 make_path($templates_dst);
 copy_tree($templates, $templates_dst);
@@ -206,6 +224,25 @@ subtest 'COMMS navigator URLs render through the footer' => sub {
         'the navigator renders through the footer and closes the document');
     };
   }
+};
+
+subtest 'PERSONS navigator renders People petals through the footer' => sub {
+  my $html = render_query('r=PERSONS&m=PERSONS');
+  like($html, qr/<h3\b[^>]*\bw3-red\b[^>]*>\s*People Navigator\s*<\/h3>/,
+    'the People Navigator heading renders in red');
+  unlike($html, qr/Locations Navigator|menu=LOCS_/, 'the navigator has no Locations heading or petals');
+  my ($flower) = $html =~ /<h3\b[^>]*>\s*People Navigator\s*<\/h3>.*?(<table\b[^>]*>.*?<\/table>)/s;
+  ok(defined($flower), 'the navigator renders its flower');
+  $flower //= '';
+  my @petals = $flower =~ /href="[^"]*&pmenu=PERSONS&menu=PERSONS_([^"]+)"/g;
+  is_deeply([sort @petals], [sort @people_petals], 'all seven links target the People petals');
+  for my $petal (@people_petals) {
+    like($flower,
+      qr/<a\b[^>]*href="[^"]*&pmenu=PERSONS&menu=PERSONS_\Q$petal\E"[^>]*>\s*<div\b[^>]*\bw3-circle\b[^>]*>\s*<h4><b>\Q$petal\E<\/b><\/h4>\s*<\/div>\s*<\/a>/,
+      "$petal renders as a labeled flower link");
+  }
+  like($html, qr/<footer\b[^>]*>.*?Updated:.*?<\/footer>\s*<\/body>\s*<\/html>\s*\z/s,
+    'the People Navigator renders through the footer and closes the document');
 };
 
 done_testing();

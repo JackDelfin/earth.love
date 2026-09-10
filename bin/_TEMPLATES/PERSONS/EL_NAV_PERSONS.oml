@@ -1,27 +1,27 @@
 <!--- Get the Token configurations for Navigation - touchy~feely stuff --->
 #INCif[#omlCIRCLENAV.NOTEXISTS#][EL_TOKENS_NAV_OML]#
 #LOADMSG[
-FlowerHead =[Locations Navigator]
+FlowerHead =[People Navigator]
 _NAV1      =[Create]
 _NAV2      =[Find]
-_NAV3      =[Propose]
+_NAV3      =[Meet]
 _NAV4      =[Teach]
 _NAV5      =[Lead]
 _NAV6      =[Learn]
 _NAV7      =[Connect]
 ]#
 #LOADTOKEN[
-PMENU     =[LOCS]
-_subroot1 =[LOCS_Create]
-_subroot2 =[LOCS_Find]
-_subroot3 =[LOCS_Propose]
-_subroot4 =[LOCS_Teach]
-_subroot5 =[LOCS_Lead]
-_subroot6 =[LOCS_Learn]
-_subroot7 =[LOCS_Connect]
+PMENU     =[PERSONS]
+_subroot1 =[PERSONS_Create]
+_subroot2 =[PERSONS_Find]
+_subroot3 =[PERSONS_Meet]
+_subroot4 =[PERSONS_Teach]
+_subroot5 =[PERSONS_Lead]
+_subroot6 =[PERSONS_Learn]
+_subroot7 =[PERSONS_Connect]
 _NAVLINK  =[<a class="w3-link-plain" href="#ELSHOW#&pmenu=#pmenu#&menu=#_subroot#">#_NAVTEXT#</a>]
 ]#
 <div class="w3-container">
-<h3 class="#CLASS_FLOWER_HEAD# w3-orange">#FlowerHead#</h3>
+<h3 class="#CLASS_FLOWER_HEAD# w3-red">#FlowerHead#</h3>
 <div class="w3-container">#include![EL_VIEW_FLOWER]#</div>
 </div>
