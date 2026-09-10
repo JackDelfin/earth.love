@@ -57,9 +57,24 @@ subtest 'propagation requests all configured vhost domains' => sub {
     'header chrome and the default landing page are part of the forced template sync');
   like($sync_source, qr/EL_NAV_SHOW_MORE\.oml.*EL_TOKENS_SEARCH\.oml/s,
     'data-box toolbar templates are part of the forced template sync');
+  like($sync_source, qr/EL_TOKENS\.oml.*EL_TOKENS_INPUT\.oml/s,
+    'read-route tokens including elSHOW_POST are part of the forced template sync');
   my $propagator = slurp(File::Spec->catfile($repo, 'bin', 'tools', 'PROPOGATE_earthlove.pl'));
   like($propagator, qr/ellogon\.pl\s+elsignup\.pl\s+ellogoff\.pl/s,
     'public signup CGI is installed with the authentication routes');
+  like($propagator, qr/my \@CGISOURCE = qw \{[^}]*\bpage\.pl\b[^}]*elnew\.pl/s,
+    'canonical read and mutation CGI are installed');
+  unlike($propagator, qr/my \@CGISOURCE = qw \{[^}]*\belshow\.pl\b/s,
+    'elshow is not a separate installed read route');
+  unlike($propagator, qr/my \@CGISOURCE = qw \{[^}]*\bpage7\.pl\b/s,
+    'Orbit7 read aliases are not installed');
+  like($propagator, qr/my \@CGIRETIRED = qw \{[^}]*\bpage7\.pl\b/s,
+    'Orbit7 read aliases are retired from cgi-bin on propagate');
+  like($propagator, qr/my \@CGIRETIRED = qw \{[^}]*\belshow\.pl\b/s,
+    'elshow is retired from cgi-bin on propagate');
+  my $tokens = slurp(File::Spec->catfile($repo, 'bin', '_TEMPLATES', 'EL_TOKENS.oml'));
+  like($tokens, qr/ELSHOW\s+=\[#_ORBIT#page\?/, 'ELSHOW uses the canonical /o/page handler');
+  unlike($tokens, qr/ELSHOW\s+=\[#_ORBIT#elshow\?/, 'ELSHOW no longer points at /o/elshow');
   ok(-x File::Spec->catfile($repo, 'bin', 'cgi', 'elsignup.pl'),
     'public signup CGI source is executable');
   my $new_button = slurp(File::Spec->catfile($repo, 'bin', '_TEMPLATES', 'EL_BUTTON_NEW.oml'));

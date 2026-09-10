@@ -12,7 +12,7 @@ elADD_POST         =[#_ORBIT#eladd]
 elDEL_POST         =[#_ORBIT#eldel]
 elEDIT_POST        =[#_ORBIT#eledit]
 elNEW_POST         =[#_ORBIT#elnew]
-elSHOW_POST        =[#_ORBIT#elshow]
+elSHOW_POST        =[#_ORBIT#page]
 
 H                  =[EL_INPUT_HIDDEN]
 ]#

@@ -54,12 +54,12 @@ MOBILE             =[w3-mobile ]
 
 ELNEWWORD          =[#_ORBIT#elnew?r=LANGS/#LANG#&l=#LANG#&o=word&p=el_new&w=#WORD#]
 ELEDIT             =[#_ORBIT#eledit?r=#ROOT#&l=#LANG#&o=#OBJECT#&p=el_edit&w=#WORD.TR#&data=]
-ELSHOW             =[#_ORBIT#elshow?r=#ROOT#&l=#LANG#&p=el_show&w=]<!--- Must set object after &o=cat --->
-ELSHOWNAV          =[#_ORBIT#elshow?pr=#root#&l=#LANG#&]
+ELSHOW             =[#_ORBIT#page?r=#ROOT#&l=#LANG#&p=el_show&w=]<!--- Must set object after &o=cat --->
+ELSHOWNAV          =[#_ORBIT#page?pr=#root#&l=#LANG#&]
 
 TITLE              =[earth.love - #_root_name_#]
 
-HEADER             =[<a class="w3-link-plain w3-cursive" href="#_ORBIT#page">earth.love</a>#OML[EL_LOGO_LIGHTS]#]
+HEADER             =[<a class="w3-link-plain w3-cursive" href="#_ORBIT#page">earth.love</a> #OML[EL_NAV_MENUS]#]
 HEADER_BOX         =[w3-container w3-padding-small w3-round-xlarge w3-margin #HEADER_COLOR#]
 HEADER_COLOR       =[w3-teal]
 HEADER_MESSAGE_BOX =[w3-panel w3-round-xlarge w3-padding-small w3-blue]
@@ -71,9 +71,6 @@ FOOTER_COLOR       =[w3-teal]
 MSG_BADWORD        =[Bad Phrase:(#_BADWORD_#)]
 MSG_WORDNOTFOUND   =[#_WORDTYPE_# Not Found:(#Word#)]
 MSG_SEARCH         =[Search for Word or Phrase]
-MSG_URGENT         =[#_URGENT_MESSAGE_#]<!--- NOT an AD opportunity NOT --->
-
-_URGENT_MESSAGE_   =[<a href="http://urgent.earth/o/page?p=MSG&r=langs/eng&lang=#LANG#&w=urgent">No URGENT messages</a>]
 
 NEXT_PREV          =[#INC[EL_NAV_SHOW_MORE]#]
 

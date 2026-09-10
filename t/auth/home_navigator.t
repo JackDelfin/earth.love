@@ -22,7 +22,7 @@ sub make_domain {
   make_path(
     File::Spec->catdir($domain, '_WEB'),
     File::Spec->catdir($domain, 'COMMS'),
-    map { File::Spec->catdir($domain, 'LANGS', $_) }
+    map { File::Spec->catdir($domain, 'LANGS', 'ENG', $_) }
       qw(_WORDS _PHRASES _PATHS _TREES _TEMPLATES _DATES),
   );
   return abs_path($domain);
@@ -50,6 +50,36 @@ sub orbit_for_query {
 my $temporary = tempdir(CLEANUP => 1);
 my $domain = make_domain($temporary, 'home.example');
 my $document_root = File::Spec->catdir($domain, '_WEB');
+my $repo = abs_path(File::Spec->catdir($FindBin::Bin, '..', '..'));
+my $templates = File::Spec->catdir($repo, 'bin', '_TEMPLATES');
+my @navigators = (
+  [action       => 'Action Navigator'],
+  [comms        => 'Community Navigator'],
+  [comm_self    => 'Self'],
+  [comm_mission => 'Mission - Care for Planet'],
+  [comm_plan    => 'Plan'],
+  [comm_values  => 'Community Values'],
+  [comm_path    => 'Path'],
+  [comm_vision  => 'Vision for a Shared Planet'],
+  [comm_nature  => 'Spirituality'],
+);
+
+sub slurp {
+  my ($path) = @_;
+  open(my $fh, '<:raw', $path) or die "read $path: $!";
+  local $/;
+  my $text = <$fh>;
+  close($fh) or die "close $path: $!";
+  return $text;
+}
+
+sub render_query {
+  my ($query) = @_;
+  my $orbit = orbit_for_query($document_root, 'home.example', $query);
+  $orbit->SetCommandLineOn();
+  $orbit->SetPrintOutputOff();
+  return $orbit->ShowPage() // '';
+}
 
 subtest 'bare /o/page opens the Action Navigator' => sub {
   my $orbit = orbit_for_query($document_root, 'home.example', '');
@@ -79,7 +109,6 @@ subtest 'explicit root, object, word, and menu requests are unchanged' => sub {
 };
 
 subtest 'header letters moved into the flower dropdown' => sub {
-  my $repo = abs_path(File::Spec->catdir($FindBin::Bin, '..', '..'));
   my $buttons = do {
     local $/;
     open(my $fh, '<', File::Spec->catfile($repo, 'bin', '_TEMPLATES', 'EL_NAV_BUTTONS.oml'))
@@ -133,17 +162,24 @@ sub copy_tree {
   }, $src);
 }
 
-subtest 'rendered home page shows Action Navigator without header letters' => sub {
-  my $repo = abs_path(File::Spec->catdir($FindBin::Bin, '..', '..'));
-  my $templates_dst = File::Spec->catdir($domain, '_ROOT', '_TEMPLATES');
-  make_path($templates_dst);
-  copy_tree(File::Spec->catdir($repo, 'bin', '_TEMPLATES'), $templates_dst);
+subtest 'COMMS navigator stubs include the MENU originals' => sub {
+  for my $navigator (@navigators) {
+    my $name = 'EL_NAV_'.uc($navigator->[0]);
+    like(slurp(File::Spec->catfile($templates, 'COMMS', $name.'.oml')),
+      qr/\A\s*#INC\[MENU\/\Q$name\E\]#\s*\z/,
+      "COMMS/$name contains only the MENU include");
+    like(slurp(File::Spec->catfile($templates, 'MENU', $name.'.oml')),
+      qr/\b(?:Petal_[1-7]|EL_VIEW_FLOWER)\b/,
+      "MENU/$name retains the petal or flower navigation markup");
+  }
+};
 
-  my $orbit = orbit_for_query($document_root, 'home.example', '');
-  $orbit->SetCommandLineOn();
-  $orbit->SetPrintOutputOff();
-  my $html = $orbit->ShowPage();
-  $html = '' if (!defined($html));
+my $templates_dst = File::Spec->catdir($domain, '_ROOT', '_TEMPLATES');
+make_path($templates_dst);
+copy_tree($templates, $templates_dst);
+
+subtest 'rendered home page shows Action Navigator without header letters' => sub {
+  my $html = render_query('');
 
   unlike($html, qr/<B>M<\/B>/, 'rendered header has no M badge');
   unlike($html, qr/<B>O<\/B>/, 'rendered header has no O badge');
@@ -153,6 +189,23 @@ subtest 'rendered home page shows Action Navigator without header letters' => su
   like($html, qr/ROOTS/, 'rendered flower dropdown includes ROOTS');
   like($html, qr/root=MENU&menu=index&tree=mother/,
     'rendered ROOTS link keeps the former Main Index destination');
+  like($html, qr/<footer\b[^>]*>.*?Updated:.*?<\/footer>\s*<\/body>\s*<\/html>\s*\z/s,
+    'bare /o/page renders through the footer and closes the document');
+};
+
+subtest 'COMMS navigator URLs render through the footer' => sub {
+  for my $navigator (@navigators) {
+    my ($menu, $heading) = @$navigator;
+    subtest "r=COMMS&m=$menu" => sub {
+      my $html = render_query('r=COMMS&m='.$menu);
+      like($html, qr/<h2\b[^>]*>\s*\Q$heading\E\s*<\/h2>/,
+        'the MENU original renders its navigator heading');
+      like($html, qr/<table\b[^>]*>.*?w3-circle.*?<\/table>/s,
+        'the navigator renders its flower petals');
+      like($html, qr/<footer\b[^>]*>.*?Updated:.*?<\/footer>\s*<\/body>\s*<\/html>\s*\z/s,
+        'the navigator renders through the footer and closes the document');
+    };
+  }
 };
 
 done_testing();

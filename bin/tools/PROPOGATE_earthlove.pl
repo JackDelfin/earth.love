@@ -183,23 +183,18 @@ my @REL = qw {
 #
 # CGI Release Programs - copy from source bin/cgi to cgi-bin
 #
+# Canonical web routes:
+#   page.pl                 read (ShowPage)
+#   elnew/eladd/eledit/eldel  mutations (SCRIPT_NAME gates POSTs)
+#   ellogon/elsignup/ellogoff/elpasswd/elprofile/elsettings/eladmin
+# Alias wrappers (elshow, page7, o, showpage, *7) are retired from install.
+#
 my @CGISOURCE = qw {
-    showpage.pl
-    showpage7.pl
     page.pl
-    page7.pl
-    o.pl
-    o7.pl
-    elshow.pl
     eladd.pl
     elnew.pl
     eledit.pl
     eldel.pl
-    elshow7.pl
-    eladd7.pl
-    elnew7.pl
-    eledit7.pl
-    eldel7.pl
     ellogon.pl
     elsignup.pl
     ellogoff.pl
@@ -211,7 +206,9 @@ my @CGISOURCE = qw {
 #
 # Retired CGI programs - remove both the .pl file and the extensionless alias
 # from existing deployments. Orbit 6 has no authentication/authorization or
-# untrusted-token boundary, so all of its public routes are retired.
+# untrusted-token boundary. Read aliases and Orbit7 duplicates of the same
+# handlers are retired so /o/page and the four mutation names are the only
+# content routes.
 #
 my @CGIRETIRED = qw {
     showpage6.pl
@@ -222,6 +219,17 @@ my @CGIRETIRED = qw {
     elnew6.pl
     eledit6.pl
     eldel6.pl
+    showpage.pl
+    showpage7.pl
+    page7.pl
+    o.pl
+    o7.pl
+    elshow.pl
+    elshow7.pl
+    eladd7.pl
+    elnew7.pl
+    eledit7.pl
+    eldel7.pl
 };
 #*****************************************
 # END USER CONFIGURATION

@@ -44,5 +44,4 @@ header {
     <div class="w3-third w3-right-align">#INCLUDE[EL_FORM_SEARCH_HEADER]#</div>
   </div>
 </header>
-#EXISTS[#MSG_URGENT#][<div class="w3-red w3-center #HEADER_MESSAGE_BOX#"><strong>#MSG_URGENT#</strong></div>]#
 #EXISTS[#HEADER_MESSAGE#][<div class="#HEADER_MESSAGE_BOX#">#HEADER_MESSAGE#</div>]#

@@ -29,7 +29,7 @@ DotDot: #DotDot[langs.eng][cat][cats]#
 #DOTDOT=DOTDOT[#root#][cat]#<!--- #TESTING --->
 #LOADTOKEN[
 BOX_COLOR   =[el-chakra3]
-_DATA_HREF_ =[#elshow##1.tr#&object=cat]
+_DATA_HREF_ =[#ELSHOW##1.tr#&object=cat]
 _DATA_HREF_ =[#DOTDOT##DATAPATH[#root#][#1#]#cat.html]
 next=next
 ]#

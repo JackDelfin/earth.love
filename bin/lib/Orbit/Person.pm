@@ -85,7 +85,7 @@ sub show_url {
   $encoded =~ s/%/%25/g;
   $encoded =~ s/\+/%2B/g;
   $encoded =~ s/ /+/g;
-  return '/o/elshow?r=PERSONS&o=PERSON&p=el_show&w='.$encoded;
+  return '/o/page?r=PERSONS&o=PERSON&p=el_show&w='.$encoded;
 }
 
 sub list_records {

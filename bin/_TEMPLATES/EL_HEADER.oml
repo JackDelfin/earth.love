@@ -139,5 +139,4 @@ header {
   </div>
 </header>
 #IFOML![#DEBUG.0#][EL_DEBUG_HEADER]#
-#EXISTS[#MSG_URGENT#][<div class="w3-red w3-center #HEADER_MESSAGE_BOX#"><strong>#MSG_URGENT#</strong></div>]#
 #EXISTS[#HEADER_MESSAGE#][<div class="#HEADER_MESSAGE_BOX#">#HEADER_MESSAGE#</div>]#

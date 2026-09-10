@@ -1,17 +1,1 @@
-#MENU=[COMM_PATH]#
-<!--- Get the Token configurations for Navigation - touchy~feely stuff --->
-#INCif[#omlCIRCLENAV.NOTEXISTS#][EL_TOKENS_NAV_OML]#
-#_FLOWER_HEAD_COLOR_=[el-chakra5]#
-#OML[EL_HEADER_NAV_FLOWER]#
-#LOADMSG[
-FlowerHead =[Path]
-_NAV1      =[Apprentice]
-_NAV2      =[Journeymon]
-_NAV3      =[Master]
-_NAV4      =[Craftsmon]
-_NAV5      =[Organizer]
-_NAV6      =[Librarian]
-_NAV7      =[Elder]
-]#
-#_Flower=INCLUDE[EL_VIEW_FLOWER]#
-#FlowerDIV#
+#INC[MENU/EL_NAV_COMM_PATH]#

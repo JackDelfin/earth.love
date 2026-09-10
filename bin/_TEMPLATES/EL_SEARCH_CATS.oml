@@ -2,7 +2,7 @@
 #_DATA_MSG_=MSG[Categories]#
 #LOADTOKEN[
 BOX_COLOR   =[el-chakra3]
-_DATA_HREF_ =[#elshow##1.tr#&object=cat]
+_DATA_HREF_ =[#ELSHOW##1.tr#&object=cat]
 ]#
 #OMLIF[#_STATIC_#][EL_SEARCH_CATS_STATIC]#
 #FUNCTION[EL_GET_DATA][CATS]#

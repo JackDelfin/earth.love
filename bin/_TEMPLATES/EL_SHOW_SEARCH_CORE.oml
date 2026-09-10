@@ -1,0 +1,7 @@
+#INC![EL_FORM_SEARCH][#MSG_SEARCH#]#
+#INC![EL_SEARCH_WORD]#
+#STOP[#WORD.NOTEXISTS#]#
+<!--- Define Search Head/Body/Foot default layout --->
+#INC[EL_TOKENS_SEARCH]#
+<!--- Search which ROOTS this word is on --->
+#INC![EL_SEARCH_RESULTS]#

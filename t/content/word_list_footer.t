@@ -58,7 +58,8 @@ sub step {
 }
 
 my $show_word = slurp(File::Spec->catfile($templates, 'LANGS', 'ENG', 'EL_SHOW_WORD.oml'));
-my $show_search = slurp(File::Spec->catfile($templates, 'LANGS', 'ENG', 'EL_SHOW_SEARCH.oml'));
+my $search_core = File::Spec->catfile($templates, 'EL_SHOW_SEARCH_CORE.oml');
+my $show_search = slurp($search_core);
 my $show_more = slurp(File::Spec->catfile($templates, 'EL_NAV_SHOW_MORE.oml'));
 my $tokens = slurp(File::Spec->catfile($templates, 'EL_TOKENS.oml'));
 my $tokens_search = slurp(File::Spec->catfile($templates, 'EL_TOKENS_SEARCH.oml'));
@@ -67,6 +68,33 @@ my $step_fn = slurp(File::Spec->catfile($templates, 'EL_FN_DATA_MAX_STEP.oml'));
 my $data_pm = slurp(File::Spec->catfile($repo, 'bin', 'lib', 'Orbit', 'OML', 'Function', 'Data.pm'));
 my $nav_index = slurp(File::Spec->catfile($templates, 'MENU', 'EL_NAV_INDEX.oml'));
 my $search_roots = slurp(File::Spec->catfile($templates, 'EL_SEARCH_ROOTS.oml'));
+
+subtest 'search entry points include a distinct shared implementation' => sub {
+  for my $root ('', qw(BOOKS COMMS GUILDS JOBS LOCS MENU PERSONS SPIRITS LANGS/ENG)) {
+    my $directory = File::Spec->catdir($templates, $root);
+    my $path = File::Spec->catfile($directory, 'EL_SHOW_SEARCH.oml');
+    my $name = ($root eq '' ? '' : $root.'/').'EL_SHOW_SEARCH';
+    like(slurp($path), qr/\A\s*#INC\[EL_SHOW_SEARCH_CORE\]#\s*\z/,
+      "$name contains only the shared core include");
+
+    my $orbit = test_orbit();
+    $orbit->{_TEMPLATEDIRS} = { 0 => $directory.'/', 1 => $templates.'/' };
+    is($orbit->SearchTemplateDirs('EL_SHOW_SEARCH'), $path,
+      "$name resolves with the root directory before the shared library");
+    is($orbit->SearchTemplateDirs('EL_SHOW_SEARCH_CORE'), $search_core,
+      "$name resolves the shared core without selecting itself");
+  }
+
+  my $sequence = join('.*', map { quotemeta($_) } (
+    '#INC![EL_FORM_SEARCH][#MSG_SEARCH#]#',
+    '#INC![EL_SEARCH_WORD]#',
+    '#STOP[#WORD.NOTEXISTS#]#',
+    '#INC[EL_TOKENS_SEARCH]#',
+    '#INC![EL_SEARCH_RESULTS]#',
+  ));
+  like($show_search, qr/$sequence/s,
+    'the shared core retains the form, word, empty-word guard, tokens, and results in order');
+};
 
 subtest 'every data box uses the simplified toolbar in a sticky header' => sub {
   like($tokens, qr/NEXT_PREV\s*=\[#INC\[EL_NAV_SHOW_MORE\]#\]/,
