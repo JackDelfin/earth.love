@@ -1,13 +1,13 @@
-<!--- Root must be passed in --->
+<!--- The caller supplies ROOT, OBJECT, and the English search prompt. --->
 #STOP[#ROOT.NOTEXISTS#]#
-#OBJECT=[GUILD]#
+#STOP[#OBJECT.NOTEXISTS#]#
+<!--- Nested includes overwrite/delete _1_, so save its value eagerly. --->
+#_list_search_prompt_=PARSE[#_1_#]#
 #INC[EL_HEADER_ROOT]#
-#searchmsg=MSG[Search #ROOT_SHORT#]#
-#INC[EL_FORM_SEARCH][Search]#
+#INC[EL_FORM_SEARCH][#_list_search_prompt_#]#
 #INC[EL_SEARCH_RESULTS]#
-#OML[EL_SEARCH_#ROOT#]#
+#OML[#ROOT.upper#/EL_SEARCH_#ROOT#]#
 
 <div class="w3-container w3-center">
-#OML[EL_NEW_#OBJECT#_BUT]#
+#OML[#ROOT.upper#/EL_NEW_#OBJECT#_BUT]#
 </div>
-#RESTORE[ROOT]#
